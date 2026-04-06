@@ -58,6 +58,10 @@ body{margin:0;padding:16px;font-family:-apple-system,BlinkMacSystemFont,"Segoe U
 </div>
 
 <script>
+// ========== 每套题改这个唯一标识 ==========
+const QUESTION_SET_ID = "监管与合规";
+// ========== 你的题目数据 ==========
+
 // ===================== 你的试题 JSON =====================
 const questions = [
     {
@@ -7455,159 +7459,128 @@ const questions = [
             }
         ]
     }
-]
+];
 
 // ======================================================
 
-// 核心存储变量（仅通过下一题/清空操作修改）
-let doneIds = JSON.parse(localStorage.getItem("doneIds") || "[]");
-let wrong = JSON.parse(localStorage.getItem("wrong") || "[]");
+const STORAGE_KEY_DONE = "doneIds_" + QUESTION_SET_ID;
+const STORAGE_KEY_WRONG = "wrong_" + QUESTION_SET_ID;
+
+let doneIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DONE) || "[]");
+let wrong = JSON.parse(localStorage.getItem(STORAGE_KEY_WRONG) || "[]");
+
 let current = null;
+let preQuestion = null; // 上一题，用来点下一题再归档
 let mode = "all";
 
-// 简化DOM获取
 function $(id){return document.getElementById(id)}
 
-// 1. 去重获取已刷ID（避免重复计数）
-function getUniqueDoneIds() {
-  return [...new Set(doneIds)];
+function getUniqueDoneIds(){return [...new Set(doneIds)]}
+
+function getUndoneQuestions(){
+  const done = getUniqueDoneIds();
+  return questions.filter(q=>!done.includes(q.id));
 }
 
-// 2. 计算真实未刷题目（按ID匹配）
-function getUndoneQuestions() {
-  const uniqueDone = getUniqueDoneIds();
-  return questions.filter(q => !uniqueDone.includes(q.id));
-}
-
-// 3. 刷新统计数据（仅展示，不修改存储）
-function refreshStat() {
-  const totalCount = questions.length;
-  const doneCount = getUniqueDoneIds().length;
-  const undoneCount = getUndoneQuestions().length;
-
-  $("total").textContent = totalCount;
-  $("done").textContent = doneCount;
-  $("undone").textContent = undoneCount;
+function refreshStat(){
+  $("total").textContent = questions.length;
+  $("done").textContent = getUniqueDoneIds().length;
+  $("undone").textContent = getUndoneQuestions().length;
   $("wrong-cnt").textContent = wrong.length;
 }
 
-// 4. 获取当前刷题池（全部/错题）
-function getPool() {
-  return mode === "wrong" ? wrong : questions;
+function getPool(){
+  return mode==="wrong"?wrong:questions;
 }
 
-// 5. 下一题核心逻辑（仅此处触发已刷存储+累加）
-function next() {
+// 核心：点下一题才把【上一题】记入已刷
+function next(){
+  // 1. 先把上一题归档
+  if(preQuestion && !doneIds.includes(preQuestion.id)){
+    doneIds.push(preQuestion.id);
+    localStorage.setItem(STORAGE_KEY_DONE, JSON.stringify(doneIds));
+  }
+
+  // 2. 再抽新题当当前题
   const pool = getPool();
-  if (pool.length === 0) {
-    alert("当前题库无可用题目");
-    return;
-  }
+  if(pool.length===0){alert("当前题库无题目");return;}
 
-  // 步骤1：随机获取下一题
-  current = pool[Math.floor(Math.random() * pool.length)];
-  
-  // 步骤2：仅当点击下一题时，才记录该题到已刷（去重）
-  if (!doneIds.includes(current.id)) {
-    doneIds.push(current.id);
-    // 立即同步到本地存储
-    localStorage.setItem("doneIds", JSON.stringify(doneIds));
-  }
+  current = pool[Math.floor(Math.random()*pool.length)];
+  preQuestion = current; // 缓存为下一次的“上一题”
 
-  // 步骤3：渲染题目+刷新统计
   renderQuestion();
   refreshStat();
 }
 
-// 6. 渲染题目（仅展示，不修改存储）
-function renderQuestion() {
-  if (!current) return;
-
-  // 显示题号+ID
+function renderQuestion(){
+  if(!current)return;
   $("qid").textContent = `序号：${current.sequence} | ID：${current.id}`;
   $("q").textContent = current.content;
   $("a").style.display = "none";
   $("opts").innerHTML = "";
 
-  // 渲染选项（点击仅标记对错，不修改已刷数量）
-  current.attrs.forEach(o => {
-    const optDiv = document.createElement("div");
-    optDiv.className = "option";
-    optDiv.textContent = o.value;
-    optDiv.onclick = () => {
-      // 仅显示解析+标记对错，不触发已刷累加
+  current.attrs.forEach(o=>{
+    const d = document.createElement("div");
+    d.className = "option";
+    d.textContent = o.value;
+    d.onclick = ()=>{
       $("a").style.display = "block";
       $("a").textContent = o.reason;
-      const isCorrect = /正确/.test(o.reason);
-      optDiv.classList.add(isCorrect ? "correct" : "wrong");
-      
-      // 错题记录（仅标记，不影响已刷数量）
-      if (!isCorrect && !wrong.some(q => q.id === current.id)) {
+      const ok = /正确/.test(o.reason);
+      d.classList.add(ok?"correct":"wrong");
+      if(!ok && !wrong.some(x=>x.id===current.id)){
         wrong.push(current);
-        localStorage.setItem("wrong", JSON.stringify(wrong));
-        refreshStat(); // 仅刷新错题数，不修改已刷数
+        localStorage.setItem(STORAGE_KEY_WRONG, JSON.stringify(wrong));
+        refreshStat();
       }
     };
-    $("opts").appendChild(optDiv);
+    $("opts").appendChild(d);
   });
 }
 
-// 7. 查看错题列表
-function showWrong() {
-  let html = "<h4>错题列表</h4>";
-  if (wrong.length === 0) {
-    html += "<p>暂无错题</p>";
-  } else {
-    wrong.forEach((q, i) => {
-      html += `<div class="list-item">${i+1}. [${q.sequence}] ${q.content}</div>`;
-    });
-  }
-  $("list-content").innerHTML = html;
-  $("modal").style.display = "flex";
+function showWrong(){
+  let html="<h4>错题列表</h4>";
+  if(wrong.length===0)html+="<p>暂无错题</p>";
+  else wrong.forEach((q,i)=>{
+    html += `<div class="list-item">${i+1}. [${q.sequence}] ${q.content}</div>`;
+  });
+  $("list-content").innerHTML=html;
+  $("modal").style.display="flex";
 }
+function closeModal(){$("modal").style.display="none";}
 
-// 8. 关闭弹窗
-function closeModal() {
-  $("modal").style.display = "none";
-}
-
-// 9. 清空所有记录（100%生效，彻底重置）
-function clearAll() {
-  if (!confirm("确定清空所有已刷记录、错题记录吗？")) return;
-  
-  // 步骤1：重置内存变量
-  doneIds = [];
-  wrong = [];
-  
-  // 步骤2：强制清空本地存储（核心修复点）
-  localStorage.removeItem("doneIds");
-  localStorage.removeItem("wrong");
-  localStorage.setItem("doneIds", "[]"); // 确保存储为空数组
-  localStorage.setItem("wrong", "[]");
-  
-  // 步骤3：刷新统计+重置当前题目
+// 清空兼容iOS+电脑
+function clearAll(){
+  if(!confirm(`确定清空【${QUESTION_SET_ID}】所有记录？`))return;
+  doneIds=[];wrong=[];preQuestion=null;current=null;
+  try{
+    localStorage.removeItem(STORAGE_KEY_DONE);
+    localStorage.removeItem(STORAGE_KEY_WRONG);
+    localStorage.setItem(STORAGE_KEY_DONE,JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEY_WRONG,JSON.stringify([]));
+  }catch(e){}
   refreshStat();
-  current = null;
-  next(); // 重新加载第一题
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+  if(isIOS){
+    setTimeout(()=>window.location.reload(),100);
+  }else{
+    next();
+  }
 }
 
-// 10. 刷题模式切换
-$("m-all").onclick = () => {
-  mode = "all";
-  $("m-all").classList.add("active");
-  $("m-wrong").classList.remove("active");
-  next();
-}
-$("m-wrong").onclick = () => {
-  mode = "wrong";
-  $("m-wrong").classList.add("active");
-  $("m-all").classList.remove("active");
-  next();
-}
+$("m-all").onclick=()=>{mode="all";$("m-all").classList.add("active");$("m-wrong").classList.remove("active");next()}
+$("m-wrong").onclick=()=>{mode="wrong";$("m-wrong").classList.add("active");$("m-all").classList.remove("active");next()}
 
-// 初始化：仅刷新统计，不自动累加已刷数
+// 初始化：只展示，不计数
 refreshStat();
-next(); // 首次加载题目（触发第一次已刷记录）
+// 首次加载题目，但不算已刷
+const initPool = getPool();
+if(initPool.length>0){
+  current = initPool[Math.floor(Math.random()*initPool.length)];
+  preQuestion = null; // 刚打开不算
+  renderQuestion();
+}
 </script>
 </body>
 </html>
