@@ -1,4 +1,65 @@
-[
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>监管与合规</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:16px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f9f9f9}
+.container{max-width:600px;margin:0 auto}
+.title{text-align:center}
+.qid{color:#666;font-size:14px;margin-bottom:8px}
+.question{font-size:18px;line-height:1.5;margin:10px 0 20px}
+.option{background:#fff;border:1px solid #ddd;border-radius:12px;padding:14px;margin:10px 0;cursor:pointer}
+.analysis{background:#f1f3f5;border-radius:12px;padding:14px;margin:12px 0;display:none;line-height:1.5}
+.option.correct{background:#d4edda;border-color:#c3e6cb}
+.option.wrong{background:#f8d7da;border-color:#f5c6cb}
+.stats{display:flex;gap:8px;margin:10px 0}
+.stat{flex:1;background:#fff;border-radius:10px;padding:10px;text-align:center;font-size:14px}
+.mode-switch{display:flex;gap:8px;margin:10px 0}
+.mode-btn{flex:1;padding:10px;border-radius:8px;border:none;background:#eee}
+.mode-btn.active{background:#007aff;color:#fff}
+.btn{width:100%;padding:16px;border:none;border-radius:12px;margin-top:10px;font-size:16px}
+.btn-next{background:#007aff;color:#fff}
+.btn-clear{background:#ff3b30;color:#fff}
+.wrong-info{color:#ff3b30;text-align:center;margin:10px 0;cursor:pointer}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center}
+.modal-body{background:#fff;width:90%;max-height:80vh;overflow-y:auto;padding:20px;border-radius:12px}
+.list-item{padding:10px;border-bottom:1px solid #eee}
+</style>
+</head>
+<body>
+<div class="container">
+  <h3 class="title">监管与合规</h3>
+  <div class="stats">
+    <div class="stat">总题：<span id="total"></span></div>
+    <div class="stat">已刷：<span id="done"></span></div>
+    <div class="stat">未刷：<span id="undone"></span></div>
+  </div>
+  <div class="mode-switch">
+    <button class="mode-btn active" id="m-all">全部随机</button>
+    <button class="mode-btn" id="m-wrong">只刷错题</button>
+  </div>
+  <div class="qid" id="qid"></div>
+  <div class="question" id="q"></div>
+  <div id="opts"></div>
+  <div class="analysis" id="a"></div>
+  <div class="wrong-info" id="wrong-info" onclick="showWrong()">错题：<span id="wrong-cnt">0</span></div>
+  <button class="btn btn-next" onclick="next()">下一题</button>
+  <button class="btn btn-clear" onclick="clearAll()">清空所有记录</button>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-body">
+    <div id="list-content"></div>
+    <button onclick="closeModal()" style="width:100%;padding:10px;margin-top:10px">关闭</button>
+  </div>
+</div>
+
+<script>
+// ===================== 你的试题 JSON =====================
+const questions = [
     {
         "id": "806085269634920526",
         "type": 1,
@@ -7395,3 +7456,158 @@
         ]
     }
 ]
+
+// ======================================================
+
+// 核心存储变量（仅通过下一题/清空操作修改）
+let doneIds = JSON.parse(localStorage.getItem("doneIds") || "[]");
+let wrong = JSON.parse(localStorage.getItem("wrong") || "[]");
+let current = null;
+let mode = "all";
+
+// 简化DOM获取
+function $(id){return document.getElementById(id)}
+
+// 1. 去重获取已刷ID（避免重复计数）
+function getUniqueDoneIds() {
+  return [...new Set(doneIds)];
+}
+
+// 2. 计算真实未刷题目（按ID匹配）
+function getUndoneQuestions() {
+  const uniqueDone = getUniqueDoneIds();
+  return questions.filter(q => !uniqueDone.includes(q.id));
+}
+
+// 3. 刷新统计数据（仅展示，不修改存储）
+function refreshStat() {
+  const totalCount = questions.length;
+  const doneCount = getUniqueDoneIds().length;
+  const undoneCount = getUndoneQuestions().length;
+
+  $("total").textContent = totalCount;
+  $("done").textContent = doneCount;
+  $("undone").textContent = undoneCount;
+  $("wrong-cnt").textContent = wrong.length;
+}
+
+// 4. 获取当前刷题池（全部/错题）
+function getPool() {
+  return mode === "wrong" ? wrong : questions;
+}
+
+// 5. 下一题核心逻辑（仅此处触发已刷存储+累加）
+function next() {
+  const pool = getPool();
+  if (pool.length === 0) {
+    alert("当前题库无可用题目");
+    return;
+  }
+
+  // 步骤1：随机获取下一题
+  current = pool[Math.floor(Math.random() * pool.length)];
+  
+  // 步骤2：仅当点击下一题时，才记录该题到已刷（去重）
+  if (!doneIds.includes(current.id)) {
+    doneIds.push(current.id);
+    // 立即同步到本地存储
+    localStorage.setItem("doneIds", JSON.stringify(doneIds));
+  }
+
+  // 步骤3：渲染题目+刷新统计
+  renderQuestion();
+  refreshStat();
+}
+
+// 6. 渲染题目（仅展示，不修改存储）
+function renderQuestion() {
+  if (!current) return;
+
+  // 显示题号+ID
+  $("qid").textContent = `序号：${current.sequence} | ID：${current.id}`;
+  $("q").textContent = current.content;
+  $("a").style.display = "none";
+  $("opts").innerHTML = "";
+
+  // 渲染选项（点击仅标记对错，不修改已刷数量）
+  current.attrs.forEach(o => {
+    const optDiv = document.createElement("div");
+    optDiv.className = "option";
+    optDiv.textContent = o.value;
+    optDiv.onclick = () => {
+      // 仅显示解析+标记对错，不触发已刷累加
+      $("a").style.display = "block";
+      $("a").textContent = o.reason;
+      const isCorrect = /正确/.test(o.reason);
+      optDiv.classList.add(isCorrect ? "correct" : "wrong");
+      
+      // 错题记录（仅标记，不影响已刷数量）
+      if (!isCorrect && !wrong.some(q => q.id === current.id)) {
+        wrong.push(current);
+        localStorage.setItem("wrong", JSON.stringify(wrong));
+        refreshStat(); // 仅刷新错题数，不修改已刷数
+      }
+    };
+    $("opts").appendChild(optDiv);
+  });
+}
+
+// 7. 查看错题列表
+function showWrong() {
+  let html = "<h4>错题列表</h4>";
+  if (wrong.length === 0) {
+    html += "<p>暂无错题</p>";
+  } else {
+    wrong.forEach((q, i) => {
+      html += `<div class="list-item">${i+1}. [${q.sequence}] ${q.content}</div>`;
+    });
+  }
+  $("list-content").innerHTML = html;
+  $("modal").style.display = "flex";
+}
+
+// 8. 关闭弹窗
+function closeModal() {
+  $("modal").style.display = "none";
+}
+
+// 9. 清空所有记录（100%生效，彻底重置）
+function clearAll() {
+  if (!confirm("确定清空所有已刷记录、错题记录吗？")) return;
+  
+  // 步骤1：重置内存变量
+  doneIds = [];
+  wrong = [];
+  
+  // 步骤2：强制清空本地存储（核心修复点）
+  localStorage.removeItem("doneIds");
+  localStorage.removeItem("wrong");
+  localStorage.setItem("doneIds", "[]"); // 确保存储为空数组
+  localStorage.setItem("wrong", "[]");
+  
+  // 步骤3：刷新统计+重置当前题目
+  refreshStat();
+  current = null;
+  next(); // 重新加载第一题
+}
+
+// 10. 刷题模式切换
+$("m-all").onclick = () => {
+  mode = "all";
+  $("m-all").classList.add("active");
+  $("m-wrong").classList.remove("active");
+  next();
+}
+$("m-wrong").onclick = () => {
+  mode = "wrong";
+  $("m-wrong").classList.add("active");
+  $("m-all").classList.remove("active");
+  next();
+}
+
+// 初始化：仅刷新统计，不自动累加已刷数
+refreshStat();
+next(); // 首次加载题目（触发第一次已刷记录）
+</script>
+</body>
+</html>
