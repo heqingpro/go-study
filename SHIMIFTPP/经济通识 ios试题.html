@@ -6588,8 +6588,7 @@ const questions = [
         ]
     }
 ];
-// ========================================
-
+// ========== 存储键（独立不冲突） ==========
 const STORAGE_KEY_DONE = "doneIds_" + QUESTION_SET_ID;
 const STORAGE_KEY_WRONG = "wrong_" + QUESTION_SET_ID;
 
@@ -6597,117 +6596,164 @@ let doneIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DONE) || "[]");
 let wrong = JSON.parse(localStorage.getItem(STORAGE_KEY_WRONG) || "[]");
 
 let current = null;
-let preQuestion = null; // 上一题，用来点下一题再归档
-let mode = "all";
+let lastQuestion = null;
+let mode = "normal"; // normal 正常刷题 | wrong 只刷错题
 
-function $(id){return document.getElementById(id)}
+function $(id) { return document.getElementById(id); }
 
-function getUniqueDoneIds(){return [...new Set(doneIds)]}
-
-function getUndoneQuestions(){
-  const done = getUniqueDoneIds();
-  return questions.filter(q=>!done.includes(q.id));
+// 去重已刷ID
+function uniqueDone() {
+  return [...new Set(doneIds)];
 }
 
-function refreshStat(){
+// 未刷题目列表
+function undoneQuestions() {
+  const d = uniqueDone();
+  return questions.filter(q => !d.includes(q.id));
+}
+
+// 刷新统计
+function refreshStat() {
   $("total").textContent = questions.length;
-  $("done").textContent = getUniqueDoneIds().length;
-  $("undone").textContent = getUndoneQuestions().length;
+  $("done").textContent = uniqueDone().length;
+  $("undone").textContent = undoneQuestions().length;
   $("wrong-cnt").textContent = wrong.length;
 }
 
-function getPool(){
-  return mode==="wrong"?wrong:questions;
+// 随机取一题
+function randomPick(list) {
+  if (!list || list.length === 0) return null;
+  return list[Math.floor(Math.random() * list.length)];
 }
 
-// 核心：点下一题才把【上一题】记入已刷
-function next(){
-  // 1. 先把上一题归档
-  if(preQuestion && !doneIds.includes(preQuestion.id)){
-    doneIds.push(preQuestion.id);
-    localStorage.setItem(STORAGE_KEY_DONE, JSON.stringify(doneIds));
+// 渲染题目
+function render(q) {
+  if (!q) {
+    $("qid").textContent = "";
+    $("q").textContent = "暂无题目";
+    $("opts").innerHTML = "";
+    $("a").style.display = "none";
+    return;
   }
-
-  // 2. 再抽新题当当前题
-  const pool = getPool();
-  if(pool.length===0){alert("当前题库无题目");return;}
-
-  current = pool[Math.floor(Math.random()*pool.length)];
-  preQuestion = current; // 缓存为下一次的“上一题”
-
-  renderQuestion();
-  refreshStat();
-}
-
-function renderQuestion(){
-  if(!current)return;
-  $("qid").textContent = `序号：${current.sequence} | ID：${current.id}`;
-  $("q").textContent = current.content;
+  current = q;
+  $("qid").textContent = `序号：${q.sequence} | ID：${q.id}`;
+  $("q").textContent = q.content;
   $("a").style.display = "none";
   $("opts").innerHTML = "";
 
-  current.attrs.forEach(o=>{
-    const d = document.createElement("div");
-    d.className = "option";
-    d.textContent = o.value;
-    d.onclick = ()=>{
+  q.attrs.forEach(o => {
+    const div = document.createElement("div");
+    div.className = "option";
+    div.textContent = o.value;
+    div.onclick = () => {
       $("a").style.display = "block";
       $("a").textContent = o.reason;
       const ok = /正确/.test(o.reason);
-      d.classList.add(ok?"correct":"wrong");
-      if(!ok && !wrong.some(x=>x.id===current.id)){
-        wrong.push(current);
+      div.classList.add(ok ? "correct" : "wrong");
+      if (!ok && !wrong.some(x => x.id === q.id)) {
+        wrong.push(q);
         localStorage.setItem(STORAGE_KEY_WRONG, JSON.stringify(wrong));
         refreshStat();
       }
     };
-    $("opts").appendChild(d);
+    $("opts").appendChild(div);
   });
 }
 
-function showWrong(){
-  let html="<h4>错题列表</h4>";
-  if(wrong.length===0)html+="<p>暂无错题</p>";
-  else wrong.forEach((q,i)=>{
+// 下一题：点了才算刷过
+function next() {
+  // 把上一题标记为已刷
+  if (lastQuestion) {
+    if (!doneIds.includes(lastQuestion.id)) {
+      doneIds.push(lastQuestion.id);
+      localStorage.setItem(STORAGE_KEY_DONE, JSON.stringify(doneIds));
+    }
+  }
+
+  // 选题逻辑：优先从未刷里随机
+  let nextQ = null;
+  if (mode === "normal") {
+    const undone = undoneQuestions();
+    if (undone.length > 0) {
+      nextQ = randomPick(undone);
+    } else {
+      alert("已刷完全部题目！");
+      nextQ = randomPick(questions);
+    }
+  } else {
+    // 错题模式
+    if (wrong.length === 0) {
+      alert("暂无错题");
+      mode = "normal";
+      $("m-all").classList.add("active");
+      $("m-wrong").classList.remove("active");
+      next();
+      return;
+    }
+    nextQ = randomPick(wrong);
+  }
+
+  lastQuestion = nextQ;
+  render(nextQ);
+  refreshStat();
+}
+
+// 错题列表
+function showWrong() {
+  let html = "<h4>错题列表</h4>";
+  if (wrong.length === 0) html += "<p>暂无错题</p>";
+  else wrong.forEach((q, i) => {
     html += `<div class="list-item">${i+1}. [${q.sequence}] ${q.content}</div>`;
   });
-  $("list-content").innerHTML=html;
-  $("modal").style.display="flex";
+  $("list-content").innerHTML = html;
+  $("modal").style.display = "flex";
 }
-function closeModal(){$("modal").style.display="none";}
+function closeModal() {
+  $("modal").style.display = "none";
+}
 
-// 清空兼容iOS+电脑
-function clearAll(){
-  if(!confirm(`确定清空【${QUESTION_SET_ID}】所有记录？`))return;
-  doneIds=[];wrong=[];preQuestion=null;current=null;
-  try{
+// 清空（iOS+电脑兼容）
+function clearAll() {
+  if (!confirm(`确定清空【${QUESTION_SET_ID}】所有记录？`)) return;
+  doneIds = [];
+  wrong = [];
+  lastQuestion = null;
+  current = null;
+  try {
     localStorage.removeItem(STORAGE_KEY_DONE);
     localStorage.removeItem(STORAGE_KEY_WRONG);
-    localStorage.setItem(STORAGE_KEY_DONE,JSON.stringify([]));
-    localStorage.setItem(STORAGE_KEY_WRONG,JSON.stringify([]));
-  }catch(e){}
+    localStorage.setItem(STORAGE_KEY_DONE, "[]");
+    localStorage.setItem(STORAGE_KEY_WRONG, "[]");
+  } catch (e) {}
   refreshStat();
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
-  if(isIOS){
-    setTimeout(()=>window.location.reload(),100);
-  }else{
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS) {
+    setTimeout(() => window.location.reload(), 100);
+  } else {
     next();
   }
 }
 
-$("m-all").onclick=()=>{mode="all";$("m-all").classList.add("active");$("m-wrong").classList.remove("active");next()}
-$("m-wrong").onclick=()=>{mode="wrong";$("m-wrong").classList.add("active");$("m-all").classList.remove("active");next()}
+// 模式切换
+$("m-all").onclick = () => {
+  mode = "normal";
+  $("m-all").classList.add("active");
+  $("m-wrong").classList.remove("active");
+  lastQuestion = null;
+  next();
+};
+$("m-wrong").onclick = () => {
+  mode = "wrong";
+  $("m-wrong").classList.add("active");
+  $("m-all").classList.remove("active");
+  lastQuestion = null;
+  next();
+};
 
-// 初始化：只展示，不计数
+// 初始化
 refreshStat();
-// 首次加载题目，但不算已刷
-const initPool = getPool();
-if(initPool.length>0){
-  current = initPool[Math.floor(Math.random()*initPool.length)];
-  preQuestion = null; // 刚打开不算
-  renderQuestion();
-}
+render(randomPick(undoneQuestions()));
 </script>
 </body>
 </html>
