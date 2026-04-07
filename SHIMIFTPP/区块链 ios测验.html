@@ -1,4 +1,69 @@
-[
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>区块链</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:16px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f9f9f9}
+.container{max-width:600px;margin:0 auto}
+.title{text-align:center}
+.qid{color:#666;font-size:14px;margin-bottom:8px}
+.question{font-size:18px;line-height:1.5;margin:10px 0 20px}
+.option{background:#fff;border:1px solid #ddd;border-radius:12px;padding:14px;margin:10px 0;cursor:pointer}
+.analysis{background:#f1f3f5;border-radius:12px;padding:14px;margin:12px 0;display:none;line-height:1.5}
+.option.correct{background:#d4edda;border-color:#c3e6cb}
+.option.wrong{background:#f8d7da;border-color:#f5c6cb}
+.stats{display:flex;gap:8px;margin:10px 0}
+.stat{flex:1;background:#fff;border-radius:10px;padding:10px;text-align:center;font-size:14px}
+.mode-switch{display:flex;gap:8px;margin:10px 0}
+.mode-btn{flex:1;padding:10px;border-radius:8px;border:none;background:#eee}
+.mode-btn.active{background:#007aff;color:#fff}
+.btn{width:100%;padding:16px;border:none;border-radius:12px;margin-top:10px;font-size:16px}
+.btn-next{background:#007aff;color:#fff}
+.btn-clear{background:#ff3b30;color:#fff}
+.wrong-info{color:#ff3b30;text-align:center;margin:10px 0;cursor:pointer}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center}
+.modal-body{background:#fff;width:90%;max-height:80vh;overflow-y:auto;padding:20px;border-radius:12px}
+.list-item{padding:10px;border-bottom:1px solid #eee}
+</style>
+</head>
+<body>
+<div class="container">
+  <h3 class="title">区块链</h3>
+  <div class="stats">
+    <div class="stat">总题：<span id="total"></span></div>
+    <div class="stat">已刷：<span id="done"></span></div>
+    <div class="stat">未刷：<span id="undone"></span></div>
+  </div>
+  <div class="mode-switch">
+    <button class="mode-btn active" id="m-all">全部随机</button>
+    <button class="mode-btn" id="m-wrong">只刷错题</button>
+  </div>
+  <div class="qid" id="qid"></div>
+  <div class="question" id="q"></div>
+  <div id="opts"></div>
+  <div class="analysis" id="a"></div>
+  <div class="wrong-info" id="wrong-info" onclick="showWrong()">错题：<span id="wrong-cnt">0</span></div>
+  <button class="btn btn-next" onclick="next()">下一题</button>
+  <button class="btn btn-clear" onclick="clearAll()">清空所有记录</button>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-body">
+    <div id="list-content"></div>
+    <button onclick="closeModal()" style="width:100%;padding:10px;margin-top:10px">关闭</button>
+  </div>
+</div>
+
+<script>
+// ========== 每套题改这个唯一标识 ==========
+const QUESTION_SET_ID = "区块链";
+// ========== 你的题目数据 ==========
+
+// ===================== 你的试题 JSON =====================
+const questions = [
     {
         "id": "805977701180739677",
         "type": 1,
@@ -3305,4 +3370,174 @@
             }
         ]
     }
-]
+];
+
+// ========== 存储键（独立不冲突） ==========
+const STORAGE_KEY_DONE = "doneIds_" + QUESTION_SET_ID;
+const STORAGE_KEY_WRONG = "wrong_" + QUESTION_SET_ID;
+
+let doneIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DONE) || "[]");
+let wrong = JSON.parse(localStorage.getItem(STORAGE_KEY_WRONG) || "[]");
+
+let current = null;
+let lastQuestion = null;
+let mode = "normal"; // normal 正常刷题 | wrong 只刷错题
+
+function $(id) { return document.getElementById(id); }
+
+// 去重已刷ID
+function uniqueDone() {
+  return [...new Set(doneIds)];
+}
+
+// 未刷题目列表
+function undoneQuestions() {
+  const d = uniqueDone();
+  return questions.filter(q => !d.includes(q.id));
+}
+
+// 刷新统计
+function refreshStat() {
+  $("total").textContent = questions.length;
+  $("done").textContent = uniqueDone().length;
+  $("undone").textContent = undoneQuestions().length;
+  $("wrong-cnt").textContent = wrong.length;
+}
+
+// 随机取一题
+function randomPick(list) {
+  if (!list || list.length === 0) return null;
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+// 渲染题目
+function render(q) {
+  if (!q) {
+    $("qid").textContent = "";
+    $("q").textContent = "暂无题目";
+    $("opts").innerHTML = "";
+    $("a").style.display = "none";
+    return;
+  }
+  current = q;
+  $("qid").textContent = `序号：${q.sequence} | ID：${q.id}`;
+  $("q").textContent = q.content;
+  $("a").style.display = "none";
+  $("opts").innerHTML = "";
+
+  q.attrs.forEach(o => {
+    const div = document.createElement("div");
+    div.className = "option";
+    div.textContent = o.value;
+    div.onclick = () => {
+      $("a").style.display = "block";
+      $("a").textContent = o.reason;
+      const ok = /正确/.test(o.reason);
+      div.classList.add(ok ? "correct" : "wrong");
+      if (!ok && !wrong.some(x => x.id === q.id)) {
+        wrong.push(q);
+        localStorage.setItem(STORAGE_KEY_WRONG, JSON.stringify(wrong));
+        refreshStat();
+      }
+    };
+    $("opts").appendChild(div);
+  });
+}
+
+// 下一题：点了才算刷过
+function next() {
+  // 把上一题标记为已刷
+  if (lastQuestion) {
+    if (!doneIds.includes(lastQuestion.id)) {
+      doneIds.push(lastQuestion.id);
+      localStorage.setItem(STORAGE_KEY_DONE, JSON.stringify(doneIds));
+    }
+  }
+
+  // 选题逻辑：优先从未刷里随机
+  let nextQ = null;
+  if (mode === "normal") {
+    const undone = undoneQuestions();
+    if (undone.length > 0) {
+      nextQ = randomPick(undone);
+    } else {
+      alert("已刷完全部题目！");
+      nextQ = randomPick(questions);
+    }
+  } else {
+    // 错题模式
+    if (wrong.length === 0) {
+      alert("暂无错题");
+      mode = "normal";
+      $("m-all").classList.add("active");
+      $("m-wrong").classList.remove("active");
+      next();
+      return;
+    }
+    nextQ = randomPick(wrong);
+  }
+
+  lastQuestion = nextQ;
+  render(nextQ);
+  refreshStat();
+}
+
+// 错题列表
+function showWrong() {
+  let html = "<h4>错题列表</h4>";
+  if (wrong.length === 0) html += "<p>暂无错题</p>";
+  else wrong.forEach((q, i) => {
+    html += `<div class="list-item">${i+1}. [${q.sequence}] ${q.content}</div>`;
+  });
+  $("list-content").innerHTML = html;
+  $("modal").style.display = "flex";
+}
+function closeModal() {
+  $("modal").style.display = "none";
+}
+
+// 清空（iOS+电脑兼容）
+function clearAll() {
+  if (!confirm(`确定清空【${QUESTION_SET_ID}】所有记录？`)) return;
+  doneIds = [];
+  wrong = [];
+  lastQuestion = null;
+  current = null;
+  try {
+    localStorage.removeItem(STORAGE_KEY_DONE);
+    localStorage.removeItem(STORAGE_KEY_WRONG);
+    localStorage.setItem(STORAGE_KEY_DONE, "[]");
+    localStorage.setItem(STORAGE_KEY_WRONG, "[]");
+  } catch (e) {}
+  refreshStat();
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS) {
+    setTimeout(() => window.location.reload(), 100);
+  } else {
+    next();
+  }
+}
+
+// 模式切换
+$("m-all").onclick = () => {
+  mode = "normal";
+  $("m-all").classList.add("active");
+  $("m-wrong").classList.remove("active");
+  lastQuestion = null;
+  next();
+};
+$("m-wrong").onclick = () => {
+  mode = "wrong";
+  $("m-wrong").classList.add("active");
+  $("m-all").classList.remove("active");
+  lastQuestion = null;
+  next();
+};
+
+// 初始化
+refreshStat();
+render(randomPick(undoneQuestions()));
+</script>
+</body>
+</html>
