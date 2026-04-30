@@ -1,9 +1,5 @@
 # go-study
 
-
-
-
-
 ### [1、golang 基础知识](./golang基础知识.md)
 
 ### [2、golang 性能调优](./golang性能调优.md)

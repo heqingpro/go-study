@@ -9,10 +9,10 @@
 - database 数据库
 - collection 集合（mysql table）
 - document 数据记录行/文档 (mysql row)
--  field 数据字段/域 (mysql column)
+- field 数据字段/域 (mysql column)
 - Index 索引 (mysql index)
--  表连接,MongoDB不支持
--  primary key  (主键,MongoDB自动将_id字段设置为主键)
+- 表连接,MongoDB不支持
+- primary key  (主键,MongoDB自动将_id字段设置为主键)
 
 ##### 2、特性
 
@@ -47,9 +47,8 @@ B树
 ##### 3、分片
 
 - **分片策略**
-
+  
   根据分片的键的值（Shard Key）选取进行数据分片
-
+  
   - 基于范围的分片
   - 基于Hash值的分片
-
