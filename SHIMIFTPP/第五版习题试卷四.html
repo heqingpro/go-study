@@ -6609,7 +6609,7 @@ function render(q) {
     div.onclick = () => {
       $("a").style.display = "block";
       $("a").textContent = o.reason;
-      const ok = /正确/.test(o.reason);
+      const ok = /正确选项/.test(o.reason);
       div.classList.add(ok ? "correct" : "wrong");
       if (!ok && !wrong.some(x => x.id === q.id)) {
         wrong.push(q);
@@ -6718,4 +6718,3 @@ render(randomPick(undoneQuestions()));
 </script>
 </body>
 </html>
-</script>
