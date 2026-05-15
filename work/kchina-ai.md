@@ -74,6 +74,14 @@ graph TB
 
 ## AI 2026
 
+### llm 资源
+
+```
+// kchina 阿里云
+https://dashscope.aliyuncs.com/compatible-mode/v1
+sk-f1c704cca6314172888436ef81eb5174
+```
+
 ### RPA （Robotic Process Automation）
 
 知识库版本控制，多个来源优先级（系统提取，手工录入）更新
