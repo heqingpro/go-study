@@ -80,6 +80,10 @@ graph TB
 // kchina 阿里云
 https://dashscope.aliyuncs.com/compatible-mode/v1
 sk-f1c704cca6314172888436ef81eb5174
+// claude 
+export ANTHROPIC_BASE_URL="https://dashscope.aliyuncs.com/apps/anthropic"
+export ANTHROPIC_AUTH_TOKEN="sk-f1c704cca6314172888436ef81eb5174"
+export ANTHROPIC_MODEL="qwen3-coder-plus"
 ```
 
 ### RPA （Robotic Process Automation）
@@ -134,3 +138,10 @@ sk-f1c704cca6314172888436ef81eb5174
 港交所http://www.hkex.com.hk/?sc_lang=zh-HK：不需要登录                 年报（一定有），
 也研究一下抓这些网站是否法律合规允许，或者该网站协议是否有披露禁止机器人抓取之类，会不会给我们行带来负面
 ```
+#### 实用命令
+
+``````
+hermes sessions list
+hermes chat --resume 20260514_155016_2e0eb1
+``````
+
