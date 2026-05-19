@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>2025年6月银行从业初级《法律法规》真题卷（二）</title>
+  <title>202506法律法规真题卷二</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -30,14 +30,18 @@
     }
     .mode-buttons {
       margin-bottom: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 5px;
     }
     button {
-      padding: 8px 15px;
-      margin: 0 5px;
+      padding: 6px 12px;
+      margin: 0 2px;
       border: 1px solid #ccc;
       border-radius: 4px;
       cursor: pointer;
       background-color: #ecf0f1;
+      font-size: 14px;
     }
     button:hover {
       background-color: #bdc3c7;
@@ -113,26 +117,29 @@
     .current-question-info {
       text-align: center;
       margin-bottom: 10px;
-      font-size: 14px;
+      font-size: 12px;
       color: #666;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>2025年6月银行从业初级《法律法规》真题卷（二）</h1>
+    <h1>202506法律法规真题卷二</h1>
     <div class="controls">
       <div class="mode-buttons">
-        <button id="randomModeBtn" class="active">随机练习模式</button>
-        <button id="seqModeBtn">顺序练习模式</button>
-        <button id="errorModeBtn">错题练习模式</button>
+        <button id="randomModeBtn" class="active">随机</button>
+        <button id="seqModeBtn">顺序</button>
+        <button id="errorModeBtn">错题</button>
+        <button id="showStatsBtn">统计</button>
       </div>
-      <div class="current-question-info" id="currentQuestionInfo"></div>
       <div class="progress">
         <span id="progressText">进度: 0/136</span>
       </div>
-      <button id="showStatsBtn">显示统计</button>
-      <div class="stats" id="statsDiv"></div>
+      <div class="stats" id="statsDiv">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span>统计信息</span>
+          <button id="closeStatsBtn" style="padding:2px 6px;font-size:12px;">×</button>
+        </div>
     </div>
 
     <div id="quizContainer">
@@ -1936,7 +1943,7 @@
     let currentIndex = 0;
     let shuffledIndices = [];
     let errorIndices = []; // 存储错题索引
-    let answeredCorrectly = new Array(questions.length).fill(false); // 跟踪题目是否回答正确
+    let answeredCorrectly = new Array(questions.length).fill(undefined); // 跟踪题目是否回答正确，undefined表示未回答
     let currentQuestionIndex = 0; // 当前在题库中的索引
 
     // 初始化页面
@@ -1953,7 +1960,10 @@
       document.getElementById('prevBtn').addEventListener('click', showPrevQuestion);
       document.getElementById('nextBtn').addEventListener('click', showNextQuestion);
       document.getElementById('submitBtn').addEventListener('click', submitAnswer);
-      document.getElementById('showStatsBtn').addEventListener('click', showStats);
+      document.getElementById('showStatsBtn').addEventListener('click', toggleStats);
+      document.getElementById('closeStatsBtn').addEventListener('click', () => {
+        document.getElementById('statsDiv').style.display = 'none';
+      });
     }
 
     // 切换模式
@@ -1980,8 +1990,10 @@
       } else if (currentMode === 'sequential') {
         currentQuestionIndex = 0;
       } else if (currentMode === 'error') {
-        // 获取未正确回答过的题目
-        errorIndices = answeredCorrectly.map((correct, index) => !correct ? index : -1).filter(index => index !== -1);
+        // 获取答错的题目（只包含已回答但答错的题目）
+        errorIndices = answeredCorrectly
+          .map((correct, index) => correct === false ? index : -1)  // 只包含答错的题目
+          .filter(index => index !== -1);
         if (errorIndices.length === 0) {
           alert('暂无错题！');
           return;
@@ -2059,9 +2071,7 @@
 
       container.innerHTML = html;
 
-      // 更新当前题目信息
-      const modeName = currentMode === 'random' ? '随机' : currentMode === 'sequential' ? '顺序' : '错题';
-      document.getElementById('currentQuestionInfo').textContent = `${modeName}练习模式 - 当前第${currentQuestionIndex + 1}题，共${getTotalQuestions()}题`;
+      // 不再显示当前题目信息，以节省空间
     }
 
     // 获取题目总数
@@ -2198,6 +2208,16 @@
       }
     }
 
+    // 切换统计信息显示/隐藏
+    function toggleStats() {
+      const statsDiv = document.getElementById('statsDiv');
+      if (statsDiv.style.display === 'block') {
+        statsDiv.style.display = 'none';
+      } else {
+        showStats();
+      }
+    }
+
     // 显示统计信息
     function showStats() {
       const statsDiv = document.getElementById('statsDiv');
@@ -2205,7 +2225,7 @@
       // 计算统计数据
       const totalAnswered = answeredCorrectly.filter(val => val !== undefined).length;
       const totalCorrect = answeredCorrectly.filter(val => val === true).length;
-      const totalIncorrect = totalAnswered - totalCorrect;
+      const totalIncorrect = answeredCorrectly.filter(val => val === false).length; // 只统计真正答错的题目
       const accuracyRate = totalAnswered > 0 ? ((totalCorrect / totalAnswered) * 100).toFixed(2) : 0;
 
       // 统计各题型数量
@@ -2213,7 +2233,7 @@
       let singleCorrect = 0, multipleCorrect = 0, judgeCorrect = 0;
 
       for (let i = 0; i < questions.length; i++) {
-        if (answeredCorrectly[i] !== undefined) {
+        if (answeredCorrectly[i] !== undefined) {  // 只统计已回答的题目
           if (questions[i].type === 'single') {
             singleCount++;
             if (answeredCorrectly[i]) singleCorrect++;
@@ -2239,7 +2259,7 @@
         多选题: ${multipleCorrect}/${multipleCount} (${multipleCount > 0 ? (multipleCorrect/multipleCount*100).toFixed(2) : 0}%)<br>
         判断题: ${judgeCorrect}/${judgeCount} (${judgeCount > 0 ? (judgeCorrect/judgeCount*100).toFixed(2) : 0}%)<br>
 
-        <br><small>提示：点击“错题练习模式”可练习答错的题目</small>
+        <br><small>提示：点击”错题练习模式”可练习答错的题目</small>
       `;
 
       statsDiv.innerHTML = statsHtml;
