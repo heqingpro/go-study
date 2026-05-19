@@ -13,16 +13,17 @@
       color: #333;
     }
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
       background: white;
       border-radius: 8px;
-      padding: 20px;
+      padding: 25px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     h1 {
       text-align: center;
       color: #2c3e50;
+      font-size: 24px;
     }
     .controls {
       margin-bottom: 20px;
@@ -35,7 +36,7 @@
       gap: 5px;
     }
     button {
-      padding: 6px 12px;
+      padding: 8px 15px;
       margin: 0 2px;
       border: 1px solid #ccc;
       border-radius: 4px;
@@ -52,25 +53,55 @@
     }
     .question-container {
       margin-bottom: 30px;
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      background-color: #fafafa;
+      padding: 10px 0;
+      font-size: 16px;
     }
     .question-title {
       font-weight: bold;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
+      font-size: 18px;
+      text-align: center;
+      line-height: 1.5;
     }
     .options {
-      margin-left: 20px;
+      margin-left: 0;
+      font-size: 16px;
+      text-align: center;
     }
     .option {
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
+      font-size: 16px;
+      justify-content: flex-start;
+      margin: 10px auto;
+      max-width: 500px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 14px;
+      cursor: pointer;
     }
     .option input {
-      margin-right: 8px;
+      margin-right: 12px;
+      transform: scale(1.2);
+    }
+    .option label {
+      cursor: pointer;
+      flex: 1;
+    }
+    .option.correct {
+      background: #d4edda;
+      border-color: #c3e6cb;
+    }
+    .option.wrong {
+      background: #f8d7da;
+      border-color: #f5c6cb;
+    }
+    .option.selected {
+      background: #e3f2fd;
+      border: 2px solid #2196f3;
+      box-shadow: 0 0 5px rgba(33, 150, 243, 0.5);
     }
     .submit-btn {
       background-color: #27ae60;
@@ -337,33 +368,33 @@
       // 根据题目类型生成选项
       if (question.type === 'single') {
         // 单选题
-        question.options.forEach(option => {
+        question.options.forEach((option, optionIdx) => {
           const optionId = `option_${question.id}_${option.value}`;
           html += `
-            <div class="option">
-              <input type="radio" name="answer_${question.id}" id="${optionId}" value="${option.value}">
+            <div class="option" onclick="selectOption(this, '${question.id}', '${option.value}', 'single')">
+              <input type="radio" name="answer_${question.id}" id="${optionId}" value="${option.value}" style="display:none;">
               <label for="${optionId}">${option.value}. ${option.text}</label>
             </div>
           `;
         });
       } else if (question.type === 'multiple') {
         // 多选题
-        question.options.forEach(option => {
+        question.options.forEach((option, optionIdx) => {
           const optionId = `option_${question.id}_${option.value}`;
           html += `
-            <div class="option">
-              <input type="checkbox" name="answer_${question.id}" id="${optionId}" value="${option.value}">
+            <div class="option" onclick="selectOption(this, '${question.id}', '${option.value}', 'multiple')">
+              <input type="checkbox" name="answer_${question.id}" id="${optionId}" value="${option.value}" style="display:none;">
               <label for="${optionId}">${option.value}. ${option.text}</label>
             </div>
           `;
         });
       } else if (question.type === 'judge') {
         // 判断题（实际上也是单选题的形式）
-        question.options.forEach(option => {
+        question.options.forEach((option, optionIdx) => {
           const optionId = `option_${question.id}_${option.value}`;
           html += `
-            <div class="option">
-              <input type="radio" name="answer_${question.id}" id="${optionId}" value="${option.value}">
+            <div class="option" onclick="selectOption(this, '${question.id}', '${option.value}', 'single')">
+              <input type="radio" name="answer_${question.id}$" id="${optionId}" value="${option.value}" style="display:none;">
               <label for="${optionId}">${option.value}. ${option.text}</label>
             </div>
           `;
@@ -604,6 +635,35 @@
     window.onload = function() {
       initPage();
     };
+
+    // 选项选择函数
+    function selectOption(element, questionId, optionValue, type) {
+      if (type === 'single' || type === 'judge') {
+        // 单选题：先取消其他选项的选中状态
+        const allOptions = element.parentElement.querySelectorAll('.option');
+        allOptions.forEach(opt => {
+          opt.classList.remove('selected');
+          const radio = opt.querySelector('input[type="radio"]');
+          if (radio) radio.checked = false;
+        });
+
+        // 选中当前选项
+        element.classList.add('selected');
+        const radio = element.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
+      } else if (type === 'multiple') {
+        // 多选题：允许切换选中状态
+        if (element.classList.contains('selected')) {
+          element.classList.remove('selected');
+          const checkbox = element.querySelector('input[type="checkbox"]');
+          if (checkbox) checkbox.checked = false;
+        } else {
+          element.classList.add('selected');
+          const checkbox = element.querySelector('input[type="checkbox"]');
+          if (checkbox) checkbox.checked = true;
+        }
+      }
+    }
   </script>
 </body>
 </html>
