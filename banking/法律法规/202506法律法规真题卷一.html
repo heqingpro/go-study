@@ -1,0 +1,3804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>202506法律法规真题卷一</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:16px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f9f9f9}
+.container{max-width:600px;margin:0 auto}
+.title{text-align:center}
+.qid{color:#666;font-size:14px;margin-bottom:8px}
+.question{font-size:18px;line-height:1.5;margin:10px 0 20px}
+.option{background:#fff;border:1px solid #ddd;border-radius:12px;padding:14px;margin:10px 0;cursor:pointer}
+.analysis{background:#f1f3f5;border-radius:12px;padding:14px;margin:12px 0;display:none;line-height:1.5}
+.option.correct{background:#d4edda;border-color:#c3e6cb}
+.option.wrong{background:#f8d7da;border-color:#f5c6cb}
+.option.selected{background:#e3f2fd;border:2px solid #2196f3;box-shadow:0 0 5px rgba(33,150,243,0.5)}
+.stats{display:flex;gap:8px;margin:10px 0}
+.stat{flex:1;background:#fff;border-radius:10px;padding:10px;text-align:center;font-size:14px}
+.progress-container{margin:10px 0}
+.progress-bar{width:100%;height:20px;background:#e0e0e0;border-radius:10px;overflow:hidden}
+.progress-fill{height:100%;background:#4caf50;transition:width 0.3s ease}
+.mode-switch{display:flex;gap:8px;margin:10px 0}
+.mode-btn{flex:1;padding:10px;border-radius:8px;border:none;background:#eee}
+.mode-btn.active{background:#007aff;color:#fff}
+.btn{width:100%;padding:16px;border:none;border-radius:12px;margin-top:10px;font-size:16px}
+.btn-next{background:#007aff;color:#fff}
+.btn-prev{background:#aaa;color:#fff}
+.btn-clear{background:#ff3b30;color:#fff}
+.wrong-info{color:#ff3b30;text-align:center;margin:10px 0;cursor:pointer}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center}
+.modal-body{background:#fff;width:90%;max-height:80vh;overflow-y:auto;padding:20px;border-radius:12px}
+.list-item{padding:10px;border-bottom:1px solid #eee}
+</style>
+</head>
+<body>
+<div class="container">
+  <h3 class="title">202506法律法规真题卷一</h3>
+  <div class="progress-container">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat">总题：<span id="total"></span></div>
+    <div class="stat">已刷：<span id="done"></span></div>
+    <div class="stat">未刷：<span id="undone"></span></div>
+  </div>
+  <div class="mode-switch">
+    <button class="mode-btn active" id="m-all">全部随机</button>
+    <button class="mode-btn" id="m-order">顺序刷题</button>
+    <button class="mode-btn" id="m-wrong">只刷错题</button>
+  </div>
+  <div class="qid" id="qid"></div>
+  <div class="question" id="q"></div>
+  <div id="opts"></div>
+  <div class="analysis" id="a"></div>
+  <div class="wrong-info" id="wrong-info" onclick="showWrong()">错题：<span id="wrong-cnt">0</span></div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-prev" id="prev-btn" onclick="prev()" style="display:none;">上一题</button>
+    <button class="btn btn-next" onclick="next()">下一题</button>
+  </div>
+  <button class="btn btn-clear" onclick="clearAll()">清空所有记录</button>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-body">
+    <div id="list-content"></div>
+    <button onclick="closeModal()" style="width:100%;padding:10px;margin-top:10px">关闭</button>
+  </div>
+  </div>
+</div>
+
+<script>
+// ========== 每套题改这个唯一标识 ==========
+const QUESTION_SET_ID = "202506法律法规真题卷一";
+// ========== 你的题目数据 ==========
+const questions = [
+    {
+        "content": "1、选择性货币政策工具中不包括（）",
+        "sequence": 1,
+        "id": "1",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "消费者信用控制",
+                "reason": "错误选项。消费者信用控制属于选择性货币政策工具，通过对消费者的购买信贷进行控制来影响市场需求。"
+            },
+            {
+                "name": "B",
+                "value": "证券市场信用控制",
+                "reason": "错误选项。证券市场信用控制是选择性货币政策工具的一种，通过控制证券市场信贷来影响证券市场价格。"
+            },
+            {
+                "name": "C",
+                "value": "公开市场业务",
+                "reason": "正确选项。公开市场业务属于一般性货币政策工具，不是选择性货币政策工具。"
+            },
+            {
+                "name": "D",
+                "value": "不动产信用控制",
+                "reason": "错误选项。不动产信用控制是选择性货币政策工具，通过控制房地产信贷来影响房地产市场。"
+            }
+        ]
+    },
+    {
+        "content": "2、下列银行不属于商业银行信用风险管理核心指标的是（ ）。",
+        "sequence": 2,
+        "id": "2",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "资本充足率",
+                "reason": "错误选项。资本充足率是商业银行风险管理的重要指标，与信用风险管理密切相关。"
+            },
+            {
+                "name": "B",
+                "value": "拨贷比",
+                "reason": "错误选项。拨贷比是信用风险管理的重要指标，反映银行的拨备水平。"
+            },
+            {
+                "name": "C",
+                "value": "不良贷款拨备覆盖率",
+                "reason": "错误选项。不良贷款拨备覆盖率是信用风险管理的核心指标之一。"
+            },
+            {
+                "name": "D",
+                "value": "负债结构",
+                "reason": "正确选项。负债结构主要反映银行的负债组成情况，不属于信用风险管理的核心指标。"
+            }
+        ]
+    },
+    {
+        "content": "3、合同权利义务关系的终止，不影响合同中哪类条款（ ）",
+        "sequence": 3,
+        "id": "3",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "债务履行条款",
+                "reason": "错误选项。债务履行条款在合同终止后一般不再执行。"
+            },
+            {
+                "name": "B",
+                "value": "债权人权利条款",
+                "reason": "错误选项。债权人权利在合同终止后需要根据具体情况确定。"
+            },
+            {
+                "name": "C",
+                "value": "保证和承诺条款",
+                "reason": "错误选项。保证和承诺条款在合同终止后一般不再有效。"
+            },
+            {
+                "name": "D",
+                "value": "结算和清理条款",
+                "reason": "正确选项。根据《民法典》规定，合同权利义务关系终止后，不影响合同中结算和清理条款的效力。"
+            }
+        ]
+    },
+    {
+        "content": "4、中央银行可以通过（）手段来增加金融市场货币供应量。",
+        "sequence": 4,
+        "id": "4",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "提高再贴现率",
+                "reason": "错误选项。提高再贴现率会抑制商业银行借款，减少货币供应量。"
+            },
+            {
+                "name": "B",
+                "value": "提高法定存款准备金率",
+                "reason": "错误选项。提高法定存款准备金率会减少商业银行可用资金，减少货币供应量。"
+            },
+            {
+                "name": "C",
+                "value": "卖出有价证券",
+                "reason": "错误选项。卖出有价证券会回收市场资金，减少货币供应量。"
+            },
+            {
+                "name": "D",
+                "value": "增加再贷款",
+                "reason": "正确选项。增加再贷款会向市场投放资金，增加货币供应量。"
+            }
+        ]
+    },
+    {
+        "content": "5、以下哪个不是中央银行产生的原因？（）",
+        "sequence": 5,
+        "id": "5",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "推动货币兑换的需要",
+                "reason": "正确选项。推动货币兑换不是中央银行产生的主要原因，统一票据交换及清算才是。"
+            },
+            {
+                "name": "B",
+                "value": "集中统一银行券发行的需要",
+                "reason": "错误选项。这是中央银行产生的主要原因之一。"
+            },
+            {
+                "name": "C",
+                "value": "最后贷款人的需要",
+                "reason": "错误选项。这是中央银行产生的主要原因之一。"
+            },
+            {
+                "name": "D",
+                "value": "统一票据交换机清算的需要",
+                "reason": "错误选项。这是中央银行产生的主要原因之一。"
+            }
+        ]
+    },
+    {
+        "content": "6、以下关于授信业务廉洁从业禁令的说法，错误的是（）。",
+        "sequence": 6,
+        "id": "6",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "严禁随意调整贷款风险分类",
+                "reason": "错误选项。这是正确的禁令之一。"
+            },
+            {
+                "name": "B",
+                "value": "严禁披露贷款审查中发现的重大问题或疑点问题",
+                "reason": "正确选项。应该是严禁隐瞒贷款审查中发现的重大问题或疑点问题，此选项表述错误。"
+            },
+            {
+                "name": "C",
+                "value": "严禁以资料审核代替实地调查方式进行贷前调查",
+                "reason": "错误选项。这是正确的禁令之一。"
+            },
+            {
+                "name": "D",
+                "value": "严禁以贷款或贴现资金缴存保证金、滚动签发银行承兑汇票",
+                "reason": "错误选项。这是正确的禁令之一。"
+            }
+        ]
+    },
+    {
+        "content": "7、根据我国金融业门类划分，属于资本市场服务的是（）",
+        "sequence": 7,
+        "id": "7",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "期货市场服务",
+                "reason": "正确选项。期货市场服务属于资本市场服务的一部分。"
+            },
+            {
+                "name": "B",
+                "value": "再保险",
+                "reason": "错误选项。再保险属于保险业范畴。"
+            },
+            {
+                "name": "C",
+                "value": "银行理财服务",
+                "reason": "错误选项。银行理财服务属于货币金融服务。"
+            },
+            {
+                "name": "D",
+                "value": "商业养老金",
+                "reason": "错误选项。商业养老金属于保险业范畴。"
+            }
+        ]
+    },
+    {
+        "content": "8、下列关于货币本质的表述中，错误的有（ ）。",
+        "sequence": 8,
+        "id": "8",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "货币仅具有同一部分商品交换的能力",
+                "reason": "正确选项。这个表述是错误的，货币具有与所有商品交换的能力，而非仅与部分商品交换。"
+            },
+            {
+                "name": "B",
+                "value": "货币是固定充当一般等价物的商品",
+                "reason": "错误选项。这是货币本质的正确表述。"
+            },
+            {
+                "name": "C",
+                "value": "货币体现商品生产者之间的社会关系",
+                "reason": "错误选项。这是货币本质的正确表述。"
+            },
+            {
+                "name": "D",
+                "value": "货币是一般等价物",
+                "reason": "错误选项。这是货币本质的正确表述。"
+            }
+        ]
+    },
+    {
+        "content": "9、关于上市银行的总市值指标，表述错误的是（）。",
+        "sequence": 9,
+        "id": "9",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "总市值等于发行总股份数乘以股票票面价格",
+                "reason": "正确选项。错误表述，总市值等于发行总股份数乘以股票市价，而非票面价格。"
+            },
+            {
+                "name": "B",
+                "value": "总市值是投资者资金分配的重要参考",
+                "reason": "错误选项。这是正确表述。"
+            },
+            {
+                "name": "C",
+                "value": "总市值是衡量银行规模的重要指标",
+                "reason": "错误选项。这是正确表述。"
+            },
+            {
+                "name": "D",
+                "value": "总市值反映一家银行在资本市场上的影响力水平",
+                "reason": "错误选项。这是正确表述。"
+            }
+        ]
+    },
+    {
+        "content": "10、下列选项中，信用卡透支不可以应用的范围是（）",
+        "sequence": 10,
+        "id": "10",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "购买机票",
+                "reason": "错误选项。信用卡透支可用于购买机票。"
+            },
+            {
+                "name": "B",
+                "value": "支付购房首付款",
+                "reason": "正确选项。信用卡透支不能用于购房首付，因为这是投资领域，不符合信用卡消费属性。"
+            },
+            {
+                "name": "C",
+                "value": "支付学费",
+                "reason": "错误选项。信用卡透支可用于支付学费。"
+            },
+            {
+                "name": "D",
+                "value": "购买家具",
+                "reason": "错误选项。信用卡透支可用于购买家具。"
+            }
+        ]
+    },
+    {
+        "content": "11、金融市场具有决定利率、汇率的功能，这属于金融市场的（)。",
+        "sequence": 11,
+        "id": "11",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "定价功能",
+                "reason": "正确选项。金融市场通过交易过程形成价格，体现定价功能。"
+            },
+            {
+                "name": "B",
+                "value": "货币资金融通功能",
+                "reason": "错误选项。这是金融市场连接资金供需的功能。"
+            },
+            {
+                "name": "C",
+                "value": "资源配置功能",
+                "reason": "错误选项。这是指资金流向最有潜力的方向。"
+            },
+            {
+                "name": "D",
+                "value": "风险分散与风险管理功能",
+                "reason": "错误选项。这是金融市场提供风险分散工具的功能。"
+            }
+        ]
+    },
+    {
+        "content": "12、以下禁止作为市场化债转股对象的企业有（）。",
+        "sequence": 12,
+        "id": "12",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "扭亏无望、已失去生存发展前景的“僵尸企业\"",
+                "reason": "正确选项。僵尸企业是禁止作为债转股对象的。"
+            },
+            {
+                "name": "B",
+                "value": "无故意违约、转移资产等不良信用记录的企业",
+                "reason": "错误选项。这类企业适合债转股。"
+            },
+            {
+                "name": "C",
+                "value": "技术先进、产品有市场的企业",
+                "reason": "错误选项。这类企业适合债转股。"
+            },
+            {
+                "name": "D",
+                "value": "发展前景较好、具有可行的企业改革计划和脱困安排的企业",
+                "reason": "错误选项。这类企业适合债转股。"
+            }
+        ]
+    },
+    {
+        "content": "13、下列选项中，不属于商业银行矩阵型组织架构特征的是()。",
+        "sequence": 13,
+        "id": "13",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "总分支行形成垂直管理体系",
+                "reason": "正确选项。这不是矩阵型组织架构的特征，而是传统总分行制的特征。"
+            },
+            {
+                "name": "B",
+                "value": "总行和区域总部按相同序列设立若干事业部",
+                "reason": "错误选项。这是矩阵型组织架构的特征之一。"
+            },
+            {
+                "name": "C",
+                "value": "在总行和分支机构之间设立若干区域总部",
+                "reason": "错误选项。这是矩阵型组织架构的特征之一。"
+            },
+            {
+                "name": "D",
+                "value": "区域总部事业部接受区域总部领导人、总行同事业部领导人的双重领导",
+                "reason": "错误选项。这是矩阵型组织架构的特征之一。"
+            }
+        ]
+    },
+    {
+        "content": "14、下列罪名中，个人不能构成犯罪主体的是()",
+        "sequence": 14,
+        "id": "14",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "背信运用受托财产罪",
+                "reason": "正确选项。背信运用受托财产罪的犯罪主体为特殊主体，即商业银行、证券交易所等金融机构，个人不能构成。"
+            },
+            {
+                "name": "B",
+                "value": "违法发放贷款罪",
+                "reason": "错误选项。银行工作人员可构成此罪。"
+            },
+            {
+                "name": "C",
+                "value": "吸收客户资金不入账罪",
+                "reason": "错误选项。银行工作人员可构成此罪。"
+            },
+            {
+                "name": "D",
+                "value": "违规出具金融票证罪",
+                "reason": "错误选项。银行工作人员可构成此罪。"
+            }
+        ]
+    },
+    {
+        "content": "15、除了法律规定基金财产的债务只能()承担。",
+        "sequence": 15,
+        "id": "15",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "基金管理人",
+                "reason": "错误选项。基金管理人不是基金财产债务的承担主体。"
+            },
+            {
+                "name": "B",
+                "value": "基金托管人",
+                "reason": "错误选项。基金托管人不是基金财产债务的承担主体。"
+            },
+            {
+                "name": "C",
+                "value": "全体基金份额持有人",
+                "reason": "错误选项。基金份额持有人以其出资为限承担债务，但债务首先由基金财产承担。"
+            },
+            {
+                "name": "D",
+                "value": "基金财产",
+                "reason": "正确选项。基金财产的债务由基金财产本身承担。"
+            }
+        ]
+    },
+    {
+        "content": "16、如果外汇储备货币的汇率上升，下列说法正确的是（)。",
+        "sequence": 16,
+        "id": "16",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "外汇储备规模增加",
+                "reason": "错误选项。汇率上升不会直接影响储备规模数量。"
+            },
+            {
+                "name": "B",
+                "value": "外汇储备的实际价值减少",
+                "reason": "错误选项。汇率上升使储备价值增加。"
+            },
+            {
+                "name": "C",
+                "value": "外汇储备的实际价值增加",
+                "reason": "正确选项。储备货币汇率上升，使外汇储备的实际价值增加。"
+            },
+            {
+                "name": "D",
+                "value": "外汇储备规模减小",
+                "reason": "错误选项。汇率上升不会直接影响储备规模数量。"
+            }
+        ]
+    },
+    {
+        "content": "17、不属于刑罚的是（)。",
+        "sequence": 17,
+        "id": "17",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "拘留",
+                "reason": "正确选项。拘留属于行政处罚，不属于刑罚。"
+            },
+            {
+                "name": "B",
+                "value": "罚金",
+                "reason": "错误选项。罚金是附加刑的一种。"
+            },
+            {
+                "name": "C",
+                "value": "剥夺政治权利",
+                "reason": "错误选项。剥夺政治权利是附加刑的一种。"
+            },
+            {
+                "name": "D",
+                "value": "没收财产",
+                "reason": "错误选项。没收财产是附加刑的一种。"
+            }
+        ]
+    },
+    {
+        "content": "18、下列不属于监管工具的是（)。",
+        "sequence": 18,
+        "id": "18",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "流动性",
+                "reason": "错误选项。流动性是重要的监管工具之一。"
+            },
+            {
+                "name": "B",
+                "value": "风险集中度",
+                "reason": "错误选项。风险集中度是重要的监管工具之一。"
+            },
+            {
+                "name": "C",
+                "value": "银行账薄利率风险",
+                "reason": "错误选项。银行账簿利率风险是重要的监管工具之一。"
+            },
+            {
+                "name": "D",
+                "value": "资本回报率",
+                "reason": "正确选项。资本回报率是盈利能力指标，不属于传统监管工具。"
+            }
+        ]
+    },
+    {
+        "content": "19、以下不属于商业银行机构的是()",
+        "sequence": 19,
+        "id": "19",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "政策性银行",
+                "reason": "正确选项。政策性银行不属于商业银行。"
+            },
+            {
+                "name": "B",
+                "value": "城市商业银行",
+                "reason": "错误选项。城市商业银行属于商业银行。"
+            },
+            {
+                "name": "C",
+                "value": "农村中小金融机构",
+                "reason": "错误选项。包括农村商业银行在内的机构属于商业银行。"
+            },
+            {
+                "name": "D",
+                "value": "外资银行",
+                "reason": "错误选项。外资银行在中国的分支机构可从事商业银行业务。"
+            }
+        ]
+    },
+    {
+        "content": "20、储蓄业务客户群体大，其主要风险为（）",
+        "sequence": 20,
+        "id": "20",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "操作风险",
+                "reason": "正确选项。储蓄业务客户众多，操作环节复杂，主要风险是操作风险。"
+            },
+            {
+                "name": "B",
+                "value": "市场风险",
+                "reason": "错误选项。市场风险主要与投资相关。"
+            },
+            {
+                "name": "C",
+                "value": "流动性风险",
+                "reason": "错误选项。流动性风险是重要风险但不是最主要风险。"
+            },
+            {
+                "name": "D",
+                "value": "信用风险",
+                "reason": "错误选项。储蓄业务银行承担信用风险，但不是客户层面的主要风险。"
+            }
+        ]
+    },
+    {
+        "content": "21、下列不属于通货紧缩的政策措施是（）",
+        "sequence": 21,
+        "id": "21",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "提高利率",
+                "reason": "正确选项。提高利率会减少货币供应，加剧通货紧缩。"
+            },
+            {
+                "name": "B",
+                "value": "降低利率",
+                "reason": "错误选项。降低利率是治理通货紧缩的措施。"
+            },
+            {
+                "name": "C",
+                "value": "购入有价证券",
+                "reason": "错误选项。购入有价证券是投放货币，缓解通货紧缩。"
+            },
+            {
+                "name": "D",
+                "value": "增加货币供应量",
+                "reason": "错误选项。增加货币供应量是治理通货紧缩的措施。"
+            }
+        ]
+    },
+    {
+        "content": "22、关于商业银行备用信用证的表述，以下说法正确的是()",
+        "sequence": 22,
+        "id": "22",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "商业银行无需垫付资金",
+                "reason": "错误选项。备用信用证在特定情况下需要垫付资金。"
+            },
+            {
+                "name": "B",
+                "value": "商业银行在一定条件下需要垫付资金",
+                "reason": "正确选项。备用信用证在申请人违约时，银行需要垫付资金。"
+            },
+            {
+                "name": "C",
+                "value": "备用信用证是商业银行的代理业务",
+                "reason": "错误选项。备用信用证是银行的担保业务，不是代理业务。"
+            },
+            {
+                "name": "D",
+                "value": "商业银行必须垫付资金",
+                "reason": "错误选项。只有在特定条件下才需要垫付资金。"
+            }
+        ]
+    },
+    {
+        "content": "23、商业银行主要经营()业务",
+        "sequence": 23,
+        "id": "23",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "货币",
+                "reason": "正确选项。商业银行主要经营货币业务。"
+            },
+            {
+                "name": "B",
+                "value": "利率",
+                "reason": "错误选项。利率是经营要素，不是业务类型。"
+            },
+            {
+                "name": "C",
+                "value": "外汇",
+                "reason": "错误选项。外汇是业务的一种，不是主要业务。"
+            },
+            {
+                "name": "D",
+                "value": "现实货物",
+                "reason": "错误选项。商业银行不经营实物货物。"
+            }
+        ]
+    },
+    {
+        "content": "24、非国有的公司、企业或者其他单位的非国家工作人员，利用职务之便非法占有本单位财产。这构成了（)。",
+        "sequence": 24,
+        "id": "24",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "诈骗罪",
+                "reason": "错误选项。诈骗罪是指虚构事实骗取财物。"
+            },
+            {
+                "name": "B",
+                "value": "贪污罪",
+                "reason": "错误选项。贪污罪针对国家工作人员。"
+            },
+            {
+                "name": "C",
+                "value": "非法占有财产罪",
+                "reason": "错误选项。这不是标准的罪名。"
+            },
+            {
+                "name": "D",
+                "value": "职务侵占罪",
+                "reason": "正确选项。这是职务侵占罪的准确定义。"
+            }
+        ]
+    },
+    {
+        "content": "25、下列属于通货紧缩所产生的影响的是（）。",
+        "sequence": 25,
+        "id": "25",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "会形成有利于债务人不利于债权人的资金再分配",
+                "reason": "错误选项。通货紧缩有利于债权人不利于债务人。"
+            },
+            {
+                "name": "B",
+                "value": "导致社会总投资增加",
+                "reason": "错误选项。通货紧缩导致投资减少。"
+            },
+            {
+                "name": "C",
+                "value": "会形成有利于债权人不利于债务人的资金再分配",
+                "reason": "正确选项。通货紧缩使货币升值，对债权人有利。"
+            },
+            {
+                "name": "D",
+                "value": "会增加消费需求",
+                "reason": "错误选项。通货紧缩会减少消费需求。"
+            }
+        ]
+    },
+    {
+        "content": "26、关于风险调整后资本回报率的说法正确的是（)。",
+        "sequence": 26,
+        "id": "26",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "只考虑了预期损失，未考虑非预期损失",
+                "reason": "错误选项。RAROC同时考虑预期损失和非预期损失。"
+            },
+            {
+                "name": "B",
+                "value": "只考虑了非预期损失，未考虑预期损失",
+                "reason": "错误选项。RAROC同时考虑预期损失和非预期损失。"
+            },
+            {
+                "name": "C",
+                "value": "未考虑预期损失和非预期损失，但考虑了极端损失",
+                "reason": "错误选项。RAROC同时考虑预期损失和非预期损失。"
+            },
+            {
+                "name": "D",
+                "value": "同时考虑了预期损失和非预期损失",
+                "reason": "正确选项。RAROC既考虑预期损失，也考虑非预期损失。"
+            }
+        ]
+    },
+    {
+        "content": "27、以下属于通货膨胀形成原因的是（）。",
+        "sequence": 27,
+        "id": "27",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "有效需求不足",
+                "reason": "错误选项。有效需求不足会导致通货紧缩。"
+            },
+            {
+                "name": "B",
+                "value": "供需结构不合理",
+                "reason": "错误选项。供需结构不合理可能导致局部通胀，但不是主要原因。"
+            },
+            {
+                "name": "C",
+                "value": "货币供给增加",
+                "reason": "错误选项。货币供给增加可能导致通胀，但更准确的说法是货币供给过多。"
+            },
+            {
+                "name": "D",
+                "value": "货币供给过多",
+                "reason": "正确选项。货币供给过多是通货膨胀的主要原因之一。"
+            }
+        ]
+    },
+    {
+        "content": "28、一般来说，在衡量通货膨胀时，使用最多、最普遍的指标是()。",
+        "sequence": 28,
+        "id": "28",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "国内生产总值物价平减指标",
+                "reason": "错误选项。GDP平减指数较少使用。"
+            },
+            {
+                "name": "B",
+                "value": "批发物价指数",
+                "reason": "错误选项。批发物价指数较少使用。"
+            },
+            {
+                "name": "C",
+                "value": "消费者物价指数",
+                "reason": "正确选项。CPI是衡量通胀最常用、最普遍的指标。"
+            },
+            {
+                "name": "D",
+                "value": "生产者物价指数",
+                "reason": "错误选项。PPI主要用于衡量生产环节价格变化。"
+            }
+        ]
+    },
+    {
+        "content": "29、下列不属于银行业协会职能的是( )。",
+        "sequence": 29,
+        "id": "29",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "监督",
+                "reason": "正确选项。银行业协会主要职能是自律、维权、协调、服务，不具有监督职能。"
+            },
+            {
+                "name": "B",
+                "value": "维权",
+                "reason": "错误选项。维权是银行业协会的重要职能之一。"
+            },
+            {
+                "name": "C",
+                "value": "协调",
+                "reason": "错误选项。协调是银行业协会的重要职能之一。"
+            },
+            {
+                "name": "D",
+                "value": "服务",
+                "reason": "错误选项。服务是银行业协会的重要职能之一。"
+            }
+        ]
+    },
+    {
+        "content": "30、以下不属于银行公司治理组织架构主体的是（)。",
+        "sequence": 30,
+        "id": "30",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "股东大会",
+                "reason": "错误选项。股东大会是公司治理的重要主体。"
+            },
+            {
+                "name": "B",
+                "value": "董事会",
+                "reason": "错误选项。董事会是公司治理的重要主体。"
+            },
+            {
+                "name": "C",
+                "value": "监事会",
+                "reason": "错误选项。监事会是公司治理的重要主体。"
+            },
+            {
+                "name": "D",
+                "value": "股东",
+                "reason": "正确选项。股东个体不是治理架构的主体，股东大会才是。"
+            }
+        ]
+    },
+    {
+        "content": "31、（）是评价银行信贷资产安全状况的重要指标。",
+        "sequence": 31,
+        "id": "31",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "资本利润率",
+                "reason": "错误选项。资本利润率是盈利指标。"
+            },
+            {
+                "name": "B",
+                "value": "资本充足率",
+                "reason": "错误选项。资本充足率是抗风险指标。"
+            },
+            {
+                "name": "C",
+                "value": "不良贷款率",
+                "reason": "正确选项。不良贷款率直接反映信贷资产的安全状况。"
+            },
+            {
+                "name": "D",
+                "value": "资产负债率",
+                "reason": "错误选项。资产负债率是财务结构指标。"
+            }
+        ]
+    },
+    {
+        "content": "32、下列选项中，按照提前通知的时间长短可以将单位通知存款分为()。",
+        "sequence": 32,
+        "id": "32",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "1天通知、20日通知",
+                "reason": "错误选项。20日通知不是标准的分类。"
+            },
+            {
+                "name": "B",
+                "value": "1天通知、7 天通知",
+                "reason": "正确选项。单位通知存款分为1天通知和7天通知两种。"
+            },
+            {
+                "name": "C",
+                "value": "7天通知、15日通知",
+                "reason": "错误选项。15日通知不是标准的分类。"
+            },
+            {
+                "name": "D",
+                "value": "7日通知、20天通知",
+                "reason": "错误选项。这些都不是标准的分类。"
+            }
+        ]
+    },
+    {
+        "content": "33、我国统计的失业率为()",
+        "sequence": 33,
+        "id": "33",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "调查失业率",
+                "reason": "错误选项。现在主要公布调查失业率，但以前是城镇登记失业率。"
+            },
+            {
+                "name": "B",
+                "value": "城镇登记失业率",
+                "reason": "正确选项。根据题目中的解析，我国统计部门公布的失业率为城镇登记失业率。"
+            },
+            {
+                "name": "C",
+                "value": "自然失业率",
+                "reason": "错误选项。自然失业率是理论概念。"
+            },
+            {
+                "name": "D",
+                "value": "青年失业率",
+                "reason": "错误选项。这不是主要统计指标。"
+            }
+        ]
+    },
+    {
+        "content": "34、中央银行的“三大传统法宝”有()。",
+        "sequence": 34,
+        "id": "34",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "法定存款准备金政策、再贴现政策，公开市场业务",
+                "reason": "正确选项。这是中央银行的三大传统货币政策工具。"
+            },
+            {
+                "name": "B",
+                "value": "消费信用控制，再贴现政策，公开市场业务",
+                "reason": "错误选项。消费信用控制属于选择性货币政策工具。"
+            },
+            {
+                "name": "C",
+                "value": "再贴现政策，利率管制，法定存款准备金",
+                "reason": "错误选项。利率管制不属于三大传统工具。"
+            },
+            {
+                "name": "D",
+                "value": "利率管制，公开市场业务，法定存款准备金",
+                "reason": "错误选项。利率管制不属于三大传统工具。"
+            }
+        ]
+    },
+    {
+        "content": "35、根据银行的相关规定，同一客户在同一商业银行开立借记卡原则上不得超过（）张；同一代理人在同一商业银行代理开卡原则上不得超过（）张。",
+        "sequence": 35,
+        "id": "35",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "4;4 ",
+                "reason": "错误选项。代理人开卡数量错误。"
+            },
+            {
+                "name": "B",
+                "value": "4;3 ",
+                "reason": "正确选项。同一客户开立借记卡不超过4张，同一代理人不超过3张。"
+            },
+            {
+                "name": "C",
+                "value": "3;4 ",
+                "reason": "错误选项。数量错误。"
+            },
+            {
+                "name": "D",
+                "value": "3;3 ",
+                "reason": "错误选项。客户开卡数量错误。"
+            }
+        ]
+    },
+    {
+        "content": "36、定期存款是个人事先约定偿还期的存款，其利率视期限长短而定，最典型的代表是( )。",
+        "sequence": 36,
+        "id": "36",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "整存整取",
+                "reason": "正确选项。整存整取是最典型的定期存款形式。"
+            },
+            {
+                "name": "B",
+                "value": "零存整取",
+                "reason": "错误选项。虽然也是定期存款，但不如整存整取典型。"
+            },
+            {
+                "name": "C",
+                "value": "整存零取",
+                "reason": "错误选项。虽然也是定期存款，但不如整存整取典型。"
+            },
+            {
+                "name": "D",
+                "value": "存本取息",
+                "reason": "错误选项。虽然也是定期存款，但不如整存整取典型。"
+            }
+        ]
+    },
+    {
+        "content": "37、在《巴塞尔协议Ⅲ》中，用来反映压力状态下商业银行短期流动性水平的指标是( )。",
+        "sequence": 37,
+        "id": "37",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "净稳定融资比率",
+                "reason": "错误选项。NSFR衡量中长期流动性。"
+            },
+            {
+                "name": "B",
+                "value": "核心负债比例",
+                "reason": "错误选项。这不是巴塞尔III的指标。"
+            },
+            {
+                "name": "C",
+                "value": "流动性缺口率",
+                "reason": "错误选项。这不是巴塞尔III的指标。"
+            },
+            {
+                "name": "D",
+                "value": "流动性覆盖率",
+                "reason": "正确选项。LCR衡量银行在短期压力情景下的流动性水平。"
+            }
+        ]
+    },
+    {
+        "content": "38、下列选项中，更能综合反映银行真实的盈利性水平，是银行价值管理的核心指标的是()。",
+        "sequence": 38,
+        "id": "38",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "风险调整后的资本回报率",
+                "reason": "正确选项。RAROC是银行价值管理的核心指标。"
+            },
+            {
+                "name": "B",
+                "value": "净资产回报率",
+                "reason": "错误选项。ROE是重要指标，但不是风险调整后的。"
+            },
+            {
+                "name": "C",
+                "value": "净利息收益率",
+                "reason": "错误选项。NIM是收入指标，不是综合盈利指标。"
+            },
+            {
+                "name": "D",
+                "value": "总资产回报率",
+                "reason": "错误选项。ROA是重要指标，但不是风险调整后的。"
+            }
+        ]
+    },
+    {
+        "content": "39、下列选项中，通常不用于衡量银行安全性的指标是()",
+        "sequence": 39,
+        "id": "39",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "拨贷比",
+                "reason": "错误选项。拨贷比用于衡量银行的安全性。"
+            },
+            {
+                "name": "B",
+                "value": "拨备覆盖率",
+                "reason": "错误选项。拨备覆盖率用于衡量银行的安全性。"
+            },
+            {
+                "name": "C",
+                "value": "市盈率",
+                "reason": "正确选项。市盈率是市场指标，不是银行安全性指标。"
+            },
+            {
+                "name": "D",
+                "value": "资本充足率",
+                "reason": "错误选项。资本充足率用于衡量银行的安全性。"
+            }
+        ]
+    },
+    {
+        "content": "40、( )是商业银行贷款损失准备与总贷款的比值。",
+        "sequence": 40,
+        "id": "40",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "拨贷比",
+                "reason": "正确选项。拨贷比定义为贷款损失准备与总贷款的比值。"
+            },
+            {
+                "name": "B",
+                "value": "不良贷款率",
+                "reason": "错误选项。不良贷款率是不良贷款与总贷款的比值。"
+            },
+            {
+                "name": "C",
+                "value": "不良贷款拨备覆盖率",
+                "reason": "错误选项。拨备覆盖率是贷款损失准备与不良贷款的比值。"
+            },
+            {
+                "name": "D",
+                "value": "资本充足率",
+                "reason": "错误选项。资本充足率是资本与风险加权资产的比值。"
+            }
+        ]
+    },
+    {
+        "content": "41、下列不属于维护国家金融安全工作内容的是（ ）。",
+        "sequence": 41,
+        "id": "41",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "服从应急安排",
+                "reason": "错误选项。服从应急安排是维护国家金融安全的内容之一。"
+            },
+            {
+                "name": "B",
+                "value": "接受监管部门检查",
+                "reason": "错误选项。接受监管部门检查是维护国家金融安全的内容之一。"
+            },
+            {
+                "name": "C",
+                "value": "抵制贿赂及不当便利行为",
+                "reason": "正确选项。抵制贿赂及不当便利行为属于履职遵纪范畴，不是维护国家金融安全的直接内容。"
+            },
+            {
+                "name": "D",
+                "value": "遵守反洗钱相关规定",
+                "reason": "错误选项。遵守反洗钱规定是维护国家金融安全的内容之一。"
+            }
+        ]
+    },
+    {
+        "content": "42、在商业银行组织架构类型中，事业部型组织架构突出的是经营管理理念（）。",
+        "sequence": 42,
+        "id": "42",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "以风险为中心",
+                "reason": "错误选项。这不是事业部制的特点。"
+            },
+            {
+                "name": "B",
+                "value": "以利润为中心",
+                "reason": "错误选项。这不是事业部制的核心理念。"
+            },
+            {
+                "name": "C",
+                "value": "以产品为中心",
+                "reason": "错误选项。虽然事业部按产品划分，但核心理念是客户导向。"
+            },
+            {
+                "name": "D",
+                "value": "以客户为中心",
+                "reason": "正确选项。事业部型组织架构突出了“以客户为中心”的经营理念。"
+            }
+        ]
+    },
+    {
+        "content": "43、在分析商业银行贷款结构时，可以作为重要的一个指标是（）。",
+        "sequence": 43,
+        "id": "43",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "生意资产占比",
+                "reason": "错误选项。这不是标准的银行指标。"
+            },
+            {
+                "name": "B",
+                "value": "定期存款占总存款的比重",
+                "reason": "错误选项。这是存款结构指标，不是贷款结构指标。"
+            },
+            {
+                "name": "C",
+                "value": "零售贷款占比",
+                "reason": "正确选项。零售贷款占比是分析贷款结构的重要指标。"
+            },
+            {
+                "name": "D",
+                "value": "活期存款占总存款的比重",
+                "reason": "错误选项。这是存款结构指标，不是贷款结构指标。"
+            }
+        ]
+    },
+    {
+        "content": "44、根据我国 2017 年公布，2019 年修订的《国民经济行业分类》（GB/T 4754—2017），下列行业中不属于行业分类的有（ ）。",
+        "sequence": 44,
+        "id": "44",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "批发和零售业",
+                "reason": "错误选项。这是第三产业的重要组成部分。"
+            },
+            {
+                "name": "B",
+                "value": "建筑业",
+                "reason": "错误选项。建筑业是第二产业的重要组成部分。"
+            },
+            {
+                "name": "C",
+                "value": "制造业",
+                "reason": "错误选项。制造业是第二产业的重要组成部分。"
+            },
+            {
+                "name": "D",
+                "value": "保险业",
+                "reason": "正确选项。保险业属于金融业，而不是独立的行业分类。"
+            }
+        ]
+    },
+    {
+        "content": "45、下列不属于农村中小金融机构的是()。",
+        "sequence": 45,
+        "id": "45",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "中国农业发展银行",
+                "reason": "正确选项。中国农业发展银行属于政策性银行，不属于农村中小金融机构。"
+            },
+            {
+                "name": "B",
+                "value": "村镇银行",
+                "reason": "错误选项。村镇银行属于农村中小金融机构。"
+            },
+            {
+                "name": "C",
+                "value": "农村商业银行",
+                "reason": "错误选项。农村商业银行属于农村中小金融机构。"
+            },
+            {
+                "name": "D",
+                "value": "农村信用社",
+                "reason": "错误选项。农村信用社属于农村中小金融机构。"
+            }
+        ]
+    },
+    {
+        "content": "46、影响货币乘数的因素不包括()。",
+        "sequence": 46,
+        "id": "46",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "法定存款准备金率",
+                "reason": "错误选项。法定存款准备金率是影响货币乘数的重要因素。"
+            },
+            {
+                "name": "B",
+                "value": "定期存款准备金率",
+                "reason": "错误选项。定期存款准备金率是影响货币乘数的因素之一。"
+            },
+            {
+                "name": "C",
+                "value": "现金漏损率",
+                "reason": "错误选项。现金漏损率是影响货币乘数的重要因素。"
+            },
+            {
+                "name": "D",
+                "value": "利率",
+                "reason": "正确选项。利率不是直接影响货币乘数的因素。"
+            }
+        ]
+    },
+    {
+        "content": "47、以下()的存款多使用积数计算法计算。",
+        "sequence": 47,
+        "id": "47",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "活期存款",
+                "reason": "正确选项。活期存款多使用积数计息法计算利息。"
+            },
+            {
+                "name": "B",
+                "value": "零存整取定期存款",
+                "reason": "错误选项。定期存款通常使用其他计息方法。"
+            },
+            {
+                "name": "C",
+                "value": "整存零取定期存款",
+                "reason": "错误选项。定期存款通常使用其他计息方法。"
+            },
+            {
+                "name": "D",
+                "value": "整存整取定期存款",
+                "reason": "错误选项。定期存款通常使用其他计息方法。"
+            }
+        ]
+    },
+    {
+        "content": "48、个人定期存款不包括（）",
+        "sequence": 48,
+        "id": "48",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "整存整取",
+                "reason": "错误选项。整存整取是个人定期存款的一种。"
+            },
+            {
+                "name": "B",
+                "value": "零存零取",
+                "reason": "正确选项。银行没有零存零取这种存款方式，应为零存整取。"
+            },
+            {
+                "name": "C",
+                "value": "零存整取",
+                "reason": "错误选项。零存整取是个人定期存款的一种。"
+            },
+            {
+                "name": "D",
+                "value": "整存零取",
+                "reason": "错误选项。整存零取是个人定期存款的一种。"
+            }
+        ]
+    },
+    {
+        "content": "49、关于我国商业银行组织架构特征的说法，错误的是()",
+        "sequence": 49,
+        "id": "49",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "总行负责制定全行的基本政策、战略导向和经营目标",
+                "reason": "错误选项。这是正确的描述。"
+            },
+            {
+                "name": "B",
+                "value": "我国商业银行组织架构的主流形式是以行业管理为主的组织架构",
+                "reason": "正确选项。错误，我国商业银行组织架构的主流形式是以区域管理为主的总分行型组织架构。"
+            },
+            {
+                "name": "C",
+                "value": "我国商业银行在组织架构发展方面着重于渐进式推进事业部制改革、建立垂直化风险管理体系和建设流程银行",
+                "reason": "错误选项。这是正确的描述。"
+            },
+            {
+                "name": "D",
+                "value": "我国商业银行组织架构的主流形式是统一法人组织架构",
+                "reason": "错误选项。这是正确的描述。"
+            }
+        ]
+    },
+    {
+        "content": "50、市盈率反映了股票的风险高低程度，股价一定时，每股收益水平越（），市盈率水平越( )，则股票风险就越（）。",
+        "sequence": 50,
+        "id": "50",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "低;高;低",
+                "reason": "错误选项。每股收益越低，市盈率越高，风险越大。"
+            },
+            {
+                "name": "B",
+                "value": "高;低;低",
+                "reason": "正确选项。当股价一定时，每股收益越高，市盈率越低，股票风险越小。"
+            },
+            {
+                "name": "C",
+                "value": "高;高;低",
+                "reason": "错误选项。每股收益高时，市盈率应更低。"
+            },
+            {
+                "name": "D",
+                "value": "低;低;低",
+                "reason": "错误选项。每股收益低时，市盈率应更高。"
+            }
+        ]
+    },
+    {
+        "content": "51、在短期收益中，利率和期限成正相关，在中长期收益中，利率和期限成负相关，这是属于（）曲线",
+        "sequence": 51,
+        "id": "51",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "驼峰收益曲线",
+                "reason": "正确选项。驼峰收益率曲线表示短期利率与期限正相关，长期利率与期限负相关。"
+            },
+            {
+                "name": "B",
+                "value": "正向收益曲线",
+                "reason": "错误选项。正向收益率曲线表示长期利率高于短期利率。"
+            },
+            {
+                "name": "C",
+                "value": "反转收益曲线",
+                "reason": "错误选项。反转收益率曲线表示长期利率低于短期利率。"
+            },
+            {
+                "name": "D",
+                "value": "一条水平线",
+                "reason": "错误选项。水平收益率曲线表示长期利率与短期利率相等。"
+            }
+        ]
+    },
+    {
+        "content": "52、以下哪类债务一般情况下不属于夫妻共同债务()。",
+        "sequence": 52,
+        "id": "52",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "夫妻一方在婚姻存续期间以个人名义超出家庭日常生活需要所负的债务",
+                "reason": "正确选项。超出家庭日常生活需要的个人债务，不属于夫妻共同债务。"
+            },
+            {
+                "name": "B",
+                "value": "夫妻一方在婚姻存续期间以个人名义为家庭日常生活需要所负的债务",
+                "reason": "错误选项。这是夫妻共同债务。"
+            },
+            {
+                "name": "C",
+                "value": "夫妻双方共同签名确认所负的债务",
+                "reason": "错误选项。这是夫妻共同债务。"
+            },
+            {
+                "name": "D",
+                "value": "夫妻一方事后追认所负的债务",
+                "reason": "错误选项。这也是夫妻共同债务。"
+            }
+        ]
+    },
+    {
+        "content": "53、下列人员中，属于内幕信息的是()。",
+        "sequence": 53,
+        "id": "53",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "通过不法手段从内幕知情人获取的内幕信息",
+                "reason": "错误选项。这描述的是获取信息的方式，不是内幕信息本身。"
+            },
+            {
+                "name": "B",
+                "value": "与发行人有业务往来的高层管理获得的信息",
+                "reason": "错误选项。只有当这些信息是未公开的重大信息时，才构成内幕信息。"
+            },
+            {
+                "name": "C",
+                "value": "发行人未公开的内幕信息",
+                "reason": "正确选项。内幕信息是指证券交易活动中，涉及发行人的经营、财务或者对该证券的市场价格有重大影响的尚未公开的信息。"
+            },
+            {
+                "name": "D",
+                "value": "发行人未公开的所有信息",
+                "reason": "错误选项。并非所有未公开信息都是内幕信息，只有对证券价格有重大影响的信息才是。"
+            }
+        ]
+    },
+    {
+        "content": "54、国际货币组织金融危机不包括（）",
+        "sequence": 54,
+        "id": "54",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "货币危机",
+                "reason": "错误选项。货币危机属于IMF定义的金融危机之一。"
+            },
+            {
+                "name": "B",
+                "value": "银行危机",
+                "reason": "错误选项。银行危机属于IMF定义的金融危机之一。"
+            },
+            {
+                "name": "C",
+                "value": "外债危机",
+                "reason": "错误选项。外债危机属于IMF定义的金融危机之一。"
+            },
+            {
+                "name": "D",
+                "value": "非系统性金融危机",
+                "reason": "正确选项。IMF将金融危机分为货币危机、银行危机、外债危机和系统性金融危机四类。"
+            }
+        ]
+    },
+    {
+        "content": "55、关于外币存款业务需要管理的风险点，不包括哪一项()。",
+        "sequence": 55,
+        "id": "55",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "战略风险",
+                "reason": "正确选项。战略风险不是外币存款业务特有的风险点。"
+            },
+            {
+                "name": "B",
+                "value": "核算真实性风险",
+                "reason": "错误选项。核算真实性是外币存款业务需要管控的风险点之一。"
+            },
+            {
+                "name": "C",
+                "value": "政策性风险",
+                "reason": "错误选项。政策性风险是外币存款业务需要管控的风险点之一。"
+            },
+            {
+                "name": "D",
+                "value": "假钞风险",
+                "reason": "错误选项。假钞风险是外币存款业务需要管控的风险点之一。"
+            }
+        ]
+    },
+    {
+        "content": "56、（ ）是指由商业银行经营、管理及其他行为或外部事件导致利益相关方对商业银行负面评价的风险。",
+        "sequence": 56,
+        "id": "56",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "信用风险",
+                "reason": "错误选项。信用风险是借款人违约的风险。"
+            },
+            {
+                "name": "B",
+                "value": "战略风险",
+                "reason": "错误选项。战略风险是战略决策失误的风险。"
+            },
+            {
+                "name": "C",
+                "value": "声誉风险",
+                "reason": "正确选项。声誉风险是指导致利益相关方对银行形成负面评价的风险。"
+            },
+            {
+                "name": "D",
+                "value": "网络安全风险",
+                "reason": "错误选项。网络安全风险是技术层面的风险。"
+            }
+        ]
+    },
+    {
+        "content": "57、商业银行开展金融服务的根本目标是促进（ ）。",
+        "sequence": 57,
+        "id": "57",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "社会就业",
+                "reason": "错误选项。促进就业是银行作用之一，但不是根本目标。"
+            },
+            {
+                "name": "B",
+                "value": "生态环境保护",
+                "reason": "错误选项。环保是银行的社会责任，但不是根本目标。"
+            },
+            {
+                "name": "C",
+                "value": "文化发展",
+                "reason": "错误选项。文化发展不是银行的根本目标。"
+            },
+            {
+                "name": "D",
+                "value": "经济发展",
+                "reason": "正确选项。商业银行的根本目标是通过提供金融服务促进经济发展。"
+            }
+        ]
+    },
+    {
+        "content": "58、金融市场通过充当资金融通媒介、促进资金合理流动，体现的是金融市场的（）。",
+        "sequence": 58,
+        "id": "58",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "经济调节功能",
+                "reason": "错误选项。经济调节功能是金融市场通过政策传导实现的。"
+            },
+            {
+                "name": "B",
+                "value": "融通货币资金功能",
+                "reason": "正确选项。融通货币资金是金融市场的基本功能。"
+            },
+            {
+                "name": "C",
+                "value": "反映经济运行功能",
+                "reason": "错误选项。反映功能是金融市场作为经济晴雨表的作用。"
+            },
+            {
+                "name": "D",
+                "value": "优化资源配置功能",
+                "reason": "错误选项。虽然资金融通有助于资源配置，但基本功能是融通资金。"
+            }
+        ]
+    },
+    {
+        "content": "59、以下关于共同犯罪的说法，正确的是（）",
+        "sequence": 59,
+        "id": "59",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "具备主体资格的人同一个未达到刑事责任年龄或者没有刑事责任能力的人“共同犯罪”的，认定为共同犯罪",
+                "reason": "错误选项。这种情况不构成共同犯罪。"
+            },
+            {
+                "name": "B",
+                "value": "共同犯罪人除主犯外，包括从犯、胁从犯，不包括教唆犯",
+                "reason": "错误选项。共同犯罪人也包括教唆犯。"
+            },
+            {
+                "name": "C",
+                "value": "组织、领导犯罪集团进行犯罪活动的、或者在共同犯罪中起主要作用的，是主犯",
+                "reason": "正确选项。这是主犯的准确定义。"
+            },
+            {
+                "name": "D",
+                "value": "共同犯罪分为一般共犯、特殊共犯和犯罪集团三种",
+                "reason": "错误选项。共同犯罪分为一般共犯和特殊共犯（犯罪集团）两种。"
+            }
+        ]
+    },
+    {
+        "content": "60、以下关于买入返售业务中用于交易的资产的说法，正确的是（）。",
+        "sequence": 60,
+        "id": "60",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "可以是信用等级较低的资产",
+                "reason": "错误选项。买入返售业务的资产应当具有较高流动性。"
+            },
+            {
+                "name": "B",
+                "value": "必须是符合监管要求和合同约定的合格资产",
+                "reason": "正确选项。买入返售业务的资产必须是合格资产。"
+            },
+            {
+                "name": "C",
+                "value": "必须是足值的货币",
+                "reason": "错误选项。资产不仅限于货币。"
+            },
+            {
+                "name": "D",
+                "value": "必须是现实的货币",
+                "reason": "错误选项。资产不仅限于货币。"
+            }
+        ]
+    },
+    {
+        "content": "61、以下属于国际贸易结算中，仅凭金融单据进行的托收方式是（）。",
+        "sequence": 61,
+        "id": "61",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "跟单托收",
+                "reason": "错误选项。跟单托收是附带商业单据的托收。"
+            },
+            {
+                "name": "B",
+                "value": "出口托收",
+                "reason": "错误选项。出口托收不是按单据类型分类的。"
+            },
+            {
+                "name": "C",
+                "value": "信用证托收",
+                "reason": "错误选项。这不是标准的托收分类。"
+            },
+            {
+                "name": "D",
+                "value": "光票托收",
+                "reason": "正确选项。光票托收是指不附带商业单据的金融票据托收。"
+            }
+        ]
+    },
+    {
+        "content": "62、我国当前的货币政策中介目标主要是以（）为基础，结合其他指标形成的调控体系。",
+        "sequence": 62,
+        "id": "62",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "货币供应量",
+                "reason": "正确选项。现阶段我国货币政策中介目标主要是货币供应量。"
+            },
+            {
+                "name": "B",
+                "value": "信贷规模",
+                "reason": "错误选项。信贷规模是重要指标，但不是主要中介目标。"
+            },
+            {
+                "name": "C",
+                "value": "市场基本利率",
+                "reason": "错误选项。利率是重要指标，但不是主要中介目标。"
+            },
+            {
+                "name": "D",
+                "value": "以中央银行政策利率",
+                "reason": "错误选项。政策利率是操作目标，不是中介目标。"
+            }
+        ]
+    },
+    {
+        "content": "63、关于信用风险的分类，下列说法不正确的是（）。",
+        "sequence": 63,
+        "id": "63",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "按风险发生的形式，分为结算前风险和结算风险",
+                "reason": "错误选项。这是信用风险按发生形式的分类，表述正确。"
+            },
+            {
+                "name": "B",
+                "value": "按风险暴露特征，仅分为公司信用风险暴露和零售信用风险暴露",
+                "reason": "正确选项。错误，信用风险暴露还包括主权、金融机构、股权等多种类型。"
+            },
+            {
+                "name": "C",
+                "value": "按风险能否分散，分为系统性信用风险和非系统性信用风险",
+                "reason": "错误选项。这是信用风险按分散性的分类，表述正确。"
+            },
+            {
+                "name": "D",
+                "value": "按风险暴露主体不同，分为非零售信用风险暴露、零售信用风险暴露、股权信用风险暴露和其他信用风险暴露",
+                "reason": "错误选项。这是信用风险按暴露主体的分类，表述正确。"
+            }
+        ]
+    },
+    {
+        "content": "64、以下关于买入返售的说法，正确的是（ ）。",
+        "sequence": 64,
+        "id": "64",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "买入返售（卖出回购）是指金融机构按约定的价格买入（卖出）债券或其他金融资产，再按约定价格返售（回购）给卖出方（买入方）的资金融通行为",
+                "reason": "正确选项。这是买入返售业务的准确定义。"
+            },
+            {
+                "name": "B",
+                "value": "买入返售（卖出回购）业务中，正回购方可以将业务项下的金融资产从资产负债表转出",
+                "reason": "错误选项。卖出回购方不得将业务项下的金融资产从资产负债表转出。"
+            },
+            {
+                "name": "C",
+                "value": "买入返售（卖出回购）业务项下的金融资产可以是未经现实登记的金融资产",
+                "reason": "错误选项。金融资产必须经过现实登记。"
+            },
+            {
+                "name": "D",
+                "value": "买入返售（卖出回购）业务项下的金融资产可以是已卖出的金融资产",
+                "reason": "错误选项。金融资产应该是未卖出的、具有合理公允价值和较高流动性的资产。"
+            }
+        ]
+    },
+    {
+        "content": "65、下列关于中国银行业协会的说法，正确的是（）。",
+        "sequence": 65,
+        "id": "65",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "中国银行业协会是自律管理的政府机构",
+                "reason": "错误选项。银行业协会是自律组织，不是政府机构。"
+            },
+            {
+                "name": "B",
+                "value": "中国银行业协会以促进会员单位实现共同利益为宗旨",
+                "reason": "正确选项。这是银行业协会的宗旨。"
+            },
+            {
+                "name": "C",
+                "value": "中国银行业协会的主管单位是中国人民银行",
+                "reason": "错误选项。主管单位是国务院银行业监督管理机构。"
+            },
+            {
+                "name": "D",
+                "value": "中国银行业协会是在民政部登记注册的全国性营利社会团体",
+                "reason": "错误选项。银行业协会是非营利性社会团体。"
+            }
+        ]
+    },
+    {
+        "content": "66、下列关于借记卡的说法，正确的是（）。",
+        "sequence": 66,
+        "id": "66",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "借记卡不具备转账结算功能",
+                "reason": "错误选项。借记卡具备转账结算功能。"
+            },
+            {
+                "name": "B",
+                "value": "借记卡可透支使用，需按约定还款",
+                "reason": "错误选项。借记卡不可透支，贷记卡可以透支。"
+            },
+            {
+                "name": "C",
+                "value": "借记卡申领手续简单、无需提供担保，客户持有效身份证即可办理",
+                "reason": "正确选项。借记卡申领手续相对简单。"
+            },
+            {
+                "name": "D",
+                "value": "借记卡具有易用性和广泛的普及性，电子卡是电子贸易中最普遍使用的工具之一，也可以在境内外贴有银联等标识的 ATM 机上进行取款、查询余额 ，以及在各类支持银行卡支付的线上线下商户完成支付。",
+                "reason": "错误选项。借记卡虽然是常用的支付工具，但电子贸易中最普遍使用的工具是信用卡。"
+            }
+        ]
+    },
+    {
+        "content": "67、下列关于个人外汇账户的说法，错误的是（）。",
+        "sequence": 67,
+        "id": "67",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "个人外汇账户按主体类别分为境内个人外汇账户和境外个人外汇账户",
+                "reason": "错误选项。这是正确的分类方式。"
+            },
+            {
+                "name": "B",
+                "value": "个人外汇账户按账户性质分为外汇结算账户、资本项目账户及外汇储蓄账户",
+                "reason": "错误选项。这是正确的分类方式。"
+            },
+            {
+                "name": "C",
+                "value": "外汇储蓄账户一般不能进行转账",
+                "reason": "错误选项。这是正确的描述。"
+            },
+            {
+                "name": "D",
+                "value": "机构和个人外汇账户均区分现钞账户和现汇账户",
+                "reason": "正确选项。错误，现在个人外汇管理不再区分现钞和现汇账户。"
+            }
+        ]
+    },
+    {
+        "content": "68、下列金融机构中，不属于直接融资市场上的中介机构的是（）。",
+        "sequence": 68,
+        "id": "68",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "投资银行",
+                "reason": "错误选项。投资银行是直接融资市场的重要中介机构。"
+            },
+            {
+                "name": "B",
+                "value": "证券交易所",
+                "reason": "错误选项。证券交易所是直接融资市场的重要中介机构。"
+            },
+            {
+                "name": "C",
+                "value": "商业银行",
+                "reason": "正确选项。商业银行属于间接融资中介机构。"
+            },
+            {
+                "name": "D",
+                "value": "基金销售支付机构",
+                "reason": "错误选项。基金销售支付机构服务于直接融资市场。"
+            }
+        ]
+    },
+    {
+        "content": "69、下列关于拨备前利润的说法，错误的是（）。",
+        "sequence": 69,
+        "id": "69",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "拨备前利润是尚未扣除贷款损失准备金的利润",
+                "reason": "错误选项。这是正确的定义。"
+            },
+            {
+                "name": "B",
+                "value": "拨备前利润是计算当期提取拨备的基础",
+                "reason": "正确选项。错误，拨备前利润是未扣除当期提取拨备的利润，不是计算拨备的基础。"
+            },
+            {
+                "name": "C",
+                "value": "银行计提拨备的政策是影响拨备前利润的重要因素",
+                "reason": "错误选项。这是正确的描述。"
+            },
+            {
+                "name": "D",
+                "value": "拨备前利润是银行常用的盈利性指标",
+                "reason": "错误选项。这是正确的描述。"
+            }
+        ]
+    },
+    {
+        "content": "70、关于汇票的表述正确的是（）。",
+        "sequence": 70,
+        "id": "70",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "见票即付的汇票，无需提示承兑",
+                "reason": "正确选项。见票即付的汇票不需要承兑。"
+            },
+            {
+                "name": "B",
+                "value": "承兑适用于汇票和本票，不适用于支票",
+                "reason": "错误选项。承兑只适用于汇票，不适用于本票和支票。"
+            },
+            {
+                "name": "C",
+                "value": "汇票金额中文大写与数码记载不一致的，以中文大写金额为准",
+                "reason": "错误选项。金额不一致时，票据无效。"
+            },
+            {
+                "name": "D",
+                "value": "汇票保证中，被保证人的名称属于绝对应记载事项",
+                "reason": "错误选项。被保证人名称属于相对应记载事项。"
+            }
+        ]
+    },
+    {
+        "content": "71、商业银行在做客户反洗钱调查时，调查的核心内容是（）。",
+        "sequence": 71,
+        "id": "71",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "客户资金来源合法性",
+                "reason": "正确选项。反洗钱调查的核心是资金来源的合法性。"
+            },
+            {
+                "name": "B",
+                "value": "客户的整体风险承受能力",
+                "reason": "错误选项。这是风险评估的内容，不是反洗钱的核心。"
+            },
+            {
+                "name": "C",
+                "value": "客户对理财产品流动性的要求",
+                "reason": "错误选项。这是产品适配性的问题。"
+            },
+            {
+                "name": "D",
+                "value": "客户对理财产品收益率的要求",
+                "reason": "错误选项。这是产品适配性的问题。"
+            }
+        ]
+    },
+    {
+        "content": "72、下列关于理财产品分类的说法，不正确的是（）。",
+        "sequence": 72,
+        "id": "72",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "根据募集方式的不同，理财产品分为公募理财产品和私募理财产品",
+                "reason": "错误选项。这是正确的分类方式。"
+            },
+            {
+                "name": "B",
+                "value": "根据投资性质的不同，理财产品分为固定收益类、权益类、混合类和商品及金融衍生品类",
+                "reason": "错误选项。这是正确的分类方式。"
+            },
+            {
+                "name": "C",
+                "value": "混合类理财产品投资于各类资产的比例均不超过50%",
+                "reason": "错误选项。混合类产品通常是指投资于债权类、权益类、商品及金融衍生品类资产但任一资产投资比例未达到前三类标准的。"
+            },
+            {
+                "name": "D",
+                "value": "根据运作方式的不同，理财产品分为公募理财产品和私募理财产品",
+                "reason": "正确选项。错误，根据运作方式应分为封闭式和开放式理财产品。"
+            }
+        ]
+    },
+    {
+        "content": "73、下列属于商业银行经营管理中衡量成本控制能力的指标是（ ）。",
+        "sequence": 73,
+        "id": "73",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "成本收入比",
+                "reason": "正确选项。成本收入比是衡量银行成本控制能力的重要指标。"
+            },
+            {
+                "name": "B",
+                "value": "营业净收入",
+                "reason": "错误选项。这是收入指标，不是成本控制指标。"
+            },
+            {
+                "name": "C",
+                "value": "营业费用",
+                "reason": "错误选项。虽然与成本有关，但不如成本收入比直接反映成本控制能力。"
+            },
+            {
+                "name": "D",
+                "value": "营业税",
+                "reason": "错误选项。营业税是税收，不是成本控制指标。"
+            }
+        ]
+    },
+    {
+        "content": "74、没有剔除通货膨胀因素的汇率是（ ）",
+        "sequence": 74,
+        "id": "74",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "官方利率",
+                "reason": "错误选项。官方利率不是汇率类型。"
+            },
+            {
+                "name": "B",
+                "value": "市场汇率",
+                "reason": "错误选项。市场汇率是按市场形成机制分类的。"
+            },
+            {
+                "name": "C",
+                "value": "名义汇率",
+                "reason": "正确选项。名义汇率是没有剔除通胀因素的汇率。"
+            },
+            {
+                "name": "D",
+                "value": "实际利率",
+                "reason": "错误选项。实际利率是利率概念，不是汇率。"
+            }
+        ]
+    },
+    {
+        "content": "75、享有()，是银行业消费者在消费过程中作出自由选择并实现公平交易的前提条件。",
+        "sequence": 75,
+        "id": "75",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "安全权",
+                "reason": "错误选项。安全权是保障消费者人身财产安全的权利。"
+            },
+            {
+                "name": "B",
+                "value": "自主选择权",
+                "reason": "错误选项。自主选择权是消费者有权自主选择的权利。"
+            },
+            {
+                "name": "C",
+                "value": "知情权",
+                "reason": "正确选项。消费者需要充分了解产品信息才能做出合理选择。"
+            },
+            {
+                "name": "D",
+                "value": "隐私权",
+                "reason": "错误选项。隐私权是保护个人信息的权利。"
+            }
+        ]
+    },
+    {
+        "content": "76、合同无效的法律效力（）",
+        "sequence": 76,
+        "id": "76",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "自登记时无效",
+                "reason": "错误选项。合同无效是从一开始就没有法律效力。"
+            },
+            {
+                "name": "B",
+                "value": "自订立时无效",
+                "reason": "正确选项。无效合同自始无效，从订立时就没有法律约束力。"
+            },
+            {
+                "name": "C",
+                "value": "自履行时无效",
+                "reason": "错误选项。合同无效不是从履行时开始的。"
+            },
+            {
+                "name": "D",
+                "value": "自被确认无效时无效",
+                "reason": "错误选项。合同无效是自始无效，不是从确认时开始。"
+            }
+        ]
+    },
+    {
+        "content": "77、2024年的新《公司法》简化了有限责任公司组织机构可以只设（ ），不设置（ ）。",
+        "sequence": 77,
+        "id": "77",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "监事会；董事会",
+                "reason": "错误选项。这是相反的情况。"
+            },
+            {
+                "name": "B",
+                "value": "董事会；监事会",
+                "reason": "正确选项。根据新公司法，公司可以设置董事会并设置审计委员会，不设监事会。"
+            },
+            {
+                "name": "C",
+                "value": "董事会；经理层",
+                "reason": "错误选项。这不是新公司法的规定。"
+            },
+            {
+                "name": "D",
+                "value": "股东会；董事会",
+                "reason": "错误选项。股东会是公司必备机构。"
+            }
+        ]
+    },
+    {
+        "content": "78、2007年美国次贷危机是（）危机。",
+        "sequence": 78,
+        "id": "78",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "银行危机",
+                "reason": "错误选项。次贷危机不仅是银行危机。"
+            },
+            {
+                "name": "B",
+                "value": "货币危机",
+                "reason": "错误选项。次贷危机不是单纯的货币危机。"
+            },
+            {
+                "name": "C",
+                "value": "系统性金融危机",
+                "reason": "正确选项。次贷危机涉及多个金融领域，是系统性金融危机。"
+            },
+            {
+                "name": "D",
+                "value": "外债危机",
+                "reason": "错误选项。次贷危机不是外债危机。"
+            }
+        ]
+    },
+    {
+        "content": "79、按照保险实施范围的不同，保险分为普通保险和（）保险。",
+        "sequence": 79,
+        "id": "79",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "强制保险",
+                "reason": "错误选项。这是按实施方式分类。"
+            },
+            {
+                "name": "B",
+                "value": "自愿保险",
+                "reason": "错误选项。这是按实施方式分类。"
+            },
+            {
+                "name": "C",
+                "value": "社会保险",
+                "reason": "正确选项。按实施范围分，保险分为社会保险和普通保险。"
+            },
+            {
+                "name": "D",
+                "value": "财产保险",
+                "reason": "错误选项。这是按保险标的分类。"
+            }
+        ]
+    },
+    {
+        "content": "80、一般洗钱手法不包括（ ）。",
+        "sequence": 80,
+        "id": "80",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "携带入境",
+                "reason": "正确选项。携带现金入境虽然可能涉及洗钱，但不是典型洗钱手法。"
+            },
+            {
+                "name": "B",
+                "value": "制造商票",
+                "reason": "错误选项。制造假票据是洗钱手法之一。"
+            },
+            {
+                "name": "C",
+                "value": "提供保险、债券市场",
+                "reason": "错误选项。通过保险、债券市场洗钱是常见手法。"
+            },
+            {
+                "name": "D",
+                "value": "购买动产或不动产",
+                "reason": "错误选项。购买不动产是洗钱的常用手法。"
+            }
+        ]
+    },
+    {
+        "content": "81、根据《中华人民共和国担保法》及相关规定，下列保证合同中无效的有（）。",
+        "sequence": 81,
+        "id": "81",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "经国务院批准为使用外国政府贷款而由国家机关提供的保证合同",
+                "reason": "错误选项。这是有效的，符合特例规定。"
+            },
+            {
+                "name": "B",
+                "value": "企业法人分支机构经法人书面授权后提供的保证合同",
+                "reason": "错误选项。这是有效的，符合授权规定。"
+            },
+            {
+                "name": "C",
+                "value": "国家机关为固定资产投资贷款向国有银行提供的保证合同",
+                "reason": "正确选项。国家机关一般不得为保证人，除非特殊情形。"
+            },
+            {
+                "name": "D",
+                "value": "企业法人职能部门对外提供的保证合同",
+                "reason": "正确选项。企业法人的职能部门不具备保证人资格。"
+            },
+            {
+                "name": "E",
+                "value": "公立学校提供的保证合同",
+                "reason": "正确选项。以公益为目的的事业单位不得为保证人。"
+            }
+        ]
+    },
+    {
+        "content": "82、关于经济周期和金融危机，下列表述正确的有（）。",
+        "sequence": 82,
+        "id": "82",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "货币危机属于国际货币基金组织定义的金融危机的一种",
+                "reason": "正确选项。IMF将金融危机分为几类，其中包括货币危机。"
+            },
+            {
+                "name": "B",
+                "value": "一般情况下，如果经济处于衰退阶段，需要银行加大信贷投放，因此银行的整体经营状况会变好",
+                "reason": "错误选项。经济衰退时银行经营状况通常恶化。"
+            },
+            {
+                "name": "C",
+                "value": "经济周期分为四个阶段：繁荣阶段、衰退阶段、萧条阶段、复苏阶段",
+                "reason": "正确选项。这是经济周期的经典四阶段划分。"
+            },
+            {
+                "name": "D",
+                "value": "繁荣阶段表现为失业率下降、消费支出增加，产品供不应求，导致价格上升",
+                "reason": "正确选项。繁荣阶段的特征描述正确。"
+            },
+            {
+                "name": "E",
+                "value": "当经济出现严重衰退并伴随大幅货币贬值时，往往容易引发系统性金融危机",
+                "reason": "正确选项。严重的经济衰退可能引发系统性金融风险。"
+            }
+        ]
+    },
+    {
+        "content": "83、下列选项中，商业银行可以办理的业务有（ ）",
+        "sequence": 83,
+        "id": "83",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "票据贴现",
+                "reason": "正确选项。票据贴现是商业银行的基本业务之一。"
+            },
+            {
+                "name": "B",
+                "value": "发放贷款",
+                "reason": "正确选项。发放贷款是商业银行的核心业务之一。"
+            },
+            {
+                "name": "C",
+                "value": "吸收公众存款",
+                "reason": "正确选项。吸收公众存款是商业银行的基本业务之一。"
+            },
+            {
+                "name": "D",
+                "value": "再贴现",
+                "reason": "错误选项。再贴现是商业银行向中央银行借款的方式，不是面向公众的业务。"
+            },
+            {
+                "name": "E",
+                "value": "银行卡业务",
+                "reason": "正确选项。银行卡业务是商业银行的重要业务之一。"
+            }
+        ]
+    },
+    {
+        "content": "84、下列选项中，属于可变更、可撤销合同的有()。",
+        "sequence": 84,
+        "id": "84",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "乘人之危的合同",
+                "reason": "正确选项。乘人之危订立的合同属于可撤销合同。"
+            },
+            {
+                "name": "B",
+                "value": "显失公平的合同",
+                "reason": "正确选项。显失公平的合同属于可撤销合同。"
+            },
+            {
+                "name": "C",
+                "value": "违背公序良俗的合同",
+                "reason": "错误选项。违背公序良俗的合同是无效合同。"
+            },
+            {
+                "name": "D",
+                "value": "恶意串通，损害他人合法权益的合同",
+                "reason": "错误选项。恶意串通损害他人利益的合同是无效合同。"
+            },
+            {
+                "name": "E",
+                "value": "因重大误解订立的合同",
+                "reason": "正确选项。重大误解订立的合同属于可撤销合同。"
+            }
+        ]
+    },
+    {
+        "content": "85、关于合同解除的表述，正确的是()。",
+        "sequence": 85,
+        "id": "85",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "合同解除后，尚未履行的，终止履行",
+                "reason": "正确选项。合同解除具有终止未来义务的效力。"
+            },
+            {
+                "name": "B",
+                "value": "主合同解除后，担保人对债务人应当承担的民事责任仍应承担担保责任，但担保合同另有约定的除外",
+                "reason": "正确选项。这是担保责任独立性的体现。"
+            },
+            {
+                "name": "C",
+                "value": "合同解除后，已经履行的，根据履行情况和合同性质，当事人可以请求恢复原状或采取其他补救措施",
+                "reason": "正确选项。合同解除具有恢复原状的可能。"
+            },
+            {
+                "name": "D",
+                "value": "合同的解除分为协议解除、约定解除权和法定解除三种",
+                "reason": "正确选项。这是合同解除的主要类型。"
+            },
+            {
+                "name": "E",
+                "value": "当事人一方依法主张解除合同的，应当通知对方",
+                "reason": "正确选项。合同解除需要通知对方。"
+            }
+        ]
+    },
+    {
+        "content": "86、单位活期存款账户又称为单位结算账户，包括（）",
+        "sequence": 86,
+        "id": "86",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "基本存款账户",
+                "reason": "正确选项。基本存款账户是单位结算账户的一种。"
+            },
+            {
+                "name": "B",
+                "value": "一般存款账户",
+                "reason": "正确选项。一般存款账户是单位结算账户的一种。"
+            },
+            {
+                "name": "C",
+                "value": "专用存款账户",
+                "reason": "正确选项。专用存款账户是单位结算账户的一种。"
+            },
+            {
+                "name": "D",
+                "value": "临时存款账户",
+                "reason": "正确选项。临时存款账户是单位结算账户的一种。"
+            },
+            {
+                "name": "E",
+                "value": "协定存款账户",
+                "reason": "错误选项。协定存款账户是特殊性质的账户，不是基本结算账户类型。"
+            }
+        ]
+    },
+    {
+        "content": "87、商业银行自我监管通过( )实现。",
+        "sequence": 87,
+        "id": "87",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "内部治理",
+                "reason": "正确选项。内部治理是自我监管的重要途径。"
+            },
+            {
+                "name": "B",
+                "value": "内部隔离",
+                "reason": "错误选项。这不是自我监管的途径。"
+            },
+            {
+                "name": "C",
+                "value": "内部监督",
+                "reason": "错误选项。内部监督不是标准术语，通常说内部审计。"
+            },
+            {
+                "name": "D",
+                "value": "内部控制",
+                "reason": "正确选项。内部控制是自我监管的重要途径。"
+            },
+            {
+                "name": "E",
+                "value": "内部审计",
+                "reason": "正确选项。内部审计是自我监管的重要途径。"
+            }
+        ]
+    },
+    {
+        "content": "88、下列关于商业银行内部控制的说法中，正确的有（ ）。",
+        "sequence": 88,
+        "id": "88",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "在内部控制中，商业银行应建立健全外包管理制度、明确相应的组织架构和管理职责、并至少每年开展一次全面的外包业务风险评估",
+                "reason": "正确选项。这是外包管理的内部控制要求。"
+            },
+            {
+                "name": "B",
+                "value": "健全的内部控制保障体系包括以下要素：信息系统控制、人员管理、考评管理、内控文化",
+                "reason": "错误选项。内部控制保障体系要素还包括报告机制、业务连续性管理等。"
+            },
+            {
+                "name": "C",
+                "value": "商业银行内部控制应当遵循全覆盖、制衡性、审慎性、独立性的原则",
+                "reason": "错误选项。原则应包括相匹配原则，不包括独立性原则。"
+            },
+            {
+                "name": "D",
+                "value": "商业银行内部控制措施包括内部控制体系建设、风险识别、信息系统建设、合理的岗位设置、加强员工管理等",
+                "reason": "正确选项。这些都属于内部控制措施。"
+            },
+            {
+                "name": "E",
+                "value": "银行开展内部控制的目标包括保证风险管理的有效性",
+                "reason": "正确选项。有效风险管理是内部控制的目标之一。"
+            }
+        ]
+    },
+    {
+        "content": "89、区域发展是一个综合性的问题，主要包括的方面有（ ）。",
+        "sequence": 89,
+        "id": "89",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "生态环境",
+                "reason": "正确选项。区域发展包括生态环境方面。"
+            },
+            {
+                "name": "B",
+                "value": "社会",
+                "reason": "正确选项。区域发展包括社会发展方面。"
+            },
+            {
+                "name": "C",
+                "value": "文化",
+                "reason": "正确选项。区域发展包括文化发展方面。"
+            },
+            {
+                "name": "D",
+                "value": "经济",
+                "reason": "正确选项。区域发展包括经济发展方面。"
+            },
+            {
+                "name": "E",
+                "value": "体育",
+                "reason": "错误选项。体育不是区域发展的主要方面。"
+            }
+        ]
+    },
+    {
+        "content": "90、商业银行代理证券资金清算业务主要包括（）。",
+        "sequence": 90,
+        "id": "90",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "二级清算业务",
+                "reason": "正确选项。二级清算业务是代理证券资金清算的重要内容。"
+            },
+            {
+                "name": "B",
+                "value": "一级清算业务",
+                "reason": "正确选项。一级清算业务是代理证券资金清算的重要内容。"
+            },
+            {
+                "name": "C",
+                "value": "代理凭证式国债买卖",
+                "reason": "错误选项。这属于代理国债业务，不是证券资金清算业务。"
+            },
+            {
+                "name": "D",
+                "value": "代理储蓄式国债买卖",
+                "reason": "错误选项。这属于代理国债业务，不是证券资金清算业务。"
+            },
+            {
+                "name": "E",
+                "value": "代理开放式基金",
+                "reason": "错误选项。这属于基金代理业务，不是证券资金清算业务。"
+            }
+        ]
+    },
+    {
+        "content": "91、银行业金融机构配合监管机构的工作，应当（）。",
+        "sequence": 91,
+        "id": "91",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "若会影响本行业绩，应尽量通过各种方式婉拒监管",
+                "reason": "错误选项。银行业应积极配合监管工作。"
+            },
+            {
+                "name": "B",
+                "value": "及时、如实、全面地提供资料信息",
+                "reason": "正确选项。银行应真实完整地提供信息。"
+            },
+            {
+                "name": "C",
+                "value": "按照要求提供监管机构需要的数据",
+                "reason": "正确选项。银行应按要求提供数据。"
+            },
+            {
+                "name": "D",
+                "value": "无需向监管人员提供交通工具",
+                "reason": "错误选项。银行应为监管工作提供必要便利。"
+            },
+            {
+                "name": "E",
+                "value": "建立重大事项报告制度",
+                "reason": "正确选项。银行应建立重大事项报告制度。"
+            }
+        ]
+    },
+    {
+        "content": "92、关于商业银行组织架构包含的主要内容，正确的有（）。",
+        "sequence": 92,
+        "id": "92",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "包含部门之间的相互关系",
+                "reason": "正确选项。组织架构包括部门间关系。"
+            },
+            {
+                "name": "B",
+                "value": "包含总部部门的设置及其功能和权限",
+                "reason": "正确选项。组织架构包括总部部门设置及权责。"
+            },
+            {
+                "name": "C",
+                "value": "包含总行对分支机构实施管理的模式",
+                "reason": "正确选项。组织架构包括总分支管理模式。"
+            },
+            {
+                "name": "D",
+                "value": "包含分支机构的功能、权限和部门设置",
+                "reason": "正确选项。组织架构包括分支机构设置。"
+            },
+            {
+                "name": "E",
+                "value": "包含全行业务运作的组织架构模式",
+                "reason": "正确选项。组织架构包括业务运作模式。"
+            }
+        ]
+    },
+    {
+        "content": "93、下列商业银行指标中，属于集中度指标的有（）。",
+        "sequence": 93,
+        "id": "93",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "贷款结构",
+                "reason": "错误选项。贷款结构属于结构指标，不是集中度指标。"
+            },
+            {
+                "name": "B",
+                "value": "最大十家客户贷款比率",
+                "reason": "正确选项。这是典型的集中度指标。"
+            },
+            {
+                "name": "C",
+                "value": "大额风险暴露集中度",
+                "reason": "正确选项。这是集中度指标。"
+            },
+            {
+                "name": "D",
+                "value": "单一集团客户授信集中度",
+                "reason": "正确选项。这是集中度指标。"
+            },
+            {
+                "name": "E",
+                "value": "单一最大客户贷款比率",
+                "reason": "正确选项。这是集中度指标。"
+            }
+        ]
+    },
+    {
+        "content": "94、关于银行的效率指标，下列说法正确的有（）。",
+        "sequence": 94,
+        "id": "94",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "人均净利润是评价银行经营效率的重要指标之一",
+                "reason": "正确选项。人均净利润反映人力效率。"
+            },
+            {
+                "name": "B",
+                "value": "成本收入比=管理费用/营业净收入×100%",
+                "reason": "错误选项。成本收入比=营业费用/营业净收入×100%。"
+            },
+            {
+                "name": "C",
+                "value": "成本收入比是评价银行经营效率的重要指标之一",
+                "reason": "正确选项。成本收入比是重要效率指标。"
+            },
+            {
+                "name": "D",
+                "value": "人均净利润=净利润/员工数量×100%",
+                "reason": "正确选项。这是人均净利润的计算公式。"
+            },
+            {
+                "name": "E",
+                "value": "营业净收入=营业收入-营业支出和费用",
+                "reason": "正确选项。这是营业净收入的含义。"
+            }
+        ]
+    },
+    {
+        "content": "95、关于单位犯罪，下列说法正确的有（）。",
+        "sequence": 95,
+        "id": "95",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "双罚制，又称为两罚制，指在单位犯罪中，既处罚单位又处罚单位中的个人",
+                "reason": "正确选项。这是双罚制的定义。"
+            },
+            {
+                "name": "B",
+                "value": "我国《刑法》对单位犯罪实行以两罚制为主，以单罚制为辅的处罚原则",
+                "reason": "正确选项。这是我国单位犯罪的处罚原则。"
+            },
+            {
+                "name": "C",
+                "value": "单罚制，又称为代罚制或者转嫁制，指在单位犯罪中只处罚单位中的个人",
+                "reason": "正确选项。这是单罚制的定义。"
+            },
+            {
+                "name": "D",
+                "value": "公司、企业、事业单位、机关、团体实施危害社会的行为，可以构成单位犯罪",
+                "reason": "正确选项。这是单位犯罪的主体范围。"
+            },
+            {
+                "name": "E",
+                "value": "关于单位犯罪的处罚，在刑法理论上存在单罚制与双罚制之分",
+                "reason": "正确选项。这是刑法理论的分类。"
+            }
+        ]
+    },
+    {
+        "content": "96、下列关于人民币的表述，正确的是()",
+        "sequence": 96,
+        "id": "96",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "人民币的印制、发行、兑换、收回、销毁等工作由中国人民银行和国务院银行业监督管理部门共同负责",
+                "reason": "错误选项。人民币相关工作由中国人民银行负责，不是共同负责。"
+            },
+            {
+                "name": "B",
+                "value": "以人民币支付中华人民共和国境内的一切公众的和私人的债务，任何单位和个人不得拒收",
+                "reason": "正确选项。这是人民币的法定支付效力。"
+            },
+            {
+                "name": "C",
+                "value": "人民币是中华人民共和国的法定货币",
+                "reason": "正确选项。这是人民币的基本定位。"
+            },
+            {
+                "name": "D",
+                "value": "单位为元，辅币单位为角、分",
+                "reason": "正确选项。这是人民币的单位规定。"
+            },
+            {
+                "name": "E",
+                "value": "人民币的法定管理部门是中国人民银行",
+                "reason": "正确选项。这是人民币的管理机构。"
+            }
+        ]
+    },
+    {
+        "content": "97、个人消费贷款包括()",
+        "sequence": 97,
+        "id": "97",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "个人汽车贷款",
+                "reason": "正确选项。个人汽车贷款属于个人消费贷款。"
+            },
+            {
+                "name": "B",
+                "value": "助学贷款",
+                "reason": "正确选项。助学贷款属于个人消费贷款。"
+            },
+            {
+                "name": "C",
+                "value": "个人住房装修贷款",
+                "reason": "正确选项。住房装修贷款属于个人消费贷款。"
+            },
+            {
+                "name": "D",
+                "value": "个人信用贷款",
+                "reason": "错误选项。个人信用贷款是按担保方式分类，不是按用途分类的消费贷款。"
+            },
+            {
+                "name": "E",
+                "value": "耐用品消费贷款",
+                "reason": "正确选项。耐用品消费贷款属于个人消费贷款。"
+            }
+        ]
+    },
+    {
+        "content": "98、下列关于商业银行提升盈利水平措施的说法中，正确的有（ ） 。",
+        "sequence": 98,
+        "id": "98",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "积极拓展多元化业务发展，突破传统利差利润的限制",
+                "reason": "正确选项。多元化业务有助于提升盈利水平。"
+            },
+            {
+                "name": "B",
+                "value": "完善公司治理体制，为银行稳健经营取得收益提供保障",
+                "reason": "正确选项。良好的治理体制是盈利保障。"
+            },
+            {
+                "name": "C",
+                "value": "合理优化资产负债结构，控制经营成本",
+                "reason": "正确选项。优化资产负债结构有助于提升盈利。"
+            },
+            {
+                "name": "D",
+                "value": "提升风险管理能力，降低风险损失对盈利的影响",
+                "reason": "正确选项。风险管理直接影响盈利水平。"
+            },
+            {
+                "name": "E",
+                "value": "完善信用评估体系，建立健全信用风险管理方法和相关制度，加强信用风险管理能力、避免信用风险增加带来的潜在危机",
+                "reason": "正确选项。信用风险管理是提升盈利的重要手段。"
+            }
+        ]
+    },
+    {
+        "content": "99、下列属于直接融资的有（ ）",
+        "sequence": 99,
+        "id": "99",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "企业发行可转换债券",
+                "reason": "正确选项。企业发行债券是直接融资。"
+            },
+            {
+                "name": "B",
+                "value": "个人从银行贷款",
+                "reason": "错误选项。从银行贷款是间接融资。"
+            },
+            {
+                "name": "C",
+                "value": "政府发行债券",
+                "reason": "正确选项。政府发行债券是直接融资。"
+            },
+            {
+                "name": "D",
+                "value": "企业从银行贷款",
+                "reason": "错误选项。从银行贷款是间接融资。"
+            },
+            {
+                "name": "E",
+                "value": "公司发行股票",
+                "reason": "正确选项。公司发行股票是直接融资。"
+            }
+        ]
+    },
+    {
+        "content": "100、通货膨胀会对正常的商品流通秩序产生不利影响，其不利影响表现在（）。",
+        "sequence": 100,
+        "id": "100",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "会进一步加剧市场供需矛盾",
+                "reason": "正确选项。通胀会加剧供需矛盾。"
+            },
+            {
+                "name": "B",
+                "value": "会出现商品抢购、囤积居奇等现象",
+                "reason": "正确选项。通胀会导致抢购和囤积。"
+            },
+            {
+                "name": "C",
+                "value": "会导致商品流向价格上涨最快的地区",
+                "reason": "正确选项。通胀会影响商品流向。"
+            },
+            {
+                "name": "D",
+                "value": "会导致商品供求不合理",
+                "reason": "正确选项。通胀会扭曲供求关系。"
+            },
+            {
+                "name": "E",
+                "value": "会导致商品脱离正常的流通渠道",
+                "reason": "正确选项。通胀会扰乱流通秩序。"
+            }
+        ]
+    },
+    {
+        "content": "101、下列商业银行指标中，属于流动性指标的有（）。",
+        "sequence": 101,
+        "id": "101",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "净稳定资金比例",
+                "reason": "正确选项。NSFR是重要的流动性指标。"
+            },
+            {
+                "name": "B",
+                "value": "定活比",
+                "reason": "错误选项。定活比是结构指标，不是流动性指标。"
+            },
+            {
+                "name": "C",
+                "value": "优质流动性资产充足率",
+                "reason": "正确选项。这是流动性指标。"
+            },
+            {
+                "name": "D",
+                "value": "流动性匹配率",
+                "reason": "正确选项。这是流动性指标。"
+            },
+            {
+                "name": "E",
+                "value": "流动性覆盖率",
+                "reason": "正确选项。LCR是重要的流动性指标。"
+            }
+        ]
+    },
+    {
+        "content": "102、下列关于商业银行代理保险业务的说法中，正确的有（）。",
+        "sequence": 102,
+        "id": "102",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "商业银行应建立有效的保险代理业务管理制度",
+                "reason": "正确选项。银行应建立保险代理业务管理制度。"
+            },
+            {
+                "name": "B",
+                "value": "商业银行需对保险代理业务进行合规管理",
+                "reason": "正确选项。银行需对保险代理业务合规管理。"
+            },
+            {
+                "name": "C",
+                "value": "商业银行是重要的保险代理机构",
+                "reason": "正确选项。银行是保险代理的重要渠道。"
+            },
+            {
+                "name": "D",
+                "value": "商业银行属于专业保险代理机构",
+                "reason": "错误选项。银行属于保险兼业代理机构，不是专业保险代理机构。"
+            },
+            {
+                "name": "E",
+                "value": "商业银行应具备保险监督管理机构规定的保险代理机构条件",
+                "reason": "正确选项。银行需具备相应条件。"
+            }
+        ]
+    },
+    {
+        "content": "103、合同生效的要件有（）。",
+        "sequence": 103,
+        "id": "103",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "当事人意思表示真实",
+                "reason": "正确选项。这是合同生效的要件之一。"
+            },
+            {
+                "name": "B",
+                "value": "合同标的须确定和可能",
+                "reason": "正确选项。这是合同生效的要件之一。"
+            },
+            {
+                "name": "C",
+                "value": "合同须以书面形式订立",
+                "reason": "错误选项。并非所有合同都必须书面形式。"
+            },
+            {
+                "name": "D",
+                "value": "当事人必须具有完全民事行为能力",
+                "reason": "错误选项。限制民事行为能力人也可订立合同，视情况而定。"
+            },
+            {
+                "name": "E",
+                "value": "合同标的合法",
+                "reason": "正确选项。这是合同生效的要件之一。"
+            }
+        ]
+    },
+    {
+        "content": "104、下列属于《巴塞尔协议Ⅲ》核心内容的有（）。",
+        "sequence": 104,
+        "id": "104",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "提高资本充足率监管标准",
+                "reason": "正确选项。巴塞尔III提高了资本要求。"
+            },
+            {
+                "name": "B",
+                "value": "提出流动性覆盖比率要求",
+                "reason": "正确选项。LCR是巴塞尔III的重要内容。"
+            },
+            {
+                "name": "C",
+                "value": "引入杠杆率监管标准",
+                "reason": "正确选项。杠杆率是巴塞尔III新增内容。"
+            },
+            {
+                "name": "D",
+                "value": "统一了监管资本定义",
+                "reason": "错误选项。统一资本定义更多是巴塞尔I的内容。"
+            },
+            {
+                "name": "E",
+                "value": "增强风险加权资产计量的审慎性",
+                "reason": "正确选项。这是巴塞尔III的重要内容。"
+            }
+        ]
+    },
+    {
+        "content": "105、下列关于通货膨胀成因的说法中，正确的包括（）。",
+        "sequence": 105,
+        "id": "105",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "总需求大于供给",
+                "reason": "正确选项。需求拉动型通胀的原因。"
+            },
+            {
+                "name": "B",
+                "value": "货币供给过多",
+                "reason": "正确选项。这是通胀的重要成因。"
+            },
+            {
+                "name": "C",
+                "value": "有效需求下降",
+                "reason": "错误选项。有效需求下降会导致通缩，不是通胀。"
+            },
+            {
+                "name": "D",
+                "value": "货币供给增加",
+                "reason": "正确选项。货币供给增加可能导致通胀。"
+            },
+            {
+                "name": "E",
+                "value": "经济结构不合理",
+                "reason": "正确选项。经济结构问题是通胀成因之一。"
+            }
+        ]
+    },
+    {
+        "content": "106、下列各项中，不得作为商业银行呆账核销的债权是（）。",
+        "sequence": 106,
+        "id": "106",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "借款人因经营不善破产，清算后仍无法偿还的债权",
+                "reason": "错误选项。这种情况的债权可以核销。"
+            },
+            {
+                "name": "B",
+                "value": "借款人、担保人已破产的债权",
+                "reason": "错误选项。破产情况下无法偿还的债权可以核销。"
+            },
+            {
+                "name": "C",
+                "value": "违反法律、法规的规定、以各种形式逃废或是悬空的银行债权",
+                "reason": "正确选项。这种债权不得核销。"
+            },
+            {
+                "name": "D",
+                "value": "借款人、担保人有偿还能力，银行未按规定履行必要措施的债权",
+                "reason": "正确选项。银行未尽责的债权不得核销。"
+            },
+            {
+                "name": "E",
+                "value": "银行未向借款人和担保人追偿的债权",
+                "reason": "正确选项。未追偿的债权不得核销。"
+            }
+        ]
+    },
+    {
+        "content": "107、清廉从业的内涵包括()",
+        "sequence": 107,
+        "id": "107",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "清廉从业行为",
+                "reason": "正确选项。清廉从业行为是清廉金融的重要组成部分。"
+            },
+            {
+                "name": "B",
+                "value": "清廉从业制度",
+                "reason": "正确选项。清廉从业制度是清廉金融的重要组成部分。"
+            },
+            {
+                "name": "C",
+                "value": "清廉从业理念",
+                "reason": "正确选项。清廉从业理念是清廉金融的重要组成部分。"
+            },
+            {
+                "name": "D",
+                "value": "清廉金融产品",
+                "reason": "正确选项。清廉金融产品是清廉金融的重要组成部分。"
+            },
+            {
+                "name": "E",
+                "value": "请廉从业监督",
+                "reason": "错误选项。应为“清廉”，而且监督不是内涵的组成部分。"
+            }
+        ]
+    },
+    {
+        "content": "108、债券回购的主要形式包括（）。",
+        "sequence": 108,
+        "id": "108",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "买断式回购",
+                "reason": "正确选项。买断式回购是债券回购的主要形式之一。"
+            },
+            {
+                "name": "B",
+                "value": "抵押式回购",
+                "reason": "错误选项。不是标准的债券回购分类。"
+            },
+            {
+                "name": "C",
+                "value": "保证式回购",
+                "reason": "错误选项。不是标准的债券回购分类。"
+            },
+            {
+                "name": "D",
+                "value": "质押式回购",
+                "reason": "正确选项。质押式回购是债券回购的主要形式之一。"
+            },
+            {
+                "name": "E",
+                "value": "担保式回购",
+                "reason": "错误选项。不是标准的债券回购分类。"
+            }
+        ]
+    },
+    {
+        "content": "109、存款人可以开立专用存款账户的特定用途资金包括()。",
+        "sequence": 109,
+        "id": "109",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "单位银行卡备用金",
+                "reason": "正确选项。单位银行卡备用金可以开立专用账户。"
+            },
+            {
+                "name": "B",
+                "value": "基本建设资金",
+                "reason": "正确选项。基本建设资金可以开立专用账户。"
+            },
+            {
+                "name": "C",
+                "value": "住房基金",
+                "reason": "正确选项。住房基金可以开立专用账户。"
+            },
+            {
+                "name": "D",
+                "value": "期货交易保证金",
+                "reason": "正确选项。期货交易保证金可以开立专用账户。"
+            },
+            {
+                "name": "E",
+                "value": "社会保障基金",
+                "reason": "正确选项。社会保障基金可以开立专用账户。"
+            }
+        ]
+    },
+    {
+        "content": "110、良好银行公司治理应包括()",
+        "sequence": 110,
+        "id": "110",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "有效的风险管理与内部控制",
+                "reason": "正确选项。这是良好公司治理的重要内容。"
+            },
+            {
+                "name": "B",
+                "value": "健全的组织架构",
+                "reason": "正确选项。这是良好公司治理的重要内容。"
+            },
+            {
+                "name": "C",
+                "value": "清晰的职责边界",
+                "reason": "正确选项。这是良好公司治理的重要内容。"
+            },
+            {
+                "name": "D",
+                "value": "科学的发展战略",
+                "reason": "正确选项。这是良好公司治理的重要内容。"
+            },
+            {
+                "name": "E",
+                "value": "合理的激励约束机制",
+                "reason": "正确选项。这是良好公司治理的重要内容。"
+            }
+        ]
+    },
+    {
+        "content": "111、《中华人民共和国监督管理办法》可以适用于香港，澳门行政区，台湾区域的金融机构。",
+        "sequence": 111,
+        "id": "111",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "正确选项。银行业监督管理法不适用于港、澳、台地区的金融机构。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "错误选项。该法不适用于港、澳、台地区。"
+            }
+        ]
+    },
+    {
+        "content": "112、民法既调整平等主体之间的人身关系和财产关系，也调整不平等民事主体之间的行政关系。",
+        "sequence": 112,
+        "id": "112",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "正确选项。民法只调整平等主体之间的关系，不调整行政关系。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "错误选项。民法不调整行政关系。"
+            }
+        ]
+    },
+    {
+        "content": "113、合规是商业银行所有员工的共同责任，并应从商业银行的基层做起。（）",
+        "sequence": 113,
+        "id": "113",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "正确选项。合规应从高层做起，而不是从基层做起。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "错误选项。合规应从高层做起。"
+            }
+        ]
+    },
+    {
+        "content": "114、公司章程是公司内部的行为规范其效力仅限于公司和相关当事人不具有普遍的效力。（）",
+        "sequence": 114,
+        "id": "114",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "错误选项。这个说法是正确的。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "正确选项。公司章程的效力确实仅限于公司和相关当事人。"
+            }
+        ]
+    },
+    {
+        "content": "115、商业银行收入结构主要表现为净利息收入、非利息收入、投资业务收入。（）",
+        "sequence": 115,
+        "id": "115",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "正确选项。商业银行的收入结构主要表现为净利息收入与非利息收入，不包括投资业务收入这一独立分类。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "错误选项。收入结构主要是净利息收入与非利息收入两大类。"
+            }
+        ]
+    },
+    {
+        "content": "116、我国采用经济活动的同质性原则划分国民行业。（）",
+        "sequence": 116,
+        "id": "116",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "错误选项。这个说法是正确的。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "正确选项。我国确实采用经济活动的同质性原则划分国民行业。"
+            }
+        ]
+    },
+    {
+        "content": "117、在中华人民共和国境内设立的财务公司，适用《银行业监督管理法》对银行业金融机构监督管理的规定。（）",
+        "sequence": 117,
+        "id": "117",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "错误选项。这个说法是正确的。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "正确选项。财务公司适用银行业监督管理法的规定。"
+            }
+        ]
+    },
+    {
+        "content": "118、在我国持有、管理和经营国家外汇储备和黄金储备的机构是财政部。（）",
+        "sequence": 118,
+        "id": "118",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "正确选项。正确的是中国人民银行，而不是财政部。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "错误选项。持有、管理和经营国家外汇储备和黄金储备的机构是中国人民银行。"
+            }
+        ]
+    },
+    {
+        "content": "119、银行的规模决定了其收入的大小，因此银行的规模越大越好。",
+        "sequence": 119,
+        "id": "119",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "正确选项。银行规模不是越大越好，需要考虑效率、风险管理等因素。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "错误选项。银行规模过大可能带来管理风险等问题。"
+            }
+        ]
+    },
+    {
+        "content": "120、利率市场化条件下，利率水平受市场、资金供求等因素影响波动加大商业银行面临的利率风险、信用风险、流动性风险等一系列风险。",
+        "sequence": 120,
+        "id": "120",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "错误选项。这个说法是正确的。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "正确选项。利率市场化确实加大了银行面临的各种风险。"
+            }
+        ]
+    },
+    {
+        "content": "121、中国银行业协会的最高权力机构为会员大会，由参加协会的全体会员单位组成。会员大会的执行机构为董事会，对会员大会负责。（）",
+        "sequence": 121,
+        "id": "121",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "正确选项。会员大会的执行机构是理事会，不是董事会。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "错误选项。执行机构是理事会，不是董事会。"
+            }
+        ]
+    },
+    {
+        "content": "122、国家金融监督管理总局统一负责除证券业之外的金融业监管，强化机构监管、行为监管、功能监管、穿透式监管、持续监管。",
+        "sequence": 122,
+        "id": "122",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "正确选项。国家金融监督管理总局统一负责除证券业之外的金融业监管，而非除保险业之外。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "错误选项。表述错误，应该是除证券业之外，不是除保险业之外。"
+            }
+        ]
+    },
+    {
+        "content": "123、保险集团公司因下属各类机构较为复杂，因此不属于专门的保险类金融机构。",
+        "sequence": 123,
+        "id": "123",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "正确选项。保险集团公司属于专门的保险类金融机构。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "错误选项。保险集团公司确实属于保险类金融机构。"
+            }
+        ]
+    },
+    {
+        "content": "124、商业银行组织架构涉及前台、中台、后台业务运行和管理架构，以及总行对分支机构的管理。",
+        "sequence": 124,
+        "id": "124",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "错误选项。这个说法是正确的。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "正确选项。商业银行组织架构确实涵盖这些方面。"
+            }
+        ]
+    },
+    {
+        "content": "125、一人公司和国有独资公司是一类特殊的有限责任公司。()",
+        "sequence": 125,
+        "id": "125",
+        "attrs": [
+            {
+                "name": "A",
+                "value": "错",
+                "reason": "错误选项。这个说法是正确的。"
+            },
+            {
+                "name": "B",
+                "value": "对",
+                "reason": "正确选项。一人公司和国有独资公司确实是特殊的有限责任公司。"
+            }
+        ]
+    }
+];
+
+// ========== 存储键（独立不冲突） ==========
+const STORAGE_KEY_DONE = "doneIds_" + QUESTION_SET_ID;
+const STORAGE_KEY_WRONG = "wrong_" + QUESTION_SET_ID;
+
+let doneIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DONE) || "[]");
+let wrong = JSON.parse(localStorage.getItem(STORAGE_KEY_WRONG) || "[]");
+
+let current = null;
+let lastQuestion = null;
+let mode = "normal"; // normal 正常刷题 | wrong 只刷错题 | order 顺序刷题
+let currentIndex = 0; // 当前在顺序模式下的索引
+let currentWrongIndex = 0; // 当前在错题模式下的索引
+let currentAnswerSelected = false; // 记录当前题目是否已选择答案
+
+function $(id) { return document.getElementById(id); }
+
+// 去重已刷ID
+function uniqueDone() {
+  return [...new Set(doneIds)];
+}
+
+// 未刷题目列表
+function undoneQuestions() {
+  const d = uniqueDone();
+  return questions.filter(q => !d.includes(q.id));
+}
+
+// 刷新统计
+function refreshStat() {
+  $("total").textContent = questions.length;
+  $("done").textContent = uniqueDone().length;
+  $("undone").textContent = undoneQuestions().length;
+  $("wrong-cnt").textContent = wrong.length;
+
+  // 更新进度条
+  const doneCount = uniqueDone().length;
+  const totalCount = questions.length;
+  const progressPercent = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
+  $("progress-fill").style.width = progressPercent + "%";
+}
+
+// 随机取一题
+function randomPick(list) {
+  if (!list || list.length === 0) return null;
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+// 获取下一个顺序题目
+function getNextOrderQuestion() {
+  // 找到所有未做的题目，按照原始顺序排列
+  const undone = questions
+    .filter(q => !uniqueDone().includes(q.id))
+    .sort((a, b) => a.sequence - b.sequence);
+
+  if (undone.length > 0) {
+    return undone[0]; // 返回第一个未做的题目
+  } else {
+    // 如果全部做完了，返回第一题
+    return questions[0];
+  }
+}
+
+// 获取下一个错题
+function getNextWrongQuestion() {
+  if (wrong.length === 0) return null;
+
+  // 按照 sequence 排序错题
+  const sortedWrong = wrong.sort((a, b) => a.sequence - b.sequence);
+  return sortedWrong[currentWrongIndex % sortedWrong.length];
+}
+
+// 获取下一个错题（前进）
+function getNextWrongQuestionForward() {
+  if (wrong.length === 0) return null;
+
+  // 按照 sequence 排序错题
+  const sortedWrong = wrong.sort((a, b) => a.sequence - b.sequence);
+  const nextQ = sortedWrong[currentWrongIndex % sortedWrong.length];
+  currentWrongIndex = (currentWrongIndex + 1) % sortedWrong.length;
+  return nextQ;
+}
+
+// 获取上一个错题（后退）
+function getPrevWrongQuestion() {
+  if (wrong.length === 0) return null;
+
+  // 按照 sequence 排序错题
+  const sortedWrong = wrong.sort((a, b) => a.sequence - b.sequence);
+
+  // 计算上一个索引（处理负数情况）
+  const prevIndex = (currentWrongIndex - 1 + sortedWrong.length) % sortedWrong.length;
+  const prevQ = sortedWrong[prevIndex];
+  currentWrongIndex = prevIndex;
+  return prevQ;
+}
+
+// 获取上一个顺序题目
+function getPrevOrderQuestion() {
+  // 获取已做的题目，按照sequence降序排列
+  const done = uniqueDone()
+    .map(id => questions.find(q => q.id === id))
+    .filter(Boolean)
+    .sort((a, b) => b.sequence - a.sequence);
+
+  if (done.length > 0) {
+    return done[0]; // 返回最近做过的题目
+  } else {
+    // 如果没做过题，返回最后一题
+    return questions[questions.length - 1];
+  }
+}
+
+// 渲染题目
+function render(q) {
+  if (!q) {
+    $("qid").textContent = "";
+    $("q").textContent = "暂无题目";
+    $("opts").innerHTML = "";
+    $("a").style.display = "none";
+    return;
+  }
+  current = q;
+  currentAnswerSelected = false; // 重置选择状态
+  $("qid").textContent = `序号：${q.sequence} | ID：${q.id}`;
+  $("q").textContent = q.content;
+  $("a").style.display = "none";
+  $("opts").innerHTML = "";
+
+  q.attrs.forEach((o, idx) => {
+    const div = document.createElement("div");
+    div.className = "option";
+    div.textContent = `${String.fromCharCode(65 + idx)}. ${o.value}`; // 添加字母标签 (A, B, C, D...)
+    div.onclick = () => {
+      // 对于多选题，用户可以取消选择，也可以多选
+      if (div.classList.contains("selected")) {
+        div.classList.remove("selected");
+        // 如果取消了所有选择，隐藏解析
+        const selectedOptions = document.querySelectorAll('.option.selected');
+        if (selectedOptions.length === 0) {
+          $("a").style.display = "none";
+        }
+      } else {
+        // 单选模式：先取消之前的选择
+        document.querySelectorAll('#opts .option').forEach(opt => {
+          opt.classList.remove("selected");
+        });
+        // 选中当前选项
+        div.classList.add("selected");
+
+        // 显示解析
+        $("a").style.display = "block";
+        $("a").textContent = o.reason;
+        const ok = /正确选项/.test(o.reason);
+        div.classList.toggle("correct", ok);
+        div.classList.toggle("wrong", !ok);
+
+        // 如果选错了，加入错题
+        if (!ok && !wrong.some(x => x.id === q.id)) {
+          wrong.push(q);
+          localStorage.setItem(STORAGE_KEY_WRONG, JSON.stringify(wrong));
+          refreshStat();
+        }
+      }
+
+      // 设置已选择状态
+      currentAnswerSelected = true;
+    };
+    $("opts").appendChild(div);
+  });
+}
+
+// 下一题：点了才算刷过
+function next() {
+  // 只有在当前题目已选择答案的情况下，才把上一题标记为已刷
+  if (lastQuestion && currentAnswerSelected) {
+    if (!doneIds.includes(lastQuestion.id)) {
+      doneIds.push(lastQuestion.id);
+      localStorage.setItem(STORAGE_KEY_DONE, JSON.stringify(doneIds));
+    }
+  }
+
+  // 选题逻辑：优先从未刷里随机
+  let nextQ = null;
+  if (mode === "normal") {
+    const undone = undoneQuestions();
+    if (undone.length > 0) {
+      nextQ = randomPick(undone);
+    } else {
+      if (confirm("已刷完全部题目！是否重新开始？")) {
+        clearAll();
+        next();
+        return;
+      } else {
+        // 如果用户选择不重新开始，则随机显示题目
+        nextQ = randomPick(questions);
+      }
+    }
+  } else if (mode === "order") {
+    // 顺序模式
+    nextQ = getNextOrderQuestion();
+    // 在顺序模式下，无论用户是否选择答案，都标记为已刷（因为是顺序学习）
+    if (!doneIds.includes(nextQ.id)) {
+      doneIds.push(nextQ.id);
+      localStorage.setItem(STORAGE_KEY_DONE, JSON.stringify(doneIds));
+    }
+  } else {
+    // 错题模式 - 现在按顺序刷错题
+    if (wrong.length === 0) {
+      alert("暂无错题");
+      mode = "normal";
+      $("m-all").classList.add("active");
+      $("m-wrong").classList.remove("active");
+      $("m-order").classList.remove("active");
+      next();
+      return;
+    }
+    nextQ = getNextWrongQuestionForward();
+  }
+
+  lastQuestion = nextQ;
+  render(nextQ);
+  refreshStat();
+}
+
+// 上一题
+function prev() {
+  if (mode === "order") {
+    const prevQ = getPrevOrderQuestion();
+    if (prevQ) {
+      lastQuestion = prevQ;
+      render(prevQ);
+      refreshStat();
+    }
+  } else if (mode === "wrong") {
+    // 错题模式的上一题
+    if (wrong.length === 0) {
+      alert("暂无错题");
+      return;
+    }
+    const prevQ = getPrevWrongQuestion();
+    if (prevQ) {
+      lastQuestion = prevQ;
+      render(prevQ);
+      refreshStat();
+    }
+  }
+}
+
+// 错题列表
+function showWrong() {
+  let html = "<h4>错题列表</h4>";
+  if (wrong.length === 0) html += "<p>暂无错题</p>";
+  else wrong.forEach((q, i) => {
+    html += `<div class="list-item">${i+1}. [${q.sequence}] ${q.content}</div>`;
+  });
+  $("list-content").innerHTML = html;
+  $("modal").style.display = "flex";
+}
+function closeModal() {
+  $("modal").style.display = "none";
+}
+
+// 清空（iOS+电脑兼容）
+function clearAll() {
+  if (!confirm(`确定清空【${QUESTION_SET_ID}】所有记录？`)) return;
+  doneIds = [];
+  wrong = [];
+  lastQuestion = null;
+  current = null;
+  try {
+    localStorage.removeItem(STORAGE_KEY_DONE);
+    localStorage.removeItem(STORAGE_KEY_WRONG);
+  } catch (e) {}
+  refreshStat();
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS) {
+    setTimeout(() => window.location.reload(), 100);
+  } else {
+    next();
+  }
+}
+
+// 模式切换
+$("m-all").onclick = () => {
+  mode = "normal";
+  currentWrongIndex = 0; // 重置错题索引
+  $("m-all").classList.add("active");
+  $("m-wrong").classList.remove("active");
+  $("m-order").classList.remove("active");
+  lastQuestion = null;
+  document.getElementById("prev-btn").style.display = "none";
+  next();
+};
+
+$("m-order").onclick = () => {
+  mode = "order";
+  currentWrongIndex = 0; // 重置错题索引
+  $("m-order").classList.add("active");
+  $("m-all").classList.remove("active");
+  $("m-wrong").classList.remove("active");
+  lastQuestion = null;
+  document.getElementById("prev-btn").style.display = "block";
+  next();
+};
+
+$("m-wrong").onclick = () => {
+  mode = "wrong";
+  currentWrongIndex = 0; // 重置错题索引到开头
+  $("m-wrong").classList.add("active");
+  $("m-all").classList.remove("active");
+  $("m-order").classList.remove("active");
+  lastQuestion = null;
+  document.getElementById("prev-btn").style.display = "block";
+  next();
+};
+
+// 初始化
+refreshStat();
+render(randomPick(undoneQuestions()));
+
+// 添加键盘事件监听
+document.addEventListener('keydown', function(e) {
+  // 使用数字键选择选项
+  if (e.key >= '1' && e.key <= '4') {
+    const options = document.querySelectorAll('.option');
+    const index = parseInt(e.key) - 1;
+    if (index < options.length) {
+      options[index].click();
+    }
+  }
+
+  // 左箭头键上一题（仅在顺序模式下）
+  if (e.key === 'ArrowLeft' && mode === 'order') {
+    document.getElementById('prev-btn').click();
+  }
+
+  // 右箭头键或空格键或回车键下一题
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+    if (!e.target.classList.contains('option')) {
+      e.preventDefault();
+      document.querySelector('.btn-next').click();
+    }
+  }
+});
+</script>
+</body>
+</html>
