@@ -167,7 +167,7 @@
           { value: "D", text: "商业票据" }
         ],
         correctAnswer: "D",
-        explanation: "直接融资工具包括：政府、企业发行的国库券、企业债券、商业票据、公司股票等。（故本题选A）"
+        explanation: "直接融资工具包括：政府、企业发行的国库券、企业债券、商业票据、公司股票等。（故本题选D）"
       },
       {
         id: 2,
@@ -447,14 +447,20 @@
       // 显示解释
       explanationDiv.style.display = 'block';
 
-      // 记录答题情况
-      answeredCorrectly[questionIndex] = isCorrect;
+      // 如果不是在错题模式下，则更新答题记录
+      if (currentMode !== 'error') {
+        // 记录答题情况
+        answeredCorrectly[questionIndex] = isCorrect;
 
-      // 更新进度显示
-      updateProgress();
+        // 更新进度显示
+        updateProgress();
 
-      // 保存到本地存储
-      setItem('answeredCorrectly', JSON.stringify(answeredCorrectly));
+        // 保存到本地存储
+        setItem('answeredCorrectly', JSON.stringify(answeredCorrectly));
+      } else {
+        // 在错题模式下，仅显示结果但不更新统计记录
+        // 错题的历史记录保持不变
+      }
     }
 
     // 显示下一题
