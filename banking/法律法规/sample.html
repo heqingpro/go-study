@@ -1,564 +1,399 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>sample</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;padding:16px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f9f9f9}
-.container{max-width:600px;margin:0 auto}
-.title{text-align:center}
-.qid{color:#666;font-size:14px;margin-bottom:8px}
-.question{font-size:18px;line-height:1.5;margin:10px 0 20px}
-.option{background:#fff;border:1px solid #ddd;border-radius:12px;padding:14px;margin:10px 0;cursor:pointer}
-.analysis{background:#f1f3f5;border-radius:12px;padding:14px;margin:12px 0;display:none;line-height:1.5}
-.option.correct{background:#d4edda;border-color:#c3e6cb}
-.option.wrong{background:#f8d7da;border-color:#f5c6cb}
-.option.selected{background:#e3f2fd;border:2px solid #2196f3;box-shadow:0 0 5px rgba(33,150,243,0.5)}
-.stats{display:flex;gap:8px;margin:10px 0}
-.stat{flex:1;background:#fff;border-radius:10px;padding:10px;text-align:center;font-size:14px}
-.progress-container{margin:10px 0}
-.progress-bar{width:100%;height:20px;background:#e0e0e0;border-radius:10px;overflow:hidden}
-.progress-fill{height:100%;background:#4caf50;transition:width 0.3s ease}
-.mode-switch{display:flex;gap:8px;margin:10px 0}
-.mode-btn{flex:1;padding:10px;border-radius:8px;border:none;background:#eee}
-.mode-btn.active{background:#007aff;color:#fff}
-.btn{width:100%;padding:16px;border:none;border-radius:12px;margin-top:10px;font-size:16px}
-.btn-next{background:#007aff;color:#fff}
-.btn-prev{background:#aaa;color:#fff}
-.btn-clear{background:#ff3b30;color:#fff}
-.wrong-info{color:#ff3b30;text-align:center;margin:10px 0;cursor:pointer}
-.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center}
-.modal-body{background:#fff;width:90%;max-height:80vh;overflow-y:auto;padding:20px;border-radius:12px}
-.list-item{padding:10px;border-bottom:1px solid #eee}
-</style>
+  <meta charset="UTF-8" />
+  <title>答题</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0; padding: 0;
+    }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fff;
+      color: #333;
+      font-size: 18px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .container {
+      width: 100%;
+      min-height: 100vh;
+      padding: 12px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 22px;
+      margin: 12px 0;
+    }
+    .mode-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: #ecf0f1;
+      font-size: 16px;
+      touch-action: manipulation;
+      cursor: pointer;
+    }
+    button.active {
+      background: #3498db;
+      color: #fff;
+    }
+    .progress {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .question-title {
+      font-weight: bold;
+      font-size: 20px;
+      text-align: center;
+      margin: 16px 0;
+      line-height: 1.6;
+    }
+    .option {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 18px 14px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: #fff;
+      touch-action: manipulation;
+      cursor: pointer;
+      min-height: 60px;
+    }
+    .option.locked {
+      pointer-events: none;
+      opacity: 0.85;
+    }
+    .option input {
+      transform: scale(1.4);
+      margin-right: 12px;
+    }
+    .option.selected {
+      background: #e3f2fd;
+      border: 2px solid #2196f3;
+    }
+    .option.option-correct {
+      background: #d4edda !important;
+      border-color: #c3e6cb !important;
+    }
+    .option.option-wrong {
+      background: #f8d7da !important;
+      border-color: #f5c6cb !important;
+    }
+    .result {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 6px;
+      display: none;
+      text-align: center;
+    }
+    .result.correct { background: #d4edda; color: #060; }
+    .result.incorrect { background: #f8d7da; color: #900; }
+    .explanation {
+      padding: 12px;
+      background: #f5f9ff;
+      border-radius: 8px;
+      margin: 10px 0;
+      display: none;
+      line-height: 1.6;
+    }
+    .navigation {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .navigation button {
+      flex: 1;
+    }
+    .submit-btn {
+      background: #27ae60;
+      color: #fff;
+    }
+    .stats {
+      padding: 12px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      margin: 10px 0;
+      display: none;
+    }
+  </style>
 </head>
 <body>
 <div class="container">
-  <h3 class="title">sample</h3>
-  <div class="progress-container">
-    <div class="progress-bar">
-      <div class="progress-fill" id="progress-fill"></div>
+  <h1>答题练习</h1>
+  <div class="mode-buttons">
+    <button id="randomModeBtn" class="active">随机</button>
+    <button id="seqModeBtn">顺序</button>
+    <button id="errorModeBtn">错题</button>
+    <button id="showStatsBtn">统计</button>
+  </div>
+  <div class="progress"><span id="progressText">进度: 0/0</span></div>
+  <div class="stats" id="statsDiv">
+    <div style="display:flex;justify-content:space-between;">
+      <span>统计</span>
+      <button id="closeStatsBtn">×</button>
     </div>
   </div>
-  <div class="stats">
-    <div class="stat">总题：<span id="total"></span></div>
-    <div class="stat">已刷：<span id="done"></span></div>
-    <div class="stat">未刷：<span id="undone"></span></div>
-  </div>
-  <div class="mode-switch">
-    <button class="mode-btn active" id="m-all">全部随机</button>
-    <button class="mode-btn" id="m-order">顺序刷题</button>
-    <button class="mode-btn" id="m-wrong">只刷错题</button>
-  </div>
-  <div class="qid" id="qid"></div>
-  <div class="question" id="q"></div>
-  <div id="opts"></div>
-  <div class="analysis" id="a"></div>
-  <div class="wrong-info" id="wrong-info" onclick="showWrong()">错题：<span id="wrong-cnt">0</span></div>
-  <div style="display:flex;gap:10px">
-    <button class="btn btn-prev" id="prev-btn" onclick="prev()" style="display:none;">上一题</button>
-    <button class="btn btn-next" onclick="next()">下一题</button>
-  </div>
-  <button class="btn btn-clear" onclick="clearAll()">清空所有记录</button>
-</div>
-
-<div class="modal" id="modal">
-  <div class="modal-body">
-    <div id="list-content"></div>
-    <button onclick="closeModal()" style="width:100%;padding:10px;margin-top:10px">关闭</button>
+  <div id="quizContainer"></div>
+  <div class="navigation">
+    <button id="prevBtn">上一题</button>
+    <button id="nextBtn">下一题</button>
+    <button id="submitBtn" class="submit-btn">提交答案</button>
   </div>
 </div>
 
 <script>
-// ========== 每套题改这个唯一标识 ==========
-const QUESTION_SET_ID = "sample";
-// ========== 你的题目数据 ==========
 const questions = [
-    {
-        "content": "1. 以下关于金融标准体系的内容，正确的是（）。",
-        "sequence": 1,
-        "id": "1",
-        "attrs": [
-            {
-                "name": "A",
-                "value": "国家标准一经发布，与其重复的行业标准，地方标准相应废止",
-                "reason": "正确选项。根据《标准化法》，行业标准在相应的国家标准实施后即行废止 [1]。"
-            },
-            {
-                "name": "B",
-                "value": "国务院标准化行政主管部门会同国务院有关行政主管部门对团体标准和行业标准进行规范、引导和监督",
-                "reason": "错误选项。国务院有关行政主管部门分管本部门职责范围内的行业标准，负责行业标准的制定、实施、复审等 [1]。"
-            },
-            {
-                "name": "C",
-                "value": "经济合同中引用推荐性标准时，可以不必执行",
-                "reason": "错误选项。推荐性标准一旦被法律法规、经济合同引用，在该范围内具有强制约束力 [1, 2]。"
-            },
-            {
-                "name": "D",
-                "value": "团体和企业可以参与标准制定，但不可以自行制定",
-                "reason": "错误选项。国家鼓励社会团体协调市场主体共同制定团体标准，企业也可以根据需要自行制定企业标准 [3]。"
-            }
-        ]
-    },
-    {
-        "content": "2. 为实现跨行业，跨市场金融标准统筹规划，如下哪个选项不正确（）。",
-        "sequence": 2,
-        "id": "2",
-        "attrs": [
-            {
-                "name": "A",
-                "value": "2012年，中国人民银行金标委发布了银行业标准体系；保险、印制、证券分技术委员会分别发布了各自的标准体系",
-                "reason": "正确选项。该表述内容在历史背景下是正确的，但作为本题“不正确”的干扰项，是因为2012年的规划尚未涉及跨行业、跨市场的标准统筹 [4]。"
-            },
-            {
-                "name": "B",
-                "value": "中国人民银行、原银监会、证监会、原保监会联合国家标准组织制定发布了《金融业标准化体系建设发展规划（2016-2020）》重构新型金融标准体系",
-                "reason": "错误选项。该规划确实由多部委联合发布以重构标准体系 [5]。"
-            },
-            {
-                "name": "C",
-                "value": "金融国家标准和行业标准将从按机构划分的银行、证券、期货、保险、印制标准体系架构，升级为按功能划分",
-                "reason": "错误选项。这是《金融标准化“十四五”发展规划》明确的架构升级方向 [6, 7]。"
-            },
-            {
-                "name": "D",
-                "value": "功能划分主要涉及金融产品与服务、金融基础设施、金融统计、金融监管与风险防控标准体系架构",
-                "reason": "错误选项。这属于升级后按功能划分的五大标准体系架构内容 [6]。"
-            }
-        ]
-    },
-    {
-        "content": "3. 金融标准化原则描述错误的是（）。",
-        "sequence": 3,
-        "id": "3",
-        "attrs": [
-            {
-                "name": "A",
-                "value": "体系化原则",
-                "reason": "错误选项。这是金融标准化的核心原则之一 [8]。"
-            },
-            {
-                "name": "B",
-                "value": "实用性原则",
-                "reason": "错误选项。强调标准需贴合业务实际需求 [8]。"
-            },
-            {
-                "name": "C",
-                "value": "动态性原则",
-                "reason": "错误选项。标准需随技术和市场变化不断更新维护 [9]。"
-            },
-            {
-                "name": "D",
-                "value": "效率优先原则",
-                "reason": "正确选项。正确的原则应为“效率性与安全结合原则”，而非单独的“效率优先” [10]。"
-            }
-        ]
-    },
-    {
-        "content": "4. 金标委是在金融领域内从事全国性标准化工作的技术组织，（）是负责金融标准化的协调管理，是金标委的行政主管部门。",
-        "sequence": 4,
-        "id": "4",
-        "attrs": [
-            {
-                "name": "A",
-                "value": "国家标准化管理委员会",
-                "reason": "错误选项。虽是国家层面的标准化机构，但不直接行政管理金标委 [11]。"
-            },
-            {
-                "name": "B",
-                "value": "中国人民银行",
-                "reason": "正确选项。中国人民银行对金标委进行领导和管理，是其行政主管部门 [10, 11]。"
-            },
-            {
-                "name": "C",
-                "value": "市场监督管理局",
-                "reason": "错误选项。属于国家部委，不直接管理金融领域的专项标委会 [11]。"
-            },
-            {
-                "name": "D",
-                "value": "国家金融监督管理总局",
-                "reason": "错误选项。虽负责金融监管，但金标委由央行归口管理 [11]。"
-            }
-        ]
-    },
-    {
-        "content": "5. 以下哪个标准不属于信息交换标准（）。",
-        "sequence": 5,
-        "id": "5",
-        "attrs": [
-            {
-                "name": "A",
-                "value": "《银行信息化通用代码》",
-                "reason": "错误选项。代码集是信息交换的基础支撑标准 [5]。"
-            },
-            {
-                "name": "B",
-                "value": "《银行间市场业务数据交换协议》",
-                "reason": "错误选项。该协议明确了业务数据的交换规范 [5]。"
-            },
-            {
-                "name": "C",
-                "value": "《银行信息化数据接口》",
-                "reason": "正确选项。在目前的标准分类明细中，该名称通常归为技术管理或具体业务接口类，而非通用的信息交换标准集 [10]。"
-            },
-            {
-                "name": "D",
-                "value": "《银行间市场数据接口》",
-                "reason": "错误选项。属于典型的行业间数据交互接口规范 [5]。"
-            }
-        ]
-    }
+  {
+    id:1,type:"single",question:"下列属于直接融资工具的是（）。",
+    options:[
+      {value:"A",text:"银行债券"},{value:"B",text:"银行承兑汇票"},
+      {value:"C",text:"可转让大额定期存单"},{value:"D",text:"商业票据"}
+    ],
+    correctAnswer:"D",
+    explanation:"直接融资工具包括国库券、企业债券、商业票据、股票等。"
+  },
+  {
+    id:2,type:"multiple",question:"关于借记卡与贷记卡正确的是()",
+    options:[
+      {value:"A",text:"准贷记卡可透支"},{value:"B",text:"借记卡无需审核"},
+      {value:"C",text:"准贷记卡存款无利息"},{value:"D",text:"贷记卡还款期20-60天"},
+      {value:"E",text:"贷记卡可透支"}
+    ],
+    correctAnswer:["A","B","D","E"],
+    explanation:"C错误：准贷记卡存款有利息。"
+  },
+  {
+    id:3,type:"judge",question:"在华外资银行必须接受银保监会监管。",
+    options:[{value:"A",text:"错"},{value:"B",text:"对"}],
+    correctAnswer:"B",
+    explanation:"正确。依据《外资银行管理条例》。"
+  }
 ];
 
+// 顺序进度
+function saveSequentialIndex(idx) { localStorage.setItem("lastSequentialIndex", idx); }
+function loadSequentialIndex() { const v = localStorage.getItem("lastSequentialIndex"); return v ? parseInt(v) : 0; }
 
-// ========== 存储键（独立不冲突） ==========
-const STORAGE_KEY_DONE = "doneIds_" + QUESTION_SET_ID;
-const STORAGE_KEY_WRONG = "wrong_" + QUESTION_SET_ID;
+let currentMode = "random";
+let currentQuestionIndex = 0;
+let shuffledIndices = [];
+let errorList = []; // 🔥 错题独立列表，不再复用索引
+let answeredCorrectly = JSON.parse(localStorage.getItem("answeredCorrectly") || JSON.stringify(new Array(questions.length).fill(undefined)));
+let isSubmitted = false;
 
-let doneIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DONE) || "[]");
-let wrong = JSON.parse(localStorage.getItem(STORAGE_KEY_WRONG) || "[]");
-
-let current = null;
-let lastQuestion = null;
-let mode = "normal"; // normal 正常刷题 | wrong 只刷错题 | order 顺序刷题
-let currentIndex = 0; // 当前在顺序模式下的索引
-let currentWrongIndex = 0; // 当前在错题模式下的索引
-let currentAnswerSelected = false; // 记录当前题目是否已选择答案
-
-function $(id) { return document.getElementById(id); }
-
-// 去重已刷ID
-function uniqueDone() {
-  return [...new Set(doneIds)];
+function bindTap(el, callback) {
+  function handler(e) { e.preventDefault(); callback(); }
+  el.addEventListener("touchstart", handler);
+  el.addEventListener("click", handler);
 }
 
-// 未刷题目列表
-function undoneQuestions() {
-  const d = uniqueDone();
-  return questions.filter(q => !d.includes(q.id));
+// 锁定/解锁选项
+function lockOptions() { document.querySelectorAll(".option").forEach(o => o.classList.add("locked")); isSubmitted = true; }
+function unlockOptions() { document.querySelectorAll(".option").forEach(o => o.classList.remove("locked","option-correct","option-wrong")); isSubmitted = false; }
+
+// 🔥 重新获取最新错题列表（每次切换都刷新，杜绝错乱）
+function refreshErrorList() {
+  errorList = answeredCorrectly.map((ok, i) => ok === false ? i : -1).filter(i => i !== -1);
 }
 
-// 刷新统计
-function refreshStat() {
-  $("total").textContent = questions.length;
-  $("done").textContent = uniqueDone().length;
-  $("undone").textContent = undoneQuestions().length;
-  $("wrong-cnt").textContent = wrong.length;
-
-  // 更新进度条
-  const doneCount = uniqueDone().length;
-  const totalCount = questions.length;
-  const progressPercent = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
-  $("progress-fill").style.width = progressPercent + "%";
+function initPage() {
+  bindAll();
+  startQuiz();
 }
 
-// 随机取一题
-function randomPick(list) {
-  if (!list || list.length === 0) return null;
-  return list[Math.floor(Math.random() * list.length)];
+function bindAll() {
+  bindTap(document.getElementById("randomModeBtn"), ()=>switchMode("random"));
+  bindTap(document.getElementById("seqModeBtn"), ()=>switchMode("sequential"));
+  bindTap(document.getElementById("errorModeBtn"), ()=>switchMode("error"));
+  bindTap(document.getElementById("prevBtn"), showPrevQuestion);
+  bindTap(document.getElementById("nextBtn"), showNextQuestion);
+  bindTap(document.getElementById("submitBtn"), submitAnswer);
+  bindTap(document.getElementById("showStatsBtn"), toggleStats);
+  bindTap(document.getElementById("closeStatsBtn"), ()=>{ document.getElementById("statsDiv").style.display = "none"; });
 }
 
-// 渲染题目
-function render(q) {
-  if (!q) {
-    $("qid").textContent = "";
-    $("q").textContent = "暂无题目";
-    $("opts").innerHTML = "";
-    $("a").style.display = "none";
-    return;
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll(".mode-buttons button").forEach(b=>b.classList.remove("active"));
+  event.target.classList.add("active");
+  startQuiz();
+}
+
+// 🔥 核心：错题模式每次切换都重建列表，彻底解决索引错乱
+function startQuiz() {
+  if (currentMode === "random") {
+    shuffledIndices = [...Array(questions.length).keys()].sort(()=>Math.random()-0.5);
+    currentQuestionIndex = 0;
+  } else if (currentMode === "sequential") {
+    currentQuestionIndex = loadSequentialIndex();
+  } else if (currentMode === "error") {
+    refreshErrorList(); // 🔥 每次进错题都重新算一遍，保证最新
+    if (errorList.length === 0) { alert("暂无错题！"); return; }
+    currentQuestionIndex = 0;
   }
-  current = q;
-  currentAnswerSelected = false; // 重置选择状态
-  $("qid").textContent = `序号：${q.sequence} | ID：${q.id}`;
-  $("q").textContent = q.content;
-  $("a").style.display = "none";
-  $("opts").innerHTML = "";
+  showCurrentQuestion();
+  updateProgress();
+}
 
-  q.attrs.forEach((o, idx) => {
-    const div = document.createElement("div");
-    div.className = "option";
-    div.textContent = `${String.fromCharCode(65 + idx)}. ${o.value}`; // 添加字母标签 (A, B, C, D...)
-    div.onclick = () => {
-      // 对于多选题，用户可以取消选择，也可以多选
-      if (div.classList.contains("selected")) {
-        div.classList.remove("selected");
-        // 如果取消了所有选择，隐藏解析
-        const selectedOptions = document.querySelectorAll('.option.selected');
-        if (selectedOptions.length === 0) {
-          $("a").style.display = "none";
-        }
-      } else {
-        // 单选模式：先取消之前的选择
-        document.querySelectorAll('#opts .option').forEach(opt => {
-          opt.classList.remove("selected");
-        });
-        // 选中当前选项
-        div.classList.add("selected");
+function showCurrentQuestion() {
+  unlockOptions();
+  const ctn = document.getElementById("quizContainer");
+  let realIdx;
 
-        // 显示解析
-        $("a").style.display = "block";
-        $("a").textContent = o.reason;
-        const ok = /正确选项/.test(o.reason);
-        div.classList.toggle("correct", ok);
-        div.classList.toggle("wrong", !ok);
+  if (currentMode === "sequential") {
+    realIdx = currentQuestionIndex;
+  } else if (currentMode === "error") {
+    if (errorList.length === 0) return;
+    realIdx = errorList[currentQuestionIndex]; // 🔥 只从独立错题列表取
+  } else {
+    realIdx = shuffledIndices[currentQuestionIndex];
+  }
 
-        // 如果选错了，加入错题
-        if (!ok && !wrong.some(x => x.id === q.id)) {
-          wrong.push(q);
-          localStorage.setItem(STORAGE_KEY_WRONG, JSON.stringify(wrong));
-          refreshStat();
-        }
-      }
+  const q = questions[realIdx];
+  let html = `
+    <div class="question-title">${q.id}. ${q.question}</div>
+    <div class="options">
+  `;
+  q.options.forEach(opt => {
+    const oid = `opt_${q.id}_${opt.value}`;
+    const t = (q.type==="single"||q.type==="judge") ? "radio" : "checkbox";
+    html += `
+      <div class="option" data-qid="${q.id}" data-val="${opt.value}" data-type="${q.type}">
+        <input type="${t}" name="ans_${q.id}" id="${oid}" value="${opt.value}">
+        <label for="${oid}">${opt.value}. ${opt.text}</label>
+      </div>
+    `;
+  });
+  html += `
+    </div>
+    <div class="result" id="res_${q.id}"></div>
+    <div class="explanation" id="exp_${q.id}">${q.explanation}</div>
+  `;
+  ctn.innerHTML = html;
 
-      // 设置已选择状态
-      currentAnswerSelected = true;
-    };
-    $("opts").appendChild(div);
+  document.querySelectorAll(".option").forEach(item => {
+    bindTap(item, () => { if (!isSubmitted) selectOption(item); });
   });
 }
 
-// 获取下一个顺序题目
-function getNextOrderQuestion() {
-  // 找到所有未做的题目，按照原始顺序排列
-  const undone = questions
-    .filter(q => !uniqueDone().includes(q.id))
-    .sort((a, b) => a.sequence - b.sequence);
-
-  if (undone.length > 0) {
-    return undone[0]; // 返回第一个未做的题目
+function selectOption(el) {
+  const type = el.dataset.type;
+  const group = el.parentElement.querySelectorAll(".option");
+  if (type === "single" || type === "judge") {
+    group.forEach(g => { g.classList.remove("selected"); g.querySelector("input").checked = false; });
+    el.classList.add("selected"); el.querySelector("input").checked = true;
   } else {
-    // 如果全部做完了，返回第一题
-    return questions[0];
+    el.classList.toggle("selected");
+    el.querySelector("input").checked = el.classList.contains("selected");
   }
 }
 
-// 获取下一个错题
-function getNextWrongQuestion() {
-  if (wrong.length === 0) return null;
-
-  // 按照 sequence 排序错题
-  const sortedWrong = wrong.sort((a, b) => a.sequence - b.sequence);
-  return sortedWrong[currentWrongIndex % sortedWrong.length];
-}
-
-// 获取下一个错题（前进）
-function getNextWrongQuestionForward() {
-  if (wrong.length === 0) return null;
-
-  // 按照 sequence 排序错题
-  const sortedWrong = wrong.sort((a, b) => a.sequence - b.sequence);
-  const nextQ = sortedWrong[currentWrongIndex % sortedWrong.length];
-  currentWrongIndex = (currentWrongIndex + 1) % sortedWrong.length;
-  return nextQ;
-}
-
-// 获取上一个错题（后退）
-function getPrevWrongQuestion() {
-  if (wrong.length === 0) return null;
-
-  // 按照 sequence 排序错题
-  const sortedWrong = wrong.sort((a, b) => a.sequence - b.sequence);
-
-  // 计算上一个索引（处理负数情况）
-  const prevIndex = (currentWrongIndex - 1 + sortedWrong.length) % sortedWrong.length;
-  const prevQ = sortedWrong[prevIndex];
-  currentWrongIndex = prevIndex;
-  return prevQ;
-}
-
-// 获取上一个顺序题目
-function getPrevOrderQuestion() {
-  // 获取已做的题目，按照sequence降序排列
-  const done = uniqueDone()
-    .map(id => questions.find(q => q.id === id))
-    .filter(Boolean)
-    .sort((a, b) => b.sequence - a.sequence);
-
-  if (done.length > 0) {
-    return done[0]; // 返回最近做过的题目
+// 🔥 提交逻辑：错题模式不再修改记录，只判分
+function submitAnswer() {
+  if (isSubmitted) return;
+  let realIdx;
+  if (currentMode === "sequential") {
+    realIdx = currentQuestionIndex;
+  } else if (currentMode === "error") {
+    if (errorList.length === 0) return;
+    realIdx = errorList[currentQuestionIndex];
   } else {
-    // 如果没做过题，返回最后一题
-    return questions[questions.length - 1];
-  }
-}
-
-// 下一题：点了才算刷过
-function next() {
-  // 只有在当前题目已选择答案的情况下，才把上一题标记为已刷
-  if (lastQuestion && currentAnswerSelected) {
-    if (!doneIds.includes(lastQuestion.id)) {
-      doneIds.push(lastQuestion.id);
-      localStorage.setItem(STORAGE_KEY_DONE, JSON.stringify(doneIds));
-    }
+    realIdx = shuffledIndices[currentQuestionIndex];
   }
 
-  // 选题逻辑：优先从未刷里随机
-  let nextQ = null;
-  if (mode === "normal") {
-    const undone = undoneQuestions();
-    if (undone.length > 0) {
-      nextQ = randomPick(undone);
-    } else {
-      if (confirm("已刷完全部题目！是否重新开始？")) {
-        clearAll();
-        next();
-        return;
-      } else {
-        // 如果用户选择不重新开始，则随机显示题目
-        nextQ = randomPick(questions);
-      }
-    }
-  } else if (mode === "order") {
-    // 顺序模式
-    nextQ = getNextOrderQuestion();
-    // 在顺序模式下，无论用户是否选择答案，都标记为已刷（因为是顺序学习）
-    if (!doneIds.includes(nextQ.id)) {
-      doneIds.push(nextQ.id);
-      localStorage.setItem(STORAGE_KEY_DONE, JSON.stringify(doneIds));
-    }
-  } else {
-    // 错题模式 - 现在按顺序刷错题
-    if (wrong.length === 0) {
-      alert("暂无错题");
-      mode = "normal";
-      $("m-all").classList.add("active");
-      $("m-wrong").classList.remove("active");
-      $("m-order").classList.remove("active");
-      next();
-      return;
-    }
-    nextQ = getNextWrongQuestionForward();
-  }
+  const q = questions[realIdx];
+  const selected = Array.from(document.querySelectorAll(`input[name="ans_${q.id}"]:checked`)).map(i=>i.value);
+  if (selected.length === 0) { alert("请选择答案！"); return; }
 
-  lastQuestion = nextQ;
-  render(nextQ);
-  refreshStat();
-}
+  const isCorrect = Array.isArray(q.correctAnswer)
+    ? selected.length === q.correctAnswer.length && selected.every(v=>q.correctAnswer.includes(v))
+    : selected[0] === q.correctAnswer;
 
-// 上一题
-function prev() {
-  if (mode === "order") {
-    const prevQ = getPrevOrderQuestion();
-    if (prevQ) {
-      lastQuestion = prevQ;
-      render(prevQ);
-      refreshStat();
-    }
-  } else if (mode === "wrong") {
-    // 错题模式的上一题
-    if (wrong.length === 0) {
-      alert("暂无错题");
-      return;
-    }
-    const prevQ = getPrevWrongQuestion();
-    if (prevQ) {
-      lastQuestion = prevQ;
-      render(prevQ);
-      refreshStat();
-    }
-  }
-}
+  // 显示结果
+  const resEl = document.getElementById(`res_${q.id}`);
+  resEl.style.display = "block";
+  resEl.className = "result " + (isCorrect ? "correct" : "incorrect");
+  resEl.textContent = isCorrect ? "回答正确！" : "回答错误！";
+  document.getElementById(`exp_${q.id}`).style.display = "block";
 
-// 错题列表
-function showWrong() {
-  let html = "<h4>错题列表</h4>";
-  if (wrong.length === 0) html += "<p>暂无错题</p>";
-  else wrong.forEach((q, i) => {
-    html += `<div class="list-item">${i+1}. [${q.sequence}] ${q.content}</div>`;
+  // 正确标绿，选错变红
+  const correctAns = Array.isArray(q.correctAnswer) ? q.correctAnswer : [q.correctAnswer];
+  document.querySelectorAll(`.option[data-qid="${q.id}"]`).forEach(opt => {
+    const v = opt.dataset.val;
+    if (correctAns.includes(v)) opt.classList.add("option-correct");
+    else if (selected.includes(v)) opt.classList.add("option-wrong");
   });
-  $("list-content").innerHTML = html;
-  $("modal").style.display = "flex";
-}
-function closeModal() {
-  $("modal").style.display = "none";
-}
 
-// 清空（iOS+电脑兼容）
-function clearAll() {
-  if (!confirm(`确定清空【${QUESTION_SET_ID}】所有记录？`)) return;
-  doneIds = [];
-  wrong = [];
-  lastQuestion = null;
-  current = null;
-  try {
-    localStorage.removeItem(STORAGE_KEY_DONE);
-    localStorage.removeItem(STORAGE_KEY_WRONG);
-  } catch (e) {}
-  refreshStat();
-
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  if (isIOS) {
-    setTimeout(() => window.location.reload(), 100);
-  } else {
-    next();
+  // 非错题模式才更新记录
+  if (currentMode !== "error") {
+    answeredCorrectly[realIdx] = isCorrect;
+    localStorage.setItem("answeredCorrectly", JSON.stringify(answeredCorrectly));
   }
+
+  lockOptions();
+  updateProgress();
 }
 
-// 模式切换
-$("m-all").onclick = () => {
-  mode = "normal";
-  currentWrongIndex = 0; // 重置错题索引
-  $("m-all").classList.add("active");
-  $("m-wrong").classList.remove("active");
-  $("m-order").classList.remove("active");
-  lastQuestion = null;
-  document.getElementById("prev-btn").style.display = "none";
-  next();
-};
+// 🔥 下一题：严格基于当前模式总数计算
+function showNextQuestion() {
+  let total = currentMode === "error" ? errorList.length : questions.length;
+  if (total === 0) return;
+  currentQuestionIndex = (currentQuestionIndex + 1) % total;
+  if (currentMode === "sequential") saveSequentialIndex(currentQuestionIndex);
+  showCurrentQuestion();
+  updateProgress();
+}
+function showPrevQuestion() {
+  let total = currentMode === "error" ? errorList.length : questions.length;
+  if (total === 0) return;
+  currentQuestionIndex = (currentQuestionIndex - 1 + total) % total;
+  if (currentMode === "sequential") saveSequentialIndex(currentQuestionIndex);
+  showCurrentQuestion();
+  updateProgress();
+}
 
-$("m-order").onclick = () => {
-  mode = "order";
-  currentWrongIndex = 0; // 重置错题索引
-  $("m-order").classList.add("active");
-  $("m-all").classList.remove("active");
-  $("m-wrong").classList.remove("active");
-  lastQuestion = null;
-  document.getElementById("prev-btn").style.display = "block";
-  next();
-};
+// 🔥 进度：错题数量永远正确显示
+function updateProgress() {
+  const total = currentMode === "error" ? errorList.length : questions.length;
+  document.getElementById("progressText").textContent = `进度: ${currentQuestionIndex + 1}/${total}`;
+}
 
-$("m-wrong").onclick = () => {
-  mode = "wrong";
-  currentWrongIndex = 0; // 重置错题索引到开头
-  $("m-wrong").classList.add("active");
-  $("m-all").classList.remove("active");
-  $("m-order").classList.remove("active");
-  lastQuestion = null;
-  document.getElementById("prev-btn").style.display = "block";
-  next();
-};
+function toggleStats() {
+  const s = document.getElementById("statsDiv");
+  s.style.display = s.style.display === "block" ? "none" : "block";
+  if (s.style.display === "block") showStats();
+}
+function showStats() {
+  const totalAnswered = answeredCorrectly.filter(v=>v!==undefined).length;
+  const correct = answeredCorrectly.filter(v=>v===true).length;
+  const wrong = answeredCorrectly.filter(v=>v===false).length;
+  const rate = totalAnswered ? ((correct/totalAnswered)*100).toFixed(1) : 0;
+  document.getElementById("statsDiv").innerHTML = `
+    <div style="display:flex;justify-content:space-between;">
+      <span>答题统计</span><button id="closeStatsBtn">×</button>
+    </div>
+    总答题：${totalAnswered}<br>
+    正确：${correct}｜错误：${wrong}<br>
+    正确率：${rate}%<br>
+    当前错题数：${errorList.length}
+  `;
+  bindTap(document.getElementById("closeStatsBtn"), ()=>{ document.getElementById("statsDiv").style.display = "none"; });
+}
 
-// 初始化
-refreshStat();
-render(randomPick(undoneQuestions()));
-
-// 添加键盘事件监听
-document.addEventListener('keydown', function(e) {
-  // 使用数字键选择选项
-  if (e.key >= '1' && e.key <= '4') {
-    const options = document.querySelectorAll('.option');
-    const index = parseInt(e.key) - 1;
-    if (index < options.length) {
-      options[index].click();
-    }
-  }
-
-  // 左箭头键上一题（仅在顺序模式下）
-  if (e.key === 'ArrowLeft' && mode === 'order') {
-    document.getElementById('prev-btn').click();
-  }
-
-  // 右箭头键或空格键或回车键下一题
-  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
-    if (!e.target.classList.contains('option')) {
-      e.preventDefault();
-      document.querySelector('.btn-next').click();
-    }
-  }
-});
+window.onload = initPage;
 </script>
 </body>
 </html>
