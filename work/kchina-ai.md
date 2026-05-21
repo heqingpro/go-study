@@ -145,3 +145,6 @@ hermes sessions list
 hermes chat --resume 20260514_155016_2e0eb1
 ``````
 
+
+## 2026年5月21日 ai 会议记录
+
