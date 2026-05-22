@@ -156,6 +156,8 @@
 
 
   <script>
+    // 获取页面标题作为localStorage前缀
+    const pageTitle = document.title || 'quiz';
     // 题目数据
     let questions =[
     {
@@ -3258,14 +3260,14 @@ try {
 }
 
  // 顺序进度
-function saveSequentialIndex(idx) { localStorage.setItem("lastSequentialIndex", idx); }
-function loadSequentialIndex() { const v = localStorage.getItem("lastSequentialIndex"); return v ? parseInt(v) : 0; }
+function saveSequentialIndex(idx) { localStorage.setItem(pageTitle + "_lastSequentialIndex", idx); }
+function loadSequentialIndex() { const v = localStorage.getItem(pageTitle + "_lastSequentialIndex"); return v ? parseInt(v) : 0; }
 
 let currentMode = "random";
 let currentQuestionIndex = 0;
 let shuffledIndices = [];
 let errorList = []; // 🔥 错题独立列表，不再复用索引
-let answeredCorrectly = JSON.parse(localStorage.getItem("answeredCorrectly") || JSON.stringify(new Array(questions.length).fill(undefined)));
+let answeredCorrectly = JSON.parse(localStorage.getItem(pageTitle + "_answeredCorrectly") || JSON.stringify(new Array(questions.length).fill(undefined)));
 let isSubmitted = false;
 
 function bindTap(el, callback) {
@@ -3414,7 +3416,7 @@ function submitAnswer() {
   // 非错题模式才更新记录
   if (currentMode !== "error") {
     answeredCorrectly[realIdx] = isCorrect;
-    localStorage.setItem("answeredCorrectly", JSON.stringify(answeredCorrectly));
+    localStorage.setItem(pageTitle + "answeredCorrectly", JSON.stringify(answeredCorrectly));
   }
 
   lockOptions();
