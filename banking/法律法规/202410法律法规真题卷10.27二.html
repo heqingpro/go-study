@@ -1,0 +1,3646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>202410法律法规真题卷10.27二</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0; padding: 0;
+    }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fff;
+      color: #333;
+      font-size: 18px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .container {
+      width: 100%;
+      min-height: 100vh;
+      padding: 12px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 22px;
+      margin: 12px 0;
+    }
+    .mode-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: #ecf0f1;
+      font-size: 16px;
+      touch-action: manipulation;
+      cursor: pointer;
+    }
+    button.active {
+      background: #3498db;
+      color: #fff;
+    }
+    .progress {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .question-title {
+      font-weight: bold;
+      font-size: 20px;
+      text-align: center;
+      margin: 16px 0;
+      line-height: 1.6;
+    }
+    .option {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 18px 14px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: #fff;
+      touch-action: manipulation;
+      cursor: pointer;
+      min-height: 60px;
+    }
+    .option.locked {
+      pointer-events: none;
+      opacity: 0.85;
+    }
+    .option input {
+      transform: scale(1.4);
+      margin-right: 12px;
+    }
+    .option.selected {
+      background: #e3f2fd;
+      border: 2px solid #2196f3;
+    }
+    .option.option-correct {
+      background: #d4edda !important;
+      border-color: #c3e6cb !important;
+    }
+    .option.option-wrong {
+      background: #f8d7da !important;
+      border-color: #f5c6cb !important;
+    }
+    .result {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 6px;
+      display: none;
+      text-align: center;
+    }
+    .result.correct { background: #d4edda; color: #060; }
+    .result.incorrect { background: #f8d7da; color: #900; }
+    .explanation {
+      padding: 12px;
+      background: #f5f9ff;
+      border-radius: 8px;
+      margin: 10px 0;
+      display: none;
+      line-height: 1.6;
+    }
+    .navigation {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .navigation button {
+      flex: 1;
+    }
+    .submit-btn {
+      background: #27ae60;
+      color: #fff;
+    }
+    .stats {
+      padding: 12px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      margin: 10px 0;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>202410法律法规真题卷10.27二</h1>
+  <div class="mode-buttons">
+    <button id="randomModeBtn" class="active">随机</button>
+    <button id="seqModeBtn">顺序</button>
+    <button id="errorModeBtn">错题</button>
+    <button id="showStatsBtn">统计</button>
+  </div>
+  <div class="progress"><span id="progressText">进度: 0/0</span></div>
+  <div class="stats" id="statsDiv">
+    <div style="display:flex;justify-content:space-between;">
+      <span>统计</span>
+      <button id="closeStatsBtn">×</button>
+    </div>
+  </div>
+  <div id="quizContainer"></div>
+  <div class="navigation">
+    <button id="prevBtn">上一题</button>
+    <button id="nextBtn">下一题</button>
+    <button id="submitBtn" class="submit-btn">提交答案</button>
+  </div>
+</div>
+
+
+  <script>
+    // 获取页面标题作为localStorage前缀
+    const pageTitle = document.title || 'quiz';
+    // 题目数据
+    let questions = [
+    {
+        "id": 1,
+        "type": "single",
+        "question": "按保险人承担责任次序的不同，可将保险划分为原保险和()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "单一保险"
+            },
+            {
+                "value": "B",
+                "text": "再保险"
+            },
+            {
+                "value": "C",
+                "text": "派生保险"
+            },
+            {
+                "value": "D",
+                "text": "共同保险"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "按照保险承担的责任次序，保险可以分为原保险和再保险。（故本题选B）"
+    },
+    {
+        "id": 2,
+        "type": "single",
+        "question": "金融市场最主要、最基本的功能是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "优化资源配置"
+            },
+            {
+                "value": "B",
+                "text": "调节经济"
+            },
+            {
+                "value": "C",
+                "text": "融通货币资金"
+            },
+            {
+                "value": "D",
+                "text": "风险分散与风险管理"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "金融市场具有以下功能：①货币资金融通功能；②优化资源配置功能；③风险分散与风险管理功能；④经济调节功能；⑤交易及定价功能；⑥反映经济运行的功能。其中，融通货币资金是金融市场最主要、最基本的功能。（故本题选C）"
+    },
+    {
+        "id": 3,
+        "type": "single",
+        "question": "为治理“滞胀”和刺激经济增长，一国经常会采用的政策是（）。",
+        "options": [
+            {
+                "value": "A",
+                "text": "扩张性财政政策与紧缩性货币政策"
+            },
+            {
+                "value": "B",
+                "text": "紧缩性财政政策与紧缩性货币政策"
+            },
+            {
+                "value": "C",
+                "text": "紧缩性财政政策与扩张性货币政策"
+            },
+            {
+                "value": "D",
+                "text": "扩张性财政政策与扩张性货币政策"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "通货膨胀与经济停滞并存，产业结构和产品结构失衡，治理滞胀、刺激经济增长成为首要目标，此时适用“紧货币松财政”政策，即扩张性财政政策与紧缩性货币政策。（故本题选A）"
+    },
+    {
+        "id": 4,
+        "type": "single",
+        "question": "单位存款账户不包括以下哪一种()",
+        "options": [
+            {
+                "value": "A",
+                "text": "一般存款账户"
+            },
+            {
+                "value": "B",
+                "text": "基本存款账户"
+            },
+            {
+                "value": "C",
+                "text": "通知存款账户"
+            },
+            {
+                "value": "D",
+                "text": "临时存款账户"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "单位银行结算账户按用途分为基本存款账户、一般存款账户、专用存款账户和临时存款账户，不包含通知存款账户。（故本题选C）"
+    },
+    {
+        "id": 5,
+        "type": "single",
+        "question": "持股股份( )以上的股东及其董事、监事、高级管理人员被认定为内幕信息知情人员。",
+        "options": [
+            {
+                "value": "A",
+                "text": "5%"
+            },
+            {
+                "value": "B",
+                "text": "10%"
+            },
+            {
+                "value": "C",
+                "text": "15%"
+            },
+            {
+                "value": "D",
+                "text": "20%"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "证券交易内幕信息的知情人包括持有公司百分之五以上股份的股东及其董事、监事、高级管理人员，公司的实际控制人及其董事、监事、高级管理人员等。（故本题选A）"
+    },
+    {
+        "id": 6,
+        "type": "single",
+        "question": "提前支取的定期存款，支取部分按()",
+        "options": [
+            {
+                "value": "A",
+                "text": "开户日的定期存款利率"
+            },
+            {
+                "value": "B",
+                "text": "开户日的活期存款利率"
+            },
+            {
+                "value": "C",
+                "text": "支取日的定期存款利率"
+            },
+            {
+                "value": "D",
+                "text": "支取日的活期存款利率"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "提前支取的定期存款支取部分按活期存款利率计付利息，提前支取部分的利息同本金一并支取，且利率为支取日的活期存款利率。（故本题选D）"
+    },
+    {
+        "id": 7,
+        "type": "single",
+        "question": "货币执行贮藏手段职能的是()",
+        "options": [
+            {
+                "value": "A",
+                "text": "可以是观念形态的货币"
+            },
+            {
+                "value": "B",
+                "text": "必须是现实、足值的货币"
+            },
+            {
+                "value": "C",
+                "text": "可以不用十足价值"
+            },
+            {
+                "value": "D",
+                "text": "必须是以重量计算的贵金属"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "货币执行贮藏手段的特点：第一，必须是现实的、足值的货币。第二，必须是退出流通领域处于静止状态。（故本题选B）"
+    },
+    {
+        "id": 8,
+        "type": "single",
+        "question": "下列因素中，与银行创造派生存款多少成正比的是( )",
+        "options": [
+            {
+                "value": "A",
+                "text": "原始存款"
+            },
+            {
+                "value": "B",
+                "text": "现金漏损率"
+            },
+            {
+                "value": "C",
+                "text": "超额准备金"
+            },
+            {
+                "value": "D",
+                "text": "法定存款准备金"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "货币扩张系数即货币乘数，它是货币供应量与基础货币的比值，反映每一单位基础货币可以创造的货币数量的多少。在基础货币一定的条件下，货币乘数与货币供给成正比，而原始存款是基础货币的重要组成部分，因此原始存款与银行创造派生存款多少成正比；现金漏损率、超额准备金、法定存款准备金越高，银行创造派生存款越少。（故本题选A）"
+    },
+    {
+        "id": 9,
+        "type": "single",
+        "question": "职务侵占罪与贪污罪的区别不正确的一项是()",
+        "options": [
+            {
+                "value": "A",
+                "text": "犯罪主体不同"
+            },
+            {
+                "value": "B",
+                "text": "犯罪客体不同"
+            },
+            {
+                "value": "C",
+                "text": "犯罪目的不同"
+            },
+            {
+                "value": "D",
+                "text": "定刑处罚不同"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "职务侵占罪与贪污罪在客观方面和主观方面基本相同，主要区别在于：一是犯罪主体不同，职务侵占罪的主体只能是非国有的公司、企业或者其他单位的非国家工作人员，而贪污罪的主体是国家工作人员或者受国有单位委派管理、经营国有财产的人员；二是犯罪对象（客体）不同，职务侵占罪的犯罪对象是非国有单位的财物，而贪污罪的犯罪对象是国有财产在内的公共财产；三是刑罚处罚幅度不同，职务侵占罪的刑罚最高为五年以上有期徒刑，而对贪污罪，情节特别严重的可以处死刑。二者犯罪目的均为非法占有财物，并无不同。（故本题选C）"
+    },
+    {
+        "id": 10,
+        "type": "single",
+        "question": "关于中国银行业协会，下列说法不正确的是()",
+        "options": [
+            {
+                "value": "A",
+                "text": "中国银行业协会是营利性组织"
+            },
+            {
+                "value": "B",
+                "text": "中国银行业协会隶属于中国金融监督管理总局管理"
+            },
+            {
+                "value": "C",
+                "text": "中国银行业协会的目的是实现银行业的共同利益"
+            },
+            {
+                "value": "D",
+                "text": "商业银行可以不加入中国银行业协会"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "中国银行业协会是非营利性组织，其致力于促进银行业的健康发展，实现银行业的共同利益，商业银行可自主决定是否加入，且其并不隶属于中国金融监督管理总局管理。（故本题选A）"
+    },
+    {
+        "id": 11,
+        "type": "single",
+        "question": "下列属于第二继承人的是（ ）",
+        "options": [
+            {
+                "value": "A",
+                "text": "兄弟姐妹"
+            },
+            {
+                "value": "B",
+                "text": "父母"
+            },
+            {
+                "value": "C",
+                "text": "子女"
+            },
+            {
+                "value": "D",
+                "text": "配偶"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "法定继承中，第一顺序继承人是配偶、子女、父母；第二顺序继承人是兄弟姐妹、祖父母、外祖父母。（故本题选A）"
+    },
+    {
+        "id": 12,
+        "type": "single",
+        "question": "以取得利润并分配给股东等出资人为目的成立的法人是指（ ）",
+        "options": [
+            {
+                "value": "A",
+                "text": "营利法人"
+            },
+            {
+                "value": "B",
+                "text": "社会团体法人"
+            },
+            {
+                "value": "C",
+                "text": "事业单位法人"
+            },
+            {
+                "value": "D",
+                "text": "机关法人"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "《中华人民共和国民法典》第七十六条规定，以取得利润并分配给股东等出资人为目的成立的法人，为营利法人。营利法人包括有限责任公司、股份有限公司和其他企业法人等。（故本题选A）"
+    },
+    {
+        "id": 13,
+        "type": "single",
+        "question": "在下列选项中，经济周期不包括（）",
+        "options": [
+            {
+                "value": "A",
+                "text": "繁荣阶段"
+            },
+            {
+                "value": "B",
+                "text": "复苏阶段"
+            },
+            {
+                "value": "C",
+                "text": "成长阶段"
+            },
+            {
+                "value": "D",
+                "text": "衰退阶段"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "经济周期一般分为四个阶段：繁荣阶段、衰退阶段、萧条阶段和复苏阶段，不包含成长阶段。（故本题选C）"
+    },
+    {
+        "id": 14,
+        "type": "single",
+        "question": "关于风险调整后资本回报率(RSROC)的说法，正确的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "只考虑了预期损失，未考虑非预期损失"
+            },
+            {
+                "value": "B",
+                "text": "只考虑了非预期损失，未考虑预期损失"
+            },
+            {
+                "value": "C",
+                "text": "未考虑预期损失和非预期损失，但考虑了极端损失"
+            },
+            {
+                "value": "D",
+                "text": "同时考虑了预期损失和非预期损失"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "风险调整后资本回报率既考虑预期损失，也考虑非预期损失，更真实地反映了收益水平，在银行的实际收益与所承担的风险之间建立了直接联系，是银行进行价值管理的核心指标。（故本题选D）"
+    },
+    {
+        "id": 15,
+        "type": "single",
+        "question": "银行储蓄业务，储户较多，面临的最主要风险是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "操作风险"
+            },
+            {
+                "value": "B",
+                "text": "流动性风险"
+            },
+            {
+                "value": "C",
+                "text": "信用风险"
+            },
+            {
+                "value": "D",
+                "text": "市场风险"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "储蓄存款业务的客户群体大，涉及面广，其所面临的操作风险较为明显，如柜员操作失误、系统故障等，是该业务最主要的风险。（故本题选A）"
+    },
+    {
+        "id": 16,
+        "type": "single",
+        "question": "下列选项中，通常不用于反映银行经营安全性指标的是()",
+        "options": [
+            {
+                "value": "A",
+                "text": "资本充足率"
+            },
+            {
+                "value": "B",
+                "text": "拨贷比"
+            },
+            {
+                "value": "C",
+                "text": "净稳定资金率"
+            },
+            {
+                "value": "D",
+                "text": "不良贷款率"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "安全性指标有：不良贷款率、不良贷款拨备覆盖率、拨贷比、资本充足率；净稳定资金率属于流动性指标，并非安全性指标。（故本题选C）"
+    },
+    {
+        "id": 17,
+        "type": "single",
+        "question": "办理储蓄业务时由于人数过多，最容易发生的风险是（ ）",
+        "options": [
+            {
+                "value": "A",
+                "text": "操作风险"
+            },
+            {
+                "value": "B",
+                "text": "流动性风险"
+            },
+            {
+                "value": "C",
+                "text": "市场风险"
+            },
+            {
+                "value": "D",
+                "text": "信用风险"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "储蓄存款业务的客户群体大，涉及面广，人数过多时柜员易出现操作失误、流程疏漏等情况，操作风险凸显，是最容易发生的风险。（故本题选A）"
+    },
+    {
+        "id": 18,
+        "type": "single",
+        "question": "下列不属于定期存款的类型的是",
+        "options": [
+            {
+                "value": "A",
+                "text": "整存整取"
+            },
+            {
+                "value": "B",
+                "text": "零存整取"
+            },
+            {
+                "value": "C",
+                "text": "零存零取"
+            },
+            {
+                "value": "D",
+                "text": "存本取息"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "定期存款的类型包括整存整取、零存整取、整存零取、存本取息，不存在零存零取的类型。（故本题选C）"
+    },
+    {
+        "id": 19,
+        "type": "single",
+        "question": "商业银行最基础的职能( )",
+        "options": [
+            {
+                "value": "A",
+                "text": "支付中介"
+            },
+            {
+                "value": "B",
+                "text": "金融服务"
+            },
+            {
+                "value": "C",
+                "text": "信用创造"
+            },
+            {
+                "value": "D",
+                "text": "信用中介"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "原答案标注为A错误，商业银行最基本、最基础的职能是信用中介。银行通过吸收存款，动员和集中社会上一切闲置的货币资本，然后又通过放款把这些货币资本贷放给需要资本的企业使用，这是信用中介职能的体现；支付中介是商业银行的重要职能，但并非最基础职能。（故本题选D）"
+    },
+    {
+        "id": 20,
+        "type": "single",
+        "question": "公开募集基金的基金份额持有人按( )享受收益和承担风险，非公开募集基金的基金份额持有人按()享受收益和承担风险。",
+        "options": [
+            {
+                "value": "A",
+                "text": "基金合同的约定；所持基金份额"
+            },
+            {
+                "value": "B",
+                "text": "所持基金份额；所持基金份额"
+            },
+            {
+                "value": "C",
+                "text": "基金合同的约定；基金合同的约定"
+            },
+            {
+                "value": "D",
+                "text": "所持基金份额；基金合同的约定"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "根据我国《基金法》的规定，公开募集的证券投资基金，投资者按照其所持基金份额享受收益和承担风险，私募证券投资基金的收益分配和风险承担由基金合同约定。（故本题选D）"
+    },
+    {
+        "id": 21,
+        "type": "single",
+        "question": "不能用于支取现金的支票是（ ）",
+        "options": [
+            {
+                "value": "A",
+                "text": "旅行支票"
+            },
+            {
+                "value": "B",
+                "text": "普通支票"
+            },
+            {
+                "value": "C",
+                "text": "现金支票"
+            },
+            {
+                "value": "D",
+                "text": "转账支票"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "原答案标注为A错误，现金支票只能用于支付现金；转账支票只能用于转账，不能支取现金；普通支票既可以用于支取现金，也可以用于转账；旅行支票可用于支取现金。（故本题选D）"
+    },
+    {
+        "id": 22,
+        "type": "single",
+        "question": "关于风险调整后资本回报率(RAROC)的说法,正确的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "只考虑了预期损失，未考虑非预期损失"
+            },
+            {
+                "value": "B",
+                "text": "只考虑了非预期损失，未考虑预期损失"
+            },
+            {
+                "value": "C",
+                "text": "未考虑预期损失和非预期损失，但考虑了极端损失"
+            },
+            {
+                "value": "D",
+                "text": "同时考虑了预期损失和非预期损失"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "风险调整后资本回报率（RAROC）既考虑预期损失，也考虑非预期损失，更真实地反映了收益水平，在银行的实际收益与所承担的风险之间建立了直接联系，是银行进行价值管理的核心指标。（故本题选D）"
+    },
+    {
+        "id": 23,
+        "type": "single",
+        "question": "下列选项中属于通货紧缩产生的原因之一是( )",
+        "options": [
+            {
+                "value": "A",
+                "text": "货币供给过多"
+            },
+            {
+                "value": "B",
+                "text": "经济结构不合理，存在过多的无效供给"
+            },
+            {
+                "value": "C",
+                "text": "外资流入增加"
+            },
+            {
+                "value": "D",
+                "text": "有效需求过大"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "通货紧缩是指经济中货币供应量少于客观需要量，社会总需求小于总供给，导致单位货币升值、价格水平普遍和持续下降的经济现象。其产生原因包括：①货币供给减少；②有效需求不足；③供需结构不合理，经济中存在过多的无效供给，加剧供求矛盾，导致供过于求，产品价格下跌；④国际市场的冲击。货币供给过多、外资流入增加、有效需求过大均会引发通货膨胀而非通货紧缩。（故本题选B）"
+    },
+    {
+        "id": 24,
+        "type": "single",
+        "question": "在存期内遇有利率调整，定期储蓄存款按存单( )挂牌公告的相应定期储蓄存款利率计付利息。",
+        "options": [
+            {
+                "value": "A",
+                "text": "结息日"
+            },
+            {
+                "value": "B",
+                "text": "开户日"
+            },
+            {
+                "value": "C",
+                "text": "支取日"
+            },
+            {
+                "value": "D",
+                "text": "清户日"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "存期内遇有利率调整，仍按存单开户日挂牌公告的相应定期存款利率计息，不受利率调整的影响。（故本题选B）"
+    },
+    {
+        "id": 25,
+        "type": "single",
+        "question": "下列选项中，通常不用于反映银行经营安全性指标的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "资本充足率"
+            },
+            {
+                "value": "B",
+                "text": "拨贷比"
+            },
+            {
+                "value": "C",
+                "text": "净稳定资金率"
+            },
+            {
+                "value": "D",
+                "text": "不良贷款率"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "安全性指标有：不良贷款率、不良贷款拨备覆盖率、拨贷比、资本充足率；净稳定资金率属于流动性指标，用于衡量银行流动性状况，并非安全性指标。（故本题选C）"
+    },
+    {
+        "id": 26,
+        "type": "single",
+        "question": "下列关于票据的表述，错误的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "票据是设权证券"
+            },
+            {
+                "value": "B",
+                "text": "票据是完全有价证券"
+            },
+            {
+                "value": "C",
+                "text": "票据是非流通证券"
+            },
+            {
+                "value": "D",
+                "text": "票据是要式证券"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "票据具有设权性、完全有价性、要式性、流通性等特征，票据是流通证券，而非非流通证券。（故本题选C）"
+    },
+    {
+        "id": 27,
+        "type": "single",
+        "question": "在信用活动中起主导作用的金融机构是()",
+        "options": [
+            {
+                "value": "A",
+                "text": "中央银行"
+            },
+            {
+                "value": "B",
+                "text": "政策性银行"
+            },
+            {
+                "value": "C",
+                "text": "投资银行"
+            },
+            {
+                "value": "D",
+                "text": "商业银行"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "商业银行是指能够吸收公众存款、发放贷款、办理结算等多种业务，以盈利为主要经营目标，经营货币的金融企业。商业银行在银行体系中占有重要的地位，在信用活动中起着主导作用。（故本题选D）"
+    },
+    {
+        "id": 28,
+        "type": "single",
+        "question": "下列属于犯罪中止的是( )。",
+        "options": [
+            {
+                "value": "A",
+                "text": "已经着手实行犯罪但犯罪未发生"
+            },
+            {
+                "value": "B",
+                "text": "在犯罪过程中，自动有效地防止犯罪结果发生"
+            },
+            {
+                "value": "C",
+                "text": "在犯罪过程中，由于行为人意志以外的原因犯罪结果未发生"
+            },
+            {
+                "value": "D",
+                "text": "行为人为实施犯罪而准备了工具，但没有着手实施犯罪"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "在犯罪过程中，自动放弃犯罪或者自动有效地防止犯罪结果发生的，是犯罪中止；选项AC属于犯罪未遂（已经着手实行犯罪，由于犯罪分子意志以外的原因而未得逞）；选项D属于犯罪预备（为了犯罪，准备工具、制造条件）。（故本题选B）"
+    },
+    {
+        "id": 29,
+        "type": "single",
+        "question": "下列金融犯罪中，犯罪主体属于特殊主体的是()",
+        "options": [
+            {
+                "value": "A",
+                "text": "非法吸收公众存款罪"
+            },
+            {
+                "value": "B",
+                "text": "伪造、变造金融票证罪"
+            },
+            {
+                "value": "C",
+                "text": "吸收资金不入账罪"
+            },
+            {
+                "value": "D",
+                "text": "高利转贷罪"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "吸收客户资金不入账罪的主体是特殊主体，为银行或者其他金融机构及其工作人员；非法吸收公众存款罪、伪造变造金融票证罪、高利转贷罪的主体均为一般主体，包括自然人和单位（高利转贷罪中具有贷款业务经营权的金融机构除外）。（故本题选C）"
+    },
+    {
+        "id": 30,
+        "type": "single",
+        "question": "中央银行要增加货币供应量时，可以采取的货币政策工具是( )。",
+        "options": [
+            {
+                "value": "A",
+                "text": "在公开市场上卖出有价证券"
+            },
+            {
+                "value": "B",
+                "text": "通过窗口指导劝告商业银行减少贷款发放"
+            },
+            {
+                "value": "C",
+                "text": "降低存款准备金率"
+            },
+            {
+                "value": "D",
+                "text": "提高再贴现率"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "扩张的货币政策（增加货币供应量）主要是通过降低法定存款准备金率、降低再贴现率、公开市场买入有价证券等手段，以增加商业银行的超额准备金、增加基础货币，扩大货币乘数，增加社会货币供给总量；卖出有价证券、劝告减少贷款、提高再贴现率均属于紧缩性货币政策，会减少货币供应量。（故本题选C）"
+    },
+    {
+        "id": 31,
+        "type": "single",
+        "question": "根据《中华人民共和国民法典》，债权债务的终止情形不包括( )。",
+        "options": [
+            {
+                "value": "A",
+                "text": "债务人丧失履行能力"
+            },
+            {
+                "value": "B",
+                "text": "债务相互抵销"
+            },
+            {
+                "value": "C",
+                "text": "债权债务同归于一人"
+            },
+            {
+                "value": "D",
+                "text": "债务已经履行"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "《民法典》第五百五十七条规定，有下列情形之一的，债权债务终止：(1)债务已经履行；(2)债务相互抵销；(3)债务人依法将标的物提存；(4)债权人免除债务；(5)债权债务同归于一人；(6)法律规定或者当事人约定终止的其他情形。债务人丧失履行能力并非债权债务终止的法定情形。（故本题选A）"
+    },
+    {
+        "id": 32,
+        "type": "single",
+        "question": "当事人采取要约形式订立合同，不属于要约失效情形的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "承诺期限届满，受要约人未作出承诺"
+            },
+            {
+                "value": "B",
+                "text": "要约被拒绝"
+            },
+            {
+                "value": "C",
+                "text": "受要约人对要约的内容作出一般性变更"
+            },
+            {
+                "value": "D",
+                "text": "要约被依法撤销"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "有下列情形之一的，要约失效：①要约被拒绝；②要约被依法撤销；③承诺期限届满，受要约人未作出承诺；④受要约人对要约的内容作出实质性变更。受要约人对要约内容作出一般性变更，并非要约失效的情形。（故本题选C）"
+    },
+    {
+        "id": 33,
+        "type": "single",
+        "question": "下列属于能够形成成本推动型通货膨胀的因素是",
+        "options": [
+            {
+                "value": "A",
+                "text": "垄断企业为了追求超额利润而提高垄断产品价格"
+            },
+            {
+                "value": "B",
+                "text": "总需求大于总供给"
+            },
+            {
+                "value": "C",
+                "text": "总需求小于总供给"
+            },
+            {
+                "value": "D",
+                "text": "过多的货币追求过少的商品"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "成本推动型通货膨胀，其根源在于社会总供给的变化，在商品和劳务的需求不变的情况下，因生产成本的提高而推动物价上涨。生产成本的提高主要来自两个方面的原因：一是工资推进的通货膨胀；二是利润推进的通货膨胀（如垄断企业提高产品价格）。总需求大于总供给、过多的货币追求过少的商品属于需求拉动型通货膨胀的原因；总需求小于总供给会引发通货紧缩。（故本题选A）"
+    },
+    {
+        "id": 34,
+        "type": "single",
+        "question": "甲向乙借款，签订借款合同，规定借款期限为6个月，丙为担保人，约定的担保时限为甲向乙清偿本金及利息，丙的担保期限为( )。",
+        "options": [
+            {
+                "value": "A",
+                "text": "合同签订日起6个月"
+            },
+            {
+                "value": "B",
+                "text": "甲履行期限届满之日起6个月"
+            },
+            {
+                "value": "C",
+                "text": "合同签订日起两年"
+            },
+            {
+                "value": "D",
+                "text": "甲履行期限届满之日起2年"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "债权人与保证人可以约定保证期间，但是约定的保证期间早于主债务履行期限或者与主债务履行期限同时届满的，视为没有约定；没有约定或者约定不明确的，保证期间为主债务履行期限届满之日起6个月。本题中约定的担保时限为甲向乙清偿本金及利息，属于约定不明确，因此保证期间为甲履行期限届满之日起6个月。（故本题选B）"
+    },
+    {
+        "id": 35,
+        "type": "single",
+        "question": "下列不属于商业银行的是( )",
+        "options": [
+            {
+                "value": "A",
+                "text": "农村金融机构"
+            },
+            {
+                "value": "B",
+                "text": "村镇银行"
+            },
+            {
+                "value": "C",
+                "text": "中国农业发展银行"
+            },
+            {
+                "value": "D",
+                "text": "农村信用合作社"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "原答案标注为A错误，中国农业发展银行属于政策性银行，并非商业银行；农村金融机构包含农村商业银行、农村信用社、村镇银行等，其中农村商业银行、村镇银行、农村信用合作社（改制后）均属于商业银行范畴。（故本题选C）"
+    },
+    {
+        "id": 36,
+        "type": "single",
+        "question": "关于零售信用风险暴露的说法，错误的是()",
+        "options": [
+            {
+                "value": "A",
+                "text": "零售信用风险暴露需要区分初级法和高级法"
+            },
+            {
+                "value": "B",
+                "text": "银行对零售风险暴露实施内部评级法，需要建立风险分池体系"
+            },
+            {
+                "value": "C",
+                "text": "银行需要自行估计零售信用风险暴露的PD、LGD、EAD等风险参数"
+            },
+            {
+                "value": "D",
+                "text": "零售信用风险暴露具有单笔风险暴露较小、风险分散的特征"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "对于零售信用风险暴露，不区分初级法和高级法，即银行都要自行估计违约概率（PD）、违约损失率（LGD）、违约风险暴露（EAD）和期限；银行对零售风险暴露实施内部评级法需建立风险分池体系，且零售信用风险暴露具有单笔风险暴露较小、风险分散的特征。（故本题选A）"
+    },
+    {
+        "id": 37,
+        "type": "single",
+        "question": "关于贷款五级分类法，说法正确的是( )。",
+        "options": [
+            {
+                "value": "A",
+                "text": "贷款五级分类法将贷款依次分为正常、关注、次级、可疑、损失五类"
+            },
+            {
+                "value": "B",
+                "text": "逾期(含展期后)超过一定期限、其应收利息不再计入当期损益的贷款以及需要重组的贷款，应至少归为可疑类贷款，属于不良贷款"
+            },
+            {
+                "value": "C",
+                "text": "尽管借款人目前有能力偿还贷款本息，但存在一些可能对偿还产生不利影响因素的贷款应归为次级类"
+            },
+            {
+                "value": "D",
+                "text": "损失类是指借款人无法足额偿还本息，即使执行抵押或担保，也肯定要造成较大损失的贷款"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "贷款五级分类法是指商业银行依据借款人的实际还款能力，将贷款质量划分为五类：正常、关注、次级、可疑、损失，A正确；逾期（含展期后）超过一定期限、其应收利息不再计入当期损益的贷款以及需要重组的贷款，应至少归为次级类贷款，B错误；尽管借款人目前有能力偿还贷款本息，但存在一些可能对偿还产生不利影响因素的贷款应归为关注类，C错误；可疑类是指借款人无法足额偿还本息，即使执行抵押或担保，也肯定要造成较大损失的贷款，损失类是指在采取所有可能的措施或一切必要的法律程序之后，本息仍然无法收回，或只能收回极少部分的贷款，D错误。（故本题选A）"
+    },
+    {
+        "id": 38,
+        "type": "single",
+        "question": "某银行在代某厂发放员工工资时，因第一次转账电脑提示交易失败，之后又转了一次，其实第一次转账是成功的，致使给员工多发了一倍的工资，下列表述正确的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "该银行与厂员工之间是代理关系"
+            },
+            {
+                "value": "B",
+                "text": "该行为是表见代理"
+            },
+            {
+                "value": "C",
+                "text": "该银行有权要求某厂员工返还多发工资"
+            },
+            {
+                "value": "D",
+                "text": "坏账错误后果由该厂承担"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "银行在代理发放工资时出现操作失误，导致员工获得多发的工资，该部分工资属于不当得利（没有合法根据，取得不当利益，造成他人损失），员工有义务返还，银行有权要求员工返还；银行与工厂之间是代理关系，与员工并非代理关系，A错误；表见代理需满足相对人有理由相信行为人有代理权等条件，本题不构成表见代理，B错误；该失误由银行操作导致，后果不应由工厂承担，D错误。（故本题选C）"
+    },
+    {
+        "id": 39,
+        "type": "single",
+        "question": "中央银行要增加货币供应量时，可以采取的货币政策工具是()",
+        "options": [
+            {
+                "value": "A",
+                "text": "在公开市场上卖出有价证券"
+            },
+            {
+                "value": "B",
+                "text": "提高再贴现率"
+            },
+            {
+                "value": "C",
+                "text": "降低存款准备金率"
+            },
+            {
+                "value": "D",
+                "text": "通过窗口指导劝告商业银行减少贷款发放"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "扩张的货币政策（增加货币供应量）主要是通过降低法定存款准备金率、降低再贴现率、公开市场买入有价证券等手段，以增加商业银行的超额准备金、增加基础货币，扩大货币乘数，增加社会货币供给总量；卖出有价证券、提高再贴现率、劝告减少贷款均会减少货币供应量。（故本题选C）"
+    },
+    {
+        "id": 40,
+        "type": "single",
+        "question": "下面不属于银行安全性指标的是",
+        "options": [
+            {
+                "value": "A",
+                "text": "资本充足率"
+            },
+            {
+                "value": "B",
+                "text": "拨贷比"
+            },
+            {
+                "value": "C",
+                "text": "净稳定资金率"
+            },
+            {
+                "value": "D",
+                "text": "不良贷款率"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "银行安全性指标包括不良贷款率、不良贷款拨备覆盖率、拨贷比、资本充足率；净稳定资金率属于流动性指标，用于评估银行长期流动性水平，不属于安全性指标。（故本题选C）"
+    },
+    {
+        "id": 41,
+        "type": "single",
+        "question": "下列关于票据业务办理的相关行为，正确的是",
+        "options": [
+            {
+                "value": "A",
+                "text": "先贴现后见票"
+            },
+            {
+                "value": "B",
+                "text": "以自有资金缴存保证金开票"
+            },
+            {
+                "value": "C",
+                "text": "对无真实贸易背景票据办理贴现"
+            },
+            {
+                "value": "D",
+                "text": "滚动签发银行承兑汇票"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "票据融资的风险主要包括无真实贸易背景、滚动签发、贷款转保证金、关联企业套取银行信用等问题，因此对无真实贸易背景票据办理贴现、滚动签发银行承兑汇票均为违规行为；贴现需以持有票据为前提，应先见票后贴现；以自有资金缴存保证金开票是合规的票据业务操作。（故本题选B）"
+    },
+    {
+        "id": 42,
+        "type": "single",
+        "question": "下列关于货币本质的说法中错误的是()",
+        "options": [
+            {
+                "value": "A",
+                "text": "货币是固定充当一般等价物的商品"
+            },
+            {
+                "value": "B",
+                "text": "货币可以表现商品价值"
+            },
+            {
+                "value": "C",
+                "text": "货币充当部分商品交易的中介"
+            },
+            {
+                "value": "D",
+                "text": "货币是一般等价物"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "货币的本质表现在：货币是一般等价物，是固定充当一般等价物的特殊商品，能够表现一切商品的价值，并充当一切商品交换的中介，而非仅充当部分商品交易的中介；货币首先是商品，具有价值和使用价值，能衡量一切商品价值并与其他一切商品相交换。（故本题选C）"
+    },
+    {
+        "id": 43,
+        "type": "single",
+        "question": "下列关于人民币的表述，错误的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "人民币的法定管理部门是中国人民银行"
+            },
+            {
+                "value": "B",
+                "text": "人民币是中华人民共和国法定货币，单位为元，辅币单位为角、分"
+            },
+            {
+                "value": "C",
+                "text": "以人民币支付中华人民共和国境内的一切公共和私人的债务，任何单位和个人不得拒收"
+            },
+            {
+                "value": "D",
+                "text": "人民币的印制、发行、兑换、收回、销毁等工作由中国人民银行和国务院银行业监督管理部门共同负责"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "人民币的法定管理部门是中国人民银行，负责人民币的统一印制、发行、兑换、收回、销毁等工作，并非与国务院银行业监督管理部门共同负责；人民币是我国法定货币，单位为元，辅币为角、分，且境内一切公共和私人债务均以人民币支付，任何单位和个人不得拒收。（故本题选D）"
+    },
+    {
+        "id": 44,
+        "type": "single",
+        "question": "农村中小金融机构不包括( )。",
+        "options": [
+            {
+                "value": "A",
+                "text": "农村信用社"
+            },
+            {
+                "value": "B",
+                "text": "农村商业银行"
+            },
+            {
+                "value": "C",
+                "text": "村镇银行"
+            },
+            {
+                "value": "D",
+                "text": "中国农业银行"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "我国农村银行业中小金融机构主要包括农村信用社、农村商业银行、农村合作银行和村镇银行；中国农业银行是全国性大型商业银行，不属于农村中小金融机构。（故本题选D）"
+    },
+    {
+        "id": 45,
+        "type": "single",
+        "question": "当一国利率高于国外利率时会造成()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "对本国货币需求增加"
+            },
+            {
+                "value": "B",
+                "text": "对外国货币需求增加"
+            },
+            {
+                "value": "C",
+                "text": "本币贬值，外币升值"
+            },
+            {
+                "value": "D",
+                "text": "资本流出"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "当一国提高利率水平或本国利率高于外国利率时，会引起资本流入，由此对本国货币需求增大，使本币升值，外汇贬值；反之，利率低于国外时，资本流出，对外汇需求增加，外币升值，本币贬值。（故本题选A）"
+    },
+    {
+        "id": 46,
+        "type": "single",
+        "question": "金融市场最主要、最基本的功能是",
+        "options": [
+            {
+                "value": "A",
+                "text": "优化资源配置功能"
+            },
+            {
+                "value": "B",
+                "text": "融通资金功能"
+            },
+            {
+                "value": "C",
+                "text": "分散和转移风险功能"
+            },
+            {
+                "value": "D",
+                "text": "经济调节功能"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "金融市场具有货币资金融通、优化资源配置、风险分散与风险管理、经济调节等功能，其中融通货币资金（融通资金）是金融市场最主要、最基本的功能。（故本题选B）"
+    },
+    {
+        "id": 47,
+        "type": "single",
+        "question": "关于外汇账户的表述，错误的是()",
+        "options": [
+            {
+                "value": "A",
+                "text": "外汇储蓄账户只能用于外汇存取，不能进行转账"
+            },
+            {
+                "value": "B",
+                "text": "境内机构可以开立不超过两个(含)经常项目外汇账户"
+            },
+            {
+                "value": "C",
+                "text": "现钞和现汇的管理界限虽然取消，但是在日常操作中仍执行两种不同的汇率"
+            },
+            {
+                "value": "D",
+                "text": "个人外汇账户不区分现钞账户和现汇账户，对个人非经营性外汇收付统一通过外汇储蓄账户进行管理"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "境内机构原则上只能开立一个经常项目外汇账户，而非不超过两个；外汇储蓄账户仅限外汇存取，不得转账；现钞和现汇管理界限取消，但日常操作中仍执行不同汇率；个人非经营性外汇收付统一通过外汇储蓄账户管理，且不区分现钞和现汇账户。（故本题选B）"
+    },
+    {
+        "id": 48,
+        "type": "single",
+        "question": "没有剔除通货膨胀因素的汇率是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "官方利率"
+            },
+            {
+                "value": "B",
+                "text": "市场汇率"
+            },
+            {
+                "value": "C",
+                "text": "名义利率"
+            },
+            {
+                "value": "D",
+                "text": "实际利率"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "原题目表述有误，应为“没有剔除通货膨胀因素的利率是()”，名义利率是指没有剔除通货膨胀因素的利率，实际利率是剔除了通货膨胀因素的利率；官方利率是由官方确定的利率，市场汇率是由市场供求决定的汇率，均与通胀剔除无关。（故本题选C）"
+    },
+    {
+        "id": 49,
+        "type": "single",
+        "question": "根据《中华人民共和国证券法》的规定，证券内幕消息的知情人包括持有上市公司()以上股份的股东及其董事、监事、高管。",
+        "options": [
+            {
+                "value": "A",
+                "text": "5%"
+            },
+            {
+                "value": "B",
+                "text": "10%"
+            },
+            {
+                "value": "C",
+                "text": "15%"
+            },
+            {
+                "value": "D",
+                "text": "20%"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "根据《中华人民共和国证券法》的规定，证券交易内幕信息的知情人包括持有公司5%以上股份的股东及其董事、监事、高级管理人员，公司的实际控制人及其董事、监事、高级管理人员等。（故本题选A）"
+    },
+    {
+        "id": 50,
+        "type": "single",
+        "question": "为了降低通货膨胀率，中央银行一般会()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "买入有价证券"
+            },
+            {
+                "value": "B",
+                "text": "降低再贴现率"
+            },
+            {
+                "value": "C",
+                "text": "降低贷款利率"
+            },
+            {
+                "value": "D",
+                "text": "提高法定存款准备金率"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "通货膨胀的治理对策之一是紧缩的货币政策，包括：第一，减少货币供应量，如提高法定存款准备金率，使商业银行的超额准备金减少，贷款能力减弱，货币乘数降低，派生存款数量减少；第二，提高利率，如提高再贴现率。买入有价证券、降低再贴现率、降低贷款利率均属于扩张性货币政策，会加剧通货膨胀。（故本题选D）"
+    },
+    {
+        "id": 51,
+        "type": "single",
+        "question": "信托受托人必须为()的最大利益，依照信托文件的规定管理好信托财产",
+        "options": [
+            {
+                "value": "A",
+                "text": "委托人"
+            },
+            {
+                "value": "B",
+                "text": "自身及受益人"
+            },
+            {
+                "value": "C",
+                "text": "自身"
+            },
+            {
+                "value": "D",
+                "text": "受益人"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "根据信托的基本原理，受托人必须为受益人的最大利益，依照信托文件的规定管理好信托财产，不得为自身或委托人谋取不当利益。（故本题选D）"
+    },
+    {
+        "id": 52,
+        "type": "single",
+        "question": "关于现代中央银行的说法，错误的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "中央银行垄断货币发行权，统一全国货币发行"
+            },
+            {
+                "value": "B",
+                "text": "中央银行可以兼营商业银行信贷业务"
+            },
+            {
+                "value": "C",
+                "text": "中央银行在制定和执行货币政策方面具有相对独立性"
+            },
+            {
+                "value": "D",
+                "text": "中央银行的业务活动不以营利为目的"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "现代中央银行具有垄断货币发行权、相对独立性、不以营利为目的等特征，且中央银行不经营一般性银行业务（如商业银行信贷业务），其主要职能是制定和执行货币政策、维护金融稳定等。（故本题选B）"
+    },
+    {
+        "id": 53,
+        "type": "single",
+        "question": "当一国利率水平高于外国利率时，下列说法正确的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "会导致对外汇需求增大"
+            },
+            {
+                "value": "B",
+                "text": "会导致外汇升值，本币贬值"
+            },
+            {
+                "value": "C",
+                "text": "会导致资本净流出"
+            },
+            {
+                "value": "D",
+                "text": "会导致对本国货币需求增大"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "当一国提高利率水平或本国利率高于外国利率时，会引起资本流入，由此对本国货币需求增大，使本币升值，外汇贬值；反之，利率低于国外时，资本流出，对外汇需求增加，外币升值，本币贬值。（故本题选D）"
+    },
+    {
+        "id": 54,
+        "type": "single",
+        "question": "以取得利润并分配给股东等出资人为目的成立的法人是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "特别法人"
+            },
+            {
+                "value": "B",
+                "text": "非营利法人"
+            },
+            {
+                "value": "C",
+                "text": "社会团体法人"
+            },
+            {
+                "value": "D",
+                "text": "营利法人"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "《中华人民共和国民法典》第七十六条规定，以取得利润并分配给股东等出资人为目的成立的法人，为营利法人。营利法人包括有限责任公司、股份有限公司和其他企业法人等；特别法人包括机关法人、农村集体经济组织法人等，非营利法人包括事业单位、社会团体等。（故本题选D）"
+    },
+    {
+        "id": 55,
+        "type": "single",
+        "question": "下列关于普通股的说法中，错误的是()",
+        "options": [
+            {
+                "value": "A",
+                "text": "享有经营决策的参与权"
+            },
+            {
+                "value": "B",
+                "text": "享有优先于债权人的清偿权"
+            },
+            {
+                "value": "C",
+                "text": "收益分配随利润变动而变动"
+            },
+            {
+                "value": "D",
+                "text": "享有优先认股权"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "普通股股东在对公司盈利和剩余财产的分配顺序上列在债权人和优先股股东之后，并不享有优先于债权人的清偿权；普通股股东享有经营决策参与权、收益分配权（收益随利润变动）、优先认股权等权利。（故本题选B）"
+    },
+    {
+        "id": 56,
+        "type": "single",
+        "question": "宏观经济发展的总体目标一般包括()",
+        "options": [
+            {
+                "value": "A",
+                "text": "经济增长、充分就业、物价稳定和进出口增长"
+            },
+            {
+                "value": "B",
+                "text": "区域协调、物价稳定和国际经济增长、收支平衡"
+            },
+            {
+                "value": "C",
+                "text": "经济增长、区域协调、物价稳定和进出口增长"
+            },
+            {
+                "value": "D",
+                "text": "经济增长、充分就业、物价稳定和国际收支平衡"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "宏观经济发展的总体目标一般包括四个，即经济增长、充分就业、物价稳定和国际收支平衡。这四大目标分别通过国内生产总值、失业率、通货膨胀率和国际收支等指标来衡量；区域协调、进出口增长并非宏观经济发展的核心总体目标。（故本题选D）"
+    },
+    {
+        "id": 57,
+        "type": "single",
+        "question": "下列属于法定继承的第二顺序继承人的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "兄弟姐妹"
+            },
+            {
+                "value": "B",
+                "text": "父母"
+            },
+            {
+                "value": "C",
+                "text": "配偶"
+            },
+            {
+                "value": "D",
+                "text": "子女"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "法定继承中，第一顺序继承人是配偶、子女、父母；第二顺序继承人是兄弟姐妹、祖父母、外祖父母。（故本题选A）"
+    },
+    {
+        "id": 58,
+        "type": "single",
+        "question": "下列关于合同无效的表述，正确的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "有过错一方不须承担缔约过失责任"
+            },
+            {
+                "value": "B",
+                "text": "合同无效自判定无效起无效"
+            },
+            {
+                "value": "C",
+                "text": "合同部分无效，不影响其他部分效力"
+            },
+            {
+                "value": "D",
+                "text": "合同部分无效，整体无效"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "合同部分无效，不影响其他部分效力的，其他部分仍然有效，C正确，D错误；无效的合同自始没有法律约束力，并非自判定无效起无效，B错误；合同无效后，有过错的一方应当赔偿对方因此所受到的损失，需承担缔约过失责任，A错误。（故本题选C）"
+    },
+    {
+        "id": 59,
+        "type": "single",
+        "question": "按照()分类，保险合同可分为原保险合同与再保险合同。",
+        "options": [
+            {
+                "value": "A",
+                "text": "合同的性质"
+            },
+            {
+                "value": "B",
+                "text": "承担风险责任的方式分类"
+            },
+            {
+                "value": "C",
+                "text": "保险标的"
+            },
+            {
+                "value": "D",
+                "text": "保险合同当事人"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "按照保险人承担责任次序/承担风险责任的方式，保险合同分为原保险合同和再保险合同。（故本题选B）"
+    },
+    {
+        "id": 60,
+        "type": "single",
+        "question": "单位存款人因办理日常转账结算和现金收付在银行开立结算账户，该账户是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "专用存款账户"
+            },
+            {
+                "value": "B",
+                "text": "临时存款账户"
+            },
+            {
+                "value": "C",
+                "text": "一般存款账户"
+            },
+            {
+                "value": "D",
+                "text": "基本存款账户"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "基本存款账户是存款人因办理日常转账结算和现金收付需要开立的银行结算账户，一个单位只能开立一个。（故本题选D）"
+    },
+    {
+        "id": 61,
+        "type": "single",
+        "question": "某商业银行资产负债表中，贷款100亿元，存放央行款项10亿元，债券投资30亿元，单位存款60亿元，该商业银行生息资产为()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "140亿元"
+            },
+            {
+                "value": "B",
+                "text": "170亿元"
+            },
+            {
+                "value": "C",
+                "text": "200亿元"
+            },
+            {
+                "value": "D",
+                "text": "130亿元"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "生息资产=贷款+存放央行款项+债券投资=100+10+30=140亿元；单位存款属于负债不计入。（故本题选A）"
+    },
+    {
+        "id": 62,
+        "type": "single",
+        "question": "关于现代中央银行的说法，错误的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "中央银行垄断货币发行权，统一全国货币发行"
+            },
+            {
+                "value": "B",
+                "text": "中央银行可以兼营商业银行信贷业务"
+            },
+            {
+                "value": "C",
+                "text": "中央银行在制定和执行货币政策方面具有相对独立性"
+            },
+            {
+                "value": "D",
+                "text": "中央银行的业务活动不以营利为目的"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "中央银行不经营商业银行信贷业务，不与商业银行竞争。（故本题选B）"
+    },
+    {
+        "id": 63,
+        "type": "single",
+        "question": "以下关于合同订立的表述错误的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "撤回要约的通知，应当在受要约人发出承诺通知之前，到达受要约人"
+            },
+            {
+                "value": "B",
+                "text": "当事人订立合同，可以采取要约、承诺方式或者其他方式"
+            },
+            {
+                "value": "C",
+                "text": "当事人可以约定，合同的订立与生效不同步，以后随生效条件的具备，合同自动生效"
+            },
+            {
+                "value": "D",
+                "text": "当事人采取信件、数据电文、传真等形式订立合同，要求签订确认书时，签订确认书时合同成立"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "撤回要约的通知应当在要约到达受要约人之前或者与要约同时到达受要约人。（故本题选A）"
+    },
+    {
+        "id": 64,
+        "type": "single",
+        "question": "一般来说，在衡量通货膨胀时，使用最多、最普遍的指标是( )。",
+        "options": [
+            {
+                "value": "A",
+                "text": "国内生产总值物价平减指标"
+            },
+            {
+                "value": "B",
+                "text": "批发物价指数"
+            },
+            {
+                "value": "C",
+                "text": "消费者物价指数"
+            },
+            {
+                "value": "D",
+                "text": "生产者物价指数"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "衡量通货膨胀最常用、最普遍的指标是消费者物价指数（CPI）。（故本题选C）"
+    },
+    {
+        "id": 65,
+        "type": "single",
+        "question": "从业务运作的实质来看，福费廷是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "银行保函"
+            },
+            {
+                "value": "B",
+                "text": "保付代理"
+            },
+            {
+                "value": "C",
+                "text": "远期票据贴现"
+            },
+            {
+                "value": "D",
+                "text": "质押贷款"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "福费廷业务实质是银行对远期票据进行无追索权贴现。（故本题选C）"
+    },
+    {
+        "id": 66,
+        "type": "single",
+        "question": "下列货币供求的影响因素中，可能导致通货紧缩的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "外资流入增加"
+            },
+            {
+                "value": "B",
+                "text": "货币供给过多"
+            },
+            {
+                "value": "C",
+                "text": "经济结构不合理，存在过多的无效供给"
+            },
+            {
+                "value": "D",
+                "text": "有效需求过大"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "无效供给过多、需求不足是通货紧缩的成因；其余选项均易引发通胀。（故本题选C）"
+    },
+    {
+        "id": 67,
+        "type": "single",
+        "question": "某企业的分公司以自己的名义与第三人签订了民事主体合同，当该分公司违约时( )",
+        "options": [
+            {
+                "value": "A",
+                "text": "该分公司承担全部责任"
+            },
+            {
+                "value": "B",
+                "text": "该分公司承担主要责任，企业总公司承担连带责任"
+            },
+            {
+                "value": "C",
+                "text": "第三方公司承担全部责任"
+            },
+            {
+                "value": "D",
+                "text": "第三方公司可能主要责任，分公司承担次要责任"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "分公司不具有法人资格，民事责任由总公司承担连带责任。（故本题选B）"
+    },
+    {
+        "id": 68,
+        "type": "single",
+        "question": "以下关于银行资本充足率及其计算的说法，错误的是（）。",
+        "options": [
+            {
+                "value": "A",
+                "text": "风险加权资产包括信用风险加权资产、市场风险加权资产和操作风险加权资产"
+            },
+            {
+                "value": "B",
+                "text": "银行资本监管中关注资本充足率"
+            },
+            {
+                "value": "C",
+                "text": "资本充足率是指商业银行净资产与风险加权资产之间的比率"
+            },
+            {
+                "value": "D",
+                "text": "商业银行总资本包括核心一级资本、其他一级资本和二级资本"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "资本充足率=总资本-资本扣除项 / 风险加权资产，不是净资产。（故本题选C）"
+    },
+    {
+        "id": 69,
+        "type": "single",
+        "question": "商业银行理财产品直接或间接投资于银行间市场、证券交易所市场或者国务院银行业监督管理机构认可的其他证券的，每只公募理财产品持有单只证券或单只公募证券投资基金的市值不得超过该理财产品净资产的（）。",
+        "options": [
+            {
+                "value": "A",
+                "text": "5%"
+            },
+            {
+                "value": "B",
+                "text": "30%"
+            },
+            {
+                "value": "C",
+                "text": "10%"
+            },
+            {
+                "value": "D",
+                "text": "20%"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "单只公募理财产品持有单只证券/公募基金市值不得超过产品净资产10%。（故本题选C）"
+    },
+    {
+        "id": 70,
+        "type": "single",
+        "question": "下列保函品种中，属于融资类保函的是（）。",
+        "options": [
+            {
+                "value": "A",
+                "text": "投标保函"
+            },
+            {
+                "value": "B",
+                "text": "经营租赁保函"
+            },
+            {
+                "value": "C",
+                "text": "借款保函"
+            },
+            {
+                "value": "D",
+                "text": "履约保函"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "借款保函属于融资类保函；其余均为非融资类。（故本题选C）"
+    },
+    {
+        "id": 71,
+        "type": "single",
+        "question": "商业银行因为没有足够的现金来满足客户取款需求而引起的风险是（）。",
+        "options": [
+            {
+                "value": "A",
+                "text": "市场风险"
+            },
+            {
+                "value": "B",
+                "text": "流动性风险"
+            },
+            {
+                "value": "C",
+                "text": "信用风险"
+            },
+            {
+                "value": "D",
+                "text": "国家风险"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "无法满足现金支取需求属于典型的流动性风险。（故本题选B）"
+    },
+    {
+        "id": 72,
+        "type": "single",
+        "question": "代理人知道被委托代理的事项违法仍然进行代理活动，则 ()承担连带责任。",
+        "options": [
+            {
+                "value": "A",
+                "text": "代理人"
+            },
+            {
+                "value": "B",
+                "text": "代理人和被代理人"
+            },
+            {
+                "value": "C",
+                "text": "被代理人"
+            },
+            {
+                "value": "D",
+                "text": "代理人或被代理人"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "代理人明知代理事项违法仍代理，由代理人与被代理人承担连带责任。（故本题选B）"
+    },
+    {
+        "id": 73,
+        "type": "single",
+        "question": "根据 2009 年国务院银行业监督管理机构颁布的《贷款公司管理规定》，贷款公司对同一借款人的贷款余额不得超过资本净额的()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "8%"
+            },
+            {
+                "value": "B",
+                "text": "10%"
+            },
+            {
+                "value": "C",
+                "text": "12%"
+            },
+            {
+                "value": "D",
+                "text": "15%"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "贷款公司对同一借款人贷款余额≤资本净额10%。（故本题选B）"
+    },
+    {
+        "id": 74,
+        "type": "single",
+        "question": "支票自出票日起()日内提示付款",
+        "options": [
+            {
+                "value": "A",
+                "text": "1"
+            },
+            {
+                "value": "B",
+                "text": "5"
+            },
+            {
+                "value": "C",
+                "text": "10"
+            },
+            {
+                "value": "D",
+                "text": "30"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "支票提示付款期限为出票日起10日内。（故本题选C）"
+    },
+    {
+        "id": 75,
+        "type": "single",
+        "question": "可以有效治理通货紧缩的政策措施是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "减少有效需求"
+            },
+            {
+                "value": "B",
+                "text": "实行紧缩的财政政策"
+            },
+            {
+                "value": "C",
+                "text": "实行紧缩的货币政策"
+            },
+            {
+                "value": "D",
+                "text": "扩大有效需求"
+            }
+        ],
+        "correctAnswer": "D",
+        "explanation": "治理通货紧缩应扩大有效需求、实施扩张性财政与货币政策。（故本题选D）"
+    },
+    {
+        "id": 76,
+        "type": "single",
+        "question": "下列不属于货币政策中介目标和操作目标的选择标准的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "可控性"
+            },
+            {
+                "value": "B",
+                "text": "可观测性"
+            },
+            {
+                "value": "C",
+                "text": "滚动性"
+            },
+            {
+                "value": "D",
+                "text": "相关性"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "货币政策目标选择标准：可测、可控、相关；无滚动性。（故本题选C）"
+    },
+    {
+        "id": 77,
+        "type": "single",
+        "question": "下列关于分公司和子公司的表述，正确的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "分公司和子公司都不具有法人资格，其民事责任由总(母)公司承担"
+            },
+            {
+                "value": "B",
+                "text": "分公司不具有法人资格，其民事责任由总公司承担;子公司具有法人资格，依法独立承担民事责任"
+            },
+            {
+                "value": "C",
+                "text": "分公司和子公司都具有法人资格，依法独立承担民事责任"
+            },
+            {
+                "value": "D",
+                "text": "分公司具有法人资格，依法独立承担民事责任;子公司不具有法人资格，其民事责任由 母公司承担"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "分公司无资格，责任由总公司承担；子公司独立法人、独立担责。（故本题选B）"
+    },
+    {
+        "id": 78,
+        "type": "single",
+        "question": "以短期金融工具为媒介进行的，期限在一年以内(含一年)的短期资金融通市场是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "资本市场"
+            },
+            {
+                "value": "B",
+                "text": "股票市场"
+            },
+            {
+                "value": "C",
+                "text": "货币市场"
+            },
+            {
+                "value": "D",
+                "text": "私募股权市场"
+            }
+        ],
+        "correctAnswer": "C",
+        "explanation": "期限≤1年的短期资金市场为货币市场。（故本题选C）"
+    },
+    {
+        "id": 79,
+        "type": "single",
+        "question": "以下关于拨贷比的表述，错误的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "在拨备覆盖率普遍达标的情况下，拨贷比与不良贷款率的相关性不高"
+            },
+            {
+                "value": "B",
+                "text": "拨贷比=拨备覆盖率*不良贷款率"
+            },
+            {
+                "value": "C",
+                "text": "拨贷比维持在一定水平情况下，银行多发放贷款，就需要多计提拨备"
+            },
+            {
+                "value": "D",
+                "text": "拨贷比是商业银行不良贷款损失准备与贷款余额的比值"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "拨贷比与不良贷款率呈高度正相关，A错误；其余均正确。（故本题选A）"
+    },
+    {
+        "id": 80,
+        "type": "single",
+        "question": "银行代保管业务包括露封保管业务和密封保管业务，两者的主要区别在于()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "客户是否在将保管物品交给银行时先加以密封"
+            },
+            {
+                "value": "B",
+                "text": "保管物品的金额不同"
+            },
+            {
+                "value": "C",
+                "text": "保管期限不同"
+            },
+            {
+                "value": "D",
+                "text": "保管物品的种类不同"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "露封与密封保管的区别：客户是否事先密封物品。（故本题选A）"
+    },
+    {
+        "id": 81,
+        "type": "multiple",
+        "question": "我国商业银行不得在境内进行的业务有()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "代售基金"
+            },
+            {
+                "value": "B",
+                "text": "黄金交易"
+            },
+            {
+                "value": "C",
+                "text": "证券经营"
+            },
+            {
+                "value": "D",
+                "text": "外汇买卖"
+            },
+            {
+                "value": "E",
+                "text": "信托投资"
+            }
+        ],
+        "correctAnswer": [
+            "C",
+            "E"
+        ],
+        "explanation": "商业银行在境内不得从事信托投资和证券经营业务，国家另有规定除外。（故本题选C、E）"
+    },
+    {
+        "id": 82,
+        "type": "multiple",
+        "question": "下列选项中，属于银行资产负债管理主要内容的()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "资本管理"
+            },
+            {
+                "value": "B",
+                "text": "资产负债计划管理"
+            },
+            {
+                "value": "C",
+                "text": "业务经营计划管理"
+            },
+            {
+                "value": "D",
+                "text": "资金管理"
+            },
+            {
+                "value": "E",
+                "text": "定价管理"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B",
+            "D",
+            "E"
+        ],
+        "explanation": "资产负债管理包括资本、计划、资金、定价、流动性等管理；不含业务经营计划管理。（故本题选A、B、D、E）"
+    },
+    {
+        "id": 83,
+        "type": "multiple",
+        "question": "按金融工具的期限划分，金融市场可以分为(",
+        "options": [
+            {
+                "value": "A",
+                "text": "现货市场"
+            },
+            {
+                "value": "B",
+                "text": "期货市场"
+            },
+            {
+                "value": "C",
+                "text": "流通市场"
+            },
+            {
+                "value": "D",
+                "text": "资本市场"
+            },
+            {
+                "value": "E",
+                "text": "货币市场"
+            }
+        ],
+        "correctAnswer": [
+            "D",
+            "E"
+        ],
+        "explanation": "按期限分为货币市场（≤1年）和资本市场（＞1年）。（故本题选D、E）"
+    },
+    {
+        "id": 84,
+        "type": "multiple",
+        "question": "2023年中央金融工作会议首次提出，加快建设金融强国，做好金融()",
+        "options": [
+            {
+                "value": "A",
+                "text": "普惠金融"
+            },
+            {
+                "value": "B",
+                "text": "数字金融"
+            },
+            {
+                "value": "C",
+                "text": "科技金融"
+            },
+            {
+                "value": "D",
+                "text": "养老金融"
+            },
+            {
+                "value": "E",
+                "text": "绿色金融"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E"
+        ],
+        "explanation": "中央金融工作会议提出做好科技、绿色、普惠、养老、数字金融五篇大文章。（故本题选A、B、C、D、E）"
+    },
+    {
+        "id": 85,
+        "type": "multiple",
+        "question": "以下关于操作风险管理工具的表述，正确的有( )",
+        "options": [
+            {
+                "value": "A",
+                "text": "操作风险与控制自评估主要包括风险评估和控制评价两个方面"
+            },
+            {
+                "value": "B",
+                "text": "关键岗位人员未按规定进行轮岗或强制休假的比例不是一个关键风险指标，可反映关键岗位的风险情况"
+            },
+            {
+                "value": "C",
+                "text": "关键风险指标是指对业务活动和控制环境进行日常监控的指标体系，能够反映系统、流程、产品人员等风险信息的变化情况"
+            },
+            {
+                "value": "D",
+                "text": "操作风险损失数据一般通过日常的风险报告制度、检查审计、历史损失数据收集等内部方式来累积银行也可获取一些外部数据来弥补自身数据的不足"
+            },
+            {
+                "value": "E",
+                "text": "操作风险管理工具和手段主要有风险与控制自我评估、关键风险指标、损失数据库等"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "C",
+            "D",
+            "E"
+        ],
+        "explanation": "B错误：关键岗位轮岗/休假比例是关键风险指标；其余均正确。（故本题选A、C、D、E）"
+    },
+    {
+        "id": 86,
+        "type": "multiple",
+        "question": "根据《民法典》相关规定，有下列情形之一的，当事人可以解除合同()",
+        "options": [
+            {
+                "value": "A",
+                "text": "在履行期限届满之前，当事人一方明确表示或者以自己的行为表明不履行主要债务"
+            },
+            {
+                "value": "B",
+                "text": "因不可抗力致使不能实现合同目的"
+            },
+            {
+                "value": "C",
+                "text": "法律规定的其他情形"
+            },
+            {
+                "value": "D",
+                "text": "当事人一方迟延履行主要债务，经催告后在合理期限内仍未履行"
+            },
+            {
+                "value": "E",
+                "text": "当事人一方迟延履行债务或者有其他违约行为致使不能实现合同目的"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E"
+        ],
+        "explanation": "以上均为《民法典》规定的法定解除合同情形。（故本题选A、B、C、D、E）"
+    },
+    {
+        "id": 87,
+        "type": "multiple",
+        "question": "以下关于清廉从业有关行为禁令的说法，正确的包括()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "严禁未落实贷款审批意见或擅自变更审批意见发放贷款"
+            },
+            {
+                "value": "B",
+                "text": "严禁随意调整贷款风险分类"
+            },
+            {
+                "value": "C",
+                "text": "严禁向中小微企业发放中长期贷款"
+            },
+            {
+                "value": "D",
+                "text": "严禁披露贷款审查中发现的重大问题或疑点"
+            },
+            {
+                "value": "E",
+                "text": "严禁以资料审核代替实地调查方式进行贷前调查，放松对客户的调查和对客户资料的审核"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B",
+            "D",
+            "E"
+        ],
+        "explanation": "C错误：政策鼓励向中小微企业发放贷款；其余均为清廉从业禁令。（故本题选A、B、D、E）"
+    },
+    {
+        "id": 88,
+        "type": "multiple",
+        "question": "关于银行流动性覆盖率和净稳定资金比例的说法，正确的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "净稳定资金比例是短期流动性指标"
+            },
+            {
+                "value": "B",
+                "text": "净稳定资金比例的最低监管标准为不低于100%"
+            },
+            {
+                "value": "C",
+                "text": "流动性覆盖率是合格优质流动性资产与未来30天现金净流出量的比值"
+            },
+            {
+                "value": "D",
+                "text": "流动性覆盖率的最低监管标准为不低于100%"
+            },
+            {
+                "value": "E",
+                "text": "净稳定资金比例是可用的稳定资金与所需的稳定资金的比值"
+            }
+        ],
+        "correctAnswer": [
+            "B",
+            "C",
+            "D",
+            "E"
+        ],
+        "explanation": "A错误：净稳定资金比例是中长期指标；其余均正确。（故本题选B、C、D、E）"
+    },
+    {
+        "id": 89,
+        "type": "multiple",
+        "question": "以下关于合规、合规风险和合规管理的说法，正确的是()",
+        "options": [
+            {
+                "value": "A",
+                "text": "合规管理是银行有效识别和监控合规风险，主动预防违规行为发生的动态过程"
+            },
+            {
+                "value": "B",
+                "text": "合规管理是合规风险管理的简称"
+            },
+            {
+                "value": "C",
+                "text": "合规风险通常源于商业银行未能遵循法律、规则和准则"
+            },
+            {
+                "value": "D",
+                "text": "合规是指商业银行的经营活动与法律、规则和准则相一致"
+            },
+            {
+                "value": "E",
+                "text": "合规管理的目标是建立健全合规风险管理框架，实现对合规风险的有效识别和管理"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E"
+        ],
+        "explanation": "以上关于合规、合规风险、合规管理的表述均正确。（故本题选A、B、C、D、E）"
+    },
+    {
+        "id": 90,
+        "type": "multiple",
+        "question": "下列关于巴塞尔协议Ⅲ的表述，正确的有（）",
+        "options": [
+            {
+                "value": "A",
+                "text": "提高场外交易风险暴露的资本要求"
+            },
+            {
+                "value": "B",
+                "text": "提出系统重要性银行除满足最低资本要求外，应具有更强的损失吸收能力"
+            },
+            {
+                "value": "C",
+                "text": "在资本要求、杠杆率监管和损失拨备制度等方面采取措施，抑制银行体系的顺周期性"
+            },
+            {
+                "value": "D",
+                "text": "强化流动性风险管理，建立了流动性覆盖率和净稳定资金比率两个定量监管指标"
+            },
+            {
+                "value": "E",
+                "text": "强化资本监管标准，核心一级资本充足率要求为4.5%"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E"
+        ],
+        "explanation": "以上均为巴塞尔协议Ⅲ的核心内容与要求。（故本题选A、B、C、D、E）"
+    },
+    {
+        "id": 91,
+        "type": "multiple",
+        "question": "下列关于商业银行代理保险业务的说法，正确的有()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "商业银行属于保险专业代理机构"
+            },
+            {
+                "value": "B",
+                "text": "投资连结保险销售人员应接受过专项培训，并无不良记录"
+            },
+            {
+                "value": "C",
+                "text": "商业银行代理保险业务，应当取得经营保险代理业务许可证"
+            },
+            {
+                "value": "D",
+                "text": "商业银行应具备保险监督管理机构规定的保险代理机构条件"
+            },
+            {
+                "value": "E",
+                "text": "商业银行属于保险兼业代理机构"
+            }
+        ],
+        "correctAnswer": [
+            "B",
+            "C",
+            "D",
+            "E"
+        ],
+        "explanation": "A错误：银行是兼业代理机构；其余均正确。（故本题选B、C、D、E）"
+    },
+    {
+        "id": 92,
+        "type": "multiple",
+        "question": "当经济处于复苏阶段,下列表述中,正确的有（）",
+        "options": [
+            {
+                "value": "A",
+                "text": "企业利润下降"
+            },
+            {
+                "value": "B",
+                "text": "企业资金周转日益困难"
+            },
+            {
+                "value": "C",
+                "text": "商业银行负债规模严重下降,信用投放能力锐减"
+            },
+            {
+                "value": "D",
+                "text": "商业银行的资产业务规模明显扩大"
+            },
+            {
+                "value": "E",
+                "text": "企业对借贷资金的需求显著扩大"
+            }
+        ],
+        "correctAnswer": [
+            "D",
+            "E"
+        ],
+        "explanation": "经济复苏阶段企业投资增加、贷款需求扩大，银行资产业务规模扩大。（故本题选D、E）"
+    },
+    {
+        "id": 93,
+        "type": "multiple",
+        "question": "金融市场可以按照金融工具的期限分为()",
+        "options": [
+            {
+                "value": "A",
+                "text": "货币市场"
+            },
+            {
+                "value": "B",
+                "text": "资本市场"
+            },
+            {
+                "value": "C",
+                "text": "现货市场"
+            },
+            {
+                "value": "D",
+                "text": "期货市场"
+            },
+            {
+                "value": "E",
+                "text": "发行市场"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B"
+        ],
+        "explanation": "按金融工具期限分为货币市场和资本市场。（故本题选A、B）"
+    },
+    {
+        "id": 94,
+        "type": "multiple",
+        "question": "金融市场在一国经济中发挥着重要作用,其主要功能有（）",
+        "options": [
+            {
+                "value": "A",
+                "text": "货币资金融通功能"
+            },
+            {
+                "value": "B",
+                "text": "风险分散与风险管理功能"
+            },
+            {
+                "value": "C",
+                "text": "经济调节功能"
+            },
+            {
+                "value": "D",
+                "text": "优化资源配置功能"
+            },
+            {
+                "value": "E",
+                "text": "交易及定价功能"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E"
+        ],
+        "explanation": "金融市场六大功能：融通资金、优化配置、风险分散、经济调节、交易定价、反映经济。（故本题选A、B、C、D、E）"
+    },
+    {
+        "id": 95,
+        "type": "multiple",
+        "question": "我国现有的农村中小金融机构包括",
+        "options": [
+            {
+                "value": "A",
+                "text": "农村信用社"
+            },
+            {
+                "value": "B",
+                "text": "中国农业发展银行"
+            },
+            {
+                "value": "C",
+                "text": "农村商业银行"
+            },
+            {
+                "value": "D",
+                "text": "农村合作银行"
+            },
+            {
+                "value": "E",
+                "text": "村镇银行"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "C",
+            "D",
+            "E"
+        ],
+        "explanation": "农发行是政策性银行，不属于农村中小金融机构。（故本题选A、C、D、E）"
+    },
+    {
+        "id": 96,
+        "type": "multiple",
+        "question": "某企业在市场中通过利率招标的方式发行3年期债券，最后确定票面利率为3.5%，这个利率属于()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "远期利率"
+            },
+            {
+                "value": "B",
+                "text": "短期利率"
+            },
+            {
+                "value": "C",
+                "text": "实际利率"
+            },
+            {
+                "value": "D",
+                "text": "长期利率"
+            },
+            {
+                "value": "E",
+                "text": "固定利率"
+            }
+        ],
+        "correctAnswer": [
+            "D",
+            "E"
+        ],
+        "explanation": "3年期属于长期利率；票面利率固定不变属于固定利率。（故本题选D、E）"
+    },
+    {
+        "id": 97,
+        "type": "multiple",
+        "question": "商业银行能够办理的业务有()",
+        "options": [
+            {
+                "value": "A",
+                "text": "贴现"
+            },
+            {
+                "value": "B",
+                "text": "发放贷款"
+            },
+            {
+                "value": "C",
+                "text": "转账结算"
+            },
+            {
+                "value": "D",
+                "text": "买卖政府债券"
+            },
+            {
+                "value": "E",
+                "text": "吸收公众存款"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E"
+        ],
+        "explanation": "以上均为商业银行法定可经营的业务。（故本题选A、B、C、D、E）"
+    },
+    {
+        "id": 98,
+        "type": "multiple",
+        "question": "中国人民银行可以从事的业务和工作有()",
+        "options": [
+            {
+                "value": "A",
+                "text": "对银行业金融机构的账户透支"
+            },
+            {
+                "value": "B",
+                "text": "代理国务院财政部门向各金融机构组织发行、兑付国债和其他政府债券"
+            },
+            {
+                "value": "C",
+                "text": "根据需要，为银行业金融机构开立账户"
+            },
+            {
+                "value": "D",
+                "text": "组织或者协助组织银行业金融机构相互之间的清算系统，协调清算事项，提供清算服务"
+            },
+            {
+                "value": "E",
+                "text": "会同国务院银行业监督管理机构制定支付结算规则"
+            }
+        ],
+        "correctAnswer": [
+            "B",
+            "C",
+            "D",
+            "E"
+        ],
+        "explanation": "央行不得对银行业金融机构账户透支；其余均为央行法定业务。（故本题选B、C、D、E）"
+    },
+    {
+        "id": 99,
+        "type": "multiple",
+        "question": "汇率政策主要内容有()",
+        "options": [
+            {
+                "value": "A",
+                "text": "选择相应的汇率制度"
+            },
+            {
+                "value": "B",
+                "text": "确定适当的汇率水平"
+            },
+            {
+                "value": "C",
+                "text": "促进经济增长"
+            },
+            {
+                "value": "D",
+                "text": "确保充分就业"
+            },
+            {
+                "value": "E",
+                "text": "促进国际收支平衡"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B",
+            "E"
+        ],
+        "explanation": "汇率政策三内容：选择汇率制度、确定汇率水平、促进国际收支平衡。（故本题选A、B、E）"
+    },
+    {
+        "id": 100,
+        "type": "multiple",
+        "question": "票据丧失的补救措施主要有()",
+        "options": [
+            {
+                "value": "A",
+                "text": "提起诉讼"
+            },
+            {
+                "value": "B",
+                "text": "公示催告"
+            },
+            {
+                "value": "C",
+                "text": "让出票人重新补发"
+            },
+            {
+                "value": "D",
+                "text": "挂失止付"
+            },
+            {
+                "value": "E",
+                "text": "向前手追索"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B",
+            "D"
+        ],
+        "explanation": "票据丧失补救：挂失止付、公示催告、提起诉讼。（故本题选A、B、D）"
+    },
+    {
+        "id": 101,
+        "type": "multiple",
+        "question": "下列贷款业务中，属个人消费贷款的有()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "个体工商户贷款"
+            },
+            {
+                "value": "B",
+                "text": "个人经营贷款"
+            },
+            {
+                "value": "C",
+                "text": "个人住房装修贷款"
+            },
+            {
+                "value": "D",
+                "text": "国家助学贷款"
+            },
+            {
+                "value": "E",
+                "text": "个人汽车贷款"
+            }
+        ],
+        "correctAnswer": [
+            "C",
+            "D",
+            "E"
+        ],
+        "explanation": "个人消费贷款含车贷、助学贷款、装修贷等；个体工商户与经营贷属于经营类。（故本题选C、D、E）"
+    },
+    {
+        "id": 102,
+        "type": "multiple",
+        "question": "下列关于商业银行单位协定存款的表述，正确的有()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "超过基本存款额度的存款按定期存款利率计付利息"
+            },
+            {
+                "value": "B",
+                "text": "基本存款额度按中国人民银行规定上浮利率计付利息"
+            },
+            {
+                "value": "C",
+                "text": "超过基本存款额度的存款按活期存款利率计付利息"
+            },
+            {
+                "value": "D",
+                "text": "基本存款额度按活期存款利率计付利息"
+            },
+            {
+                "value": "E",
+                "text": "单位客户通过与银行签订合同约定合同期限，确定结算账户需要保留的基本存款额度"
+            }
+        ],
+        "correctAnswer": [
+            "D",
+            "E"
+        ],
+        "explanation": "单位协定存款：基本额度按活期计息，超额度按上浮利率计息。（故本题选D、E）"
+    },
+    {
+        "id": 103,
+        "type": "multiple",
+        "question": "下列选项中，属于清廉金融行为的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "对无真实贸易背景的商业汇票办理承兑、贴现业务"
+            },
+            {
+                "value": "B",
+                "text": "经办业务如实反馈信息"
+            },
+            {
+                "value": "C",
+                "text": "为客户的朋友办理个人业务"
+            },
+            {
+                "value": "D",
+                "text": "收受客户贵重礼品"
+            },
+            {
+                "value": "E",
+                "text": "履职回避"
+            }
+        ],
+        "correctAnswer": [
+            "B",
+            "E"
+        ],
+        "explanation": "清廉金融行为：如实反馈、履职回避；无真实贸易背景、收受礼品均违规。（故本题选B、E）"
+    },
+    {
+        "id": 104,
+        "type": "multiple",
+        "question": "通货膨胀对生产的不利影响表现在()",
+        "options": [
+            {
+                "value": "A",
+                "text": "成本、收入、利润等无法准确核算"
+            },
+            {
+                "value": "B",
+                "text": "会导致生产部门的资金进行金融投机"
+            },
+            {
+                "value": "C",
+                "text": "会导致生产部门的资金转向商业部门"
+            },
+            {
+                "value": "D",
+                "text": "会导致社会生产资本总量扩张"
+            },
+            {
+                "value": "E",
+                "text": "不利于生产正常发展"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B",
+            "C",
+            "E"
+        ],
+        "explanation": "通货膨胀使货币价值尺度功能被破坏，成本、收入、利润无法准确核算；生产性投资风险加大，资金转向商业部门或金融投机，社会生产资本总量缩小，不利于生产正常发展。D错误，总量是缩小而非扩张。"
+    },
+    {
+        "id": 105,
+        "type": "multiple",
+        "question": "中国人民银行对()有权进行检查监督。",
+        "options": [
+            {
+                "value": "A",
+                "text": "执行有关黄金管理规定的行为"
+            },
+            {
+                "value": "B",
+                "text": "执行有关存款准备金管理规定的行为"
+            },
+            {
+                "value": "C",
+                "text": "执行有关外汇管理规定的行为"
+            },
+            {
+                "value": "D",
+                "text": "执行有关清算管理规定的行为"
+            },
+            {
+                "value": "E",
+                "text": "执行有关反洗钱规定的行为"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E"
+        ],
+        "explanation": "《中国人民银行法》规定，央行有权对存款准备金、黄金管理、外汇管理、清算管理、反洗钱等相关行为进行检查监督。"
+    },
+    {
+        "id": 106,
+        "type": "multiple",
+        "question": "关于要约与承诺，以下说法错误的是()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "要约人在要约到达受要约人后，受要约人承诺之前，可以将要约撤回"
+            },
+            {
+                "value": "B",
+                "text": "受要约人对要约的内容作出实质性变更，则要约失效"
+            },
+            {
+                "value": "C",
+                "text": "要约的内容需具体明确，因此要约应当采取书面的形式"
+            },
+            {
+                "value": "D",
+                "text": "确定了承诺期限的要约不能撤销"
+            },
+            {
+                "value": "E",
+                "text": "受要约人在承诺期限届满后作出承诺，要约失效，此时形成新的要约"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "C"
+        ],
+        "explanation": "A错误：撤回要约应在要约到达前或同时到达；C错误：要约可以是口头或书面形式；B、D、E均表述正确。"
+    },
+    {
+        "id": 107,
+        "type": "multiple",
+        "question": "下列关于我国法定货币与管理部门的表述中，错误的是()",
+        "options": [
+            {
+                "value": "A",
+                "text": "人民币的单位为元，辅币单位为角"
+            },
+            {
+                "value": "B",
+                "text": "中华人民共和国的法定货币是人民币"
+            },
+            {
+                "value": "C",
+                "text": "残缺、污损的人民币，按照中国人民银行的规定兑换，由商业银行负责收回、销毁"
+            },
+            {
+                "value": "D",
+                "text": "人民币由中国人民银行统一印制、发行"
+            },
+            {
+                "value": "E",
+                "text": "以人民币支付我国境内一切公共的和私人的债务，任何单位和个人不得拒收"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "C"
+        ],
+        "explanation": "A错误：辅币单位为角、分；C错误：残损人民币由央行负责收回销毁，而非商业银行；B、D、E表述均正确。"
+    },
+    {
+        "id": 108,
+        "type": "multiple",
+        "question": "银行承兑汇票是()工具。",
+        "options": [
+            {
+                "value": "A",
+                "text": "短期金融工具"
+            },
+            {
+                "value": "B",
+                "text": "长期金融工具"
+            },
+            {
+                "value": "C",
+                "text": "间接融资工具"
+            },
+            {
+                "value": "D",
+                "text": "直接融资工具"
+            },
+            {
+                "value": "E",
+                "text": "混合融资工具"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "C"
+        ],
+        "explanation": "银行承兑汇票期限在1年以内，属于短期金融工具；由银行信用参与，属于间接融资工具。"
+    },
+    {
+        "id": 109,
+        "type": "multiple",
+        "question": "下列信息属于内幕消息的有()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "公司分配股利或者增资的计划"
+            },
+            {
+                "value": "B",
+                "text": "涉及公司的重大诉讼、仲裁"
+            },
+            {
+                "value": "C",
+                "text": "公司股权结构的重要变化"
+            },
+            {
+                "value": "D",
+                "text": "可能对上市公司股票交易价格产生较大影响的重大事件"
+            },
+            {
+                "value": "E",
+                "text": "公司裁减员工数达到员工总数5%，但不会对公司的经营、财务或股票价格造成重大影响"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B",
+            "C",
+            "D"
+        ],
+        "explanation": "内幕信息指对股票价格有重大影响的未公开信息。E无重大影响，不属于内幕信息；其余均属于。"
+    },
+    {
+        "id": 110,
+        "type": "multiple",
+        "question": "根据《民法典》相关规定，有下列情形之一的，当事人可以解除合同()。",
+        "options": [
+            {
+                "value": "A",
+                "text": "因不可抗力导致不能实现合同目的"
+            },
+            {
+                "value": "B",
+                "text": "在履行期限届满之前，当事人一方明确表示或者以自己的行为表明不履行主要债务"
+            },
+            {
+                "value": "C",
+                "text": "法律规定的其他情形"
+            },
+            {
+                "value": "D",
+                "text": "当事人一方迟延履行主要债务，经催告后在合理期限内仍未履行"
+            },
+            {
+                "value": "E",
+                "text": "当事人一方迟延履行债务或者有其他违约行为致使不能实现合同目的"
+            }
+        ],
+        "correctAnswer": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E"
+        ],
+        "explanation": "《民法典》规定的法定解除合同情形包括：不可抗力、预期违约、迟延履行催告仍不履行、根本违约、其他法定情形。"
+    },
+    {
+        "id": 111,
+        "type": "judge",
+        "question": "银行保险业务属于保险兼业代理业务。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "商业银行代理保险业务属于保险兼业代理业务，表述正确。"
+    },
+    {
+        "id": 112,
+        "type": "judge",
+        "question": "金融资产管理公司、金融租赁公司、财务公司都属于国家金融监督管理总局监管的机构。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "上述机构均由国家金融监督管理总局负责监管，表述正确。"
+    },
+    {
+        "id": 113,
+        "type": "judge",
+        "question": "商业银行利用衍生金融工具来规避表内风险，是对表内资产负债综合管理的重要补充。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "衍生工具可对冲表内风险，是资产负债管理的重要补充，表述正确。"
+    },
+    {
+        "id": 114,
+        "type": "judge",
+        "question": "借记卡具有存取现金、转账汇款、刷卡消费、代收代付等功能。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "借记卡具备存取现金、转账、消费、代收代付、资产管理等功能，表述正确。"
+    },
+    {
+        "id": 115,
+        "type": "judge",
+        "question": "民法调整民事社会的关系，但并非所有的民事社会关系，而是财产关系和人身关系。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "民法调整平等主体之间的财产关系和人身关系，表述正确。"
+    },
+    {
+        "id": 116,
+        "type": "judge",
+        "question": "在中华人民共和国境内设立的信托投资公司适用《银行业监督管理法》对银行业金融机构监督管理的规定。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "信托投资公司属于金融机构，适用《银行业监督管理法》监管规定，表述正确。"
+    },
+    {
+        "id": 117,
+        "type": "judge",
+        "question": "中央银行可以对某些在资金周转困难的银行给予信用上的支持，充当银行的“最后贷款人”。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "央行仅对暂时流动性不足但仍有清偿力的机构提供支持，不救助已资不抵债的机构，题干表述不准确。"
+    },
+    {
+        "id": 118,
+        "type": "judge",
+        "question": "违法发放贷款罪的主体是特殊主体，商业银行不能成为本罪的主体。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "违法发放贷款罪主体是银行或其他金融机构及其工作人员，商业银行可以成为犯罪主体。"
+    },
+    {
+        "id": 119,
+        "type": "judge",
+        "question": "抵押物登记记载的内容与抵押合同约定的内容不一致时，以合同约定的内容为准。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "登记与合同约定不一致时，以登记记载内容为准。"
+    },
+    {
+        "id": 120,
+        "type": "judge",
+        "question": "在我国，负责监督管理银行间同业拆借市场和银行间债券市场的机构是国家金融监督管理总局。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "银行间同业拆借市场、债券市场由中国人民银行监管，非国家金融监督管理总局。"
+    },
+    {
+        "id": 121,
+        "type": "judge",
+        "question": "提高我国金融资源配置效率和能力，增强国际竞争力和规则影响力，要以业务型开放为重点推进金融高水平对外开放。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "金融高水平对外开放应以制度型开放为重点，而非业务型开放。"
+    },
+    {
+        "id": 122,
+        "type": "judge",
+        "question": "借记卡有存取现金、转账汇款、刷卡消费代收代付功能。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "借记卡具备存取、转账、消费、代收代付等功能，表述正确。"
+    },
+    {
+        "id": 123,
+        "type": "judge",
+        "question": "在银行代理业务中，商业银行属于保险兼业代理机构。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "B",
+        "explanation": "银行代理保险属于兼业代理，表述正确。"
+    },
+    {
+        "id": 124,
+        "type": "judge",
+        "question": "抵押合同无效时，主合同一律无效。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "抵押合同是从合同，从合同无效不影响主合同效力。"
+    },
+    {
+        "id": 125,
+        "type": "judge",
+        "question": "中国银行业协会的最高权力机构是理事会。",
+        "options": [
+            {
+                "value": "A",
+                "text": "错"
+            },
+            {
+                "value": "B",
+                "text": "对"
+            }
+        ],
+        "correctAnswer": "A",
+        "explanation": "中国银行业协会最高权力机构是会员大会，理事会是执行机构。"
+    }
+];
+
+// 兼容性处理：如果题目数据是字符串形式，尝试解析为 JSON，如果解析失败则保持原样（可能是直接定义的对象数组）
+try {
+  questions = JSON.parse(questions);
+} catch (e) {
+  console.error("JSON 格式错误", e);
+  questions = questions;
+}
+
+ // 顺序进度
+function saveSequentialIndex(idx) { localStorage.setItem(pageTitle + "_lastSequentialIndex", idx); }
+function loadSequentialIndex() { const v = localStorage.getItem(pageTitle + "_lastSequentialIndex"); return v ? parseInt(v) : 0; }
+
+let currentMode = "random";
+let currentQuestionIndex = 0;
+let shuffledIndices = [];
+let errorList = []; // 🔥 错题独立列表，不再复用索引
+let answeredCorrectly = JSON.parse(localStorage.getItem(pageTitle + "_answeredCorrectly") || JSON.stringify(new Array(questions.length).fill(undefined)));
+let isSubmitted = false;
+
+function bindTap(el, callback) {
+  function handler(e) { e.preventDefault(); callback(); }
+  el.addEventListener("touchstart", handler);
+  el.addEventListener("click", handler);
+}
+
+// 锁定/解锁选项
+function lockOptions() { document.querySelectorAll(".option").forEach(o => o.classList.add("locked")); isSubmitted = true; }
+function unlockOptions() { document.querySelectorAll(".option").forEach(o => o.classList.remove("locked","option-correct","option-wrong")); isSubmitted = false; }
+
+// 🔥 重新获取最新错题列表（每次切换都刷新，杜绝错乱）
+function refreshErrorList() {
+  errorList = answeredCorrectly.map((ok, i) => ok === false ? i : -1).filter(i => i !== -1);
+}
+
+function initPage() {
+  bindAll();
+  startQuiz();
+}
+
+function bindAll() {
+  bindTap(document.getElementById("randomModeBtn"), ()=>switchMode("random"));
+  bindTap(document.getElementById("seqModeBtn"), ()=>switchMode("sequential"));
+  bindTap(document.getElementById("errorModeBtn"), ()=>switchMode("error"));
+  bindTap(document.getElementById("prevBtn"), showPrevQuestion);
+  bindTap(document.getElementById("nextBtn"), showNextQuestion);
+  bindTap(document.getElementById("submitBtn"), submitAnswer);
+  bindTap(document.getElementById("showStatsBtn"), toggleStats);
+  bindTap(document.getElementById("closeStatsBtn"), ()=>{ document.getElementById("statsDiv").style.display = "none"; });
+}
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll(".mode-buttons button").forEach(b=>b.classList.remove("active"));
+  event.target.classList.add("active");
+  startQuiz();
+}
+
+// 🔥 核心：错题模式每次切换都重建列表，彻底解决索引错乱
+function startQuiz() {
+  if (currentMode === "random") {
+    shuffledIndices = [...Array(questions.length).keys()].sort(()=>Math.random()-0.5);
+    currentQuestionIndex = 0;
+  } else if (currentMode === "sequential") {
+    currentQuestionIndex = loadSequentialIndex();
+  } else if (currentMode === "error") {
+    refreshErrorList(); // 🔥 每次进错题都重新算一遍，保证最新
+    if (errorList.length === 0) { alert("暂无错题！"); return; }
+    currentQuestionIndex = 0;
+  }
+  showCurrentQuestion();
+  updateProgress();
+}
+
+function showCurrentQuestion() {
+  unlockOptions();
+  const ctn = document.getElementById("quizContainer");
+  let realIdx;
+
+  if (currentMode === "sequential") {
+    realIdx = currentQuestionIndex;
+  } else if (currentMode === "error") {
+    if (errorList.length === 0) return;
+    realIdx = errorList[currentQuestionIndex]; // 🔥 只从独立错题列表取
+  } else {
+    realIdx = shuffledIndices[currentQuestionIndex];
+  }
+
+  const q = questions[realIdx];
+  let html = `
+    <div class="question-title">${q.id}. ${q.question}</div>
+    <div class="options">
+  `;
+  q.options.forEach(opt => {
+    const oid = `opt_${q.id}_${opt.value}`;
+    const t = (q.type==="single"||q.type==="judge") ? "radio" : "checkbox";
+    html += `
+      <div class="option" data-qid="${q.id}" data-val="${opt.value}" data-type="${q.type}">
+        <input type="${t}" name="ans_${q.id}" id="${oid}" value="${opt.value}">
+        <label for="${oid}">${opt.value}. ${opt.text}</label>
+      </div>
+    `;
+  });
+  html += `
+    </div>
+    <div class="result" id="res_${q.id}"></div>
+    <div class="explanation" id="exp_${q.id}">${q.explanation}</div>
+  `;
+  ctn.innerHTML = html;
+
+  document.querySelectorAll(".option").forEach(item => {
+    bindTap(item, () => { if (!isSubmitted) selectOption(item); });
+  });
+}
+
+function selectOption(el) {
+  const type = el.dataset.type;
+  const group = el.parentElement.querySelectorAll(".option");
+  if (type === "single" || type === "judge") {
+    group.forEach(g => { g.classList.remove("selected"); g.querySelector("input").checked = false; });
+    el.classList.add("selected"); el.querySelector("input").checked = true;
+  } else {
+    el.classList.toggle("selected");
+    el.querySelector("input").checked = el.classList.contains("selected");
+  }
+}
+
+// 🔥 提交逻辑：错题模式不再修改记录，只判分
+function submitAnswer() {
+  if (isSubmitted) return;
+  let realIdx;
+  if (currentMode === "sequential") {
+    realIdx = currentQuestionIndex;
+  } else if (currentMode === "error") {
+    if (errorList.length === 0) return;
+    realIdx = errorList[currentQuestionIndex];
+  } else {
+    realIdx = shuffledIndices[currentQuestionIndex];
+  }
+
+  const q = questions[realIdx];
+  const selected = Array.from(document.querySelectorAll(`input[name="ans_${q.id}"]:checked`)).map(i=>i.value);
+  if (selected.length === 0) { alert("请选择答案！"); return; }
+
+  const isCorrect = Array.isArray(q.correctAnswer)
+    ? selected.length === q.correctAnswer.length && selected.every(v=>q.correctAnswer.includes(v))
+    : selected[0] === q.correctAnswer;
+
+  // 显示结果
+  const resEl = document.getElementById(`res_${q.id}`);
+  resEl.style.display = "block";
+  resEl.className = "result " + (isCorrect ? "correct" : "incorrect");
+  resEl.textContent = isCorrect ? "回答正确！" : "回答错误！";
+  document.getElementById(`exp_${q.id}`).style.display = "block";
+
+  // 正确标绿，选错变红
+  const correctAns = Array.isArray(q.correctAnswer) ? q.correctAnswer : [q.correctAnswer];
+  document.querySelectorAll(`.option[data-qid="${q.id}"]`).forEach(opt => {
+    const v = opt.dataset.val;
+    if (correctAns.includes(v)) opt.classList.add("option-correct");
+    else if (selected.includes(v)) opt.classList.add("option-wrong");
+  });
+
+  // 非错题模式才更新记录
+  if (currentMode !== "error") {
+    answeredCorrectly[realIdx] = isCorrect;
+    localStorage.setItem(pageTitle + "_answeredCorrectly", JSON.stringify(answeredCorrectly));
+  }
+
+  lockOptions();
+  updateProgress();
+}
+
+// 🔥 下一题：严格基于当前模式总数计算
+function showNextQuestion() {
+  let total = currentMode === "error" ? errorList.length : questions.length;
+  if (total === 0) return;
+  currentQuestionIndex = (currentQuestionIndex + 1) % total;
+  if (currentMode === "sequential") saveSequentialIndex(currentQuestionIndex);
+  showCurrentQuestion();
+  updateProgress();
+}
+function showPrevQuestion() {
+  let total = currentMode === "error" ? errorList.length : questions.length;
+  if (total === 0) return;
+  currentQuestionIndex = (currentQuestionIndex - 1 + total) % total;
+  if (currentMode === "sequential") saveSequentialIndex(currentQuestionIndex);
+  showCurrentQuestion();
+  updateProgress();
+}
+
+// 🔥 进度：错题数量永远正确显示
+function updateProgress() {
+  const total = currentMode === "error" ? errorList.length : questions.length;
+  document.getElementById("progressText").textContent = `进度: ${currentQuestionIndex + 1}/${total}`;
+}
+
+function toggleStats() {
+  const s = document.getElementById("statsDiv");
+  s.style.display = s.style.display === "block" ? "none" : "block";
+  if (s.style.display === "block") showStats();
+}
+function showStats() {
+  const totalAnswered = answeredCorrectly.filter(v=>v!==undefined).length;
+  const correct = answeredCorrectly.filter(v=>v===true).length;
+  const wrong = answeredCorrectly.filter(v=>v===false).length;
+  const rate = totalAnswered ? ((correct/totalAnswered)*100).toFixed(1) : 0;
+  document.getElementById("statsDiv").innerHTML = `
+    <div style="display:flex;justify-content:space-between;">
+      <span>答题统计</span><button id="closeStatsBtn">×</button>
+    </div>
+    总答题：${totalAnswered}<br>
+    正确：${correct}｜错误：${wrong}<br>
+    正确率：${rate}%<br>
+    当前错题数：${errorList.length}
+  `;
+  bindTap(document.getElementById("closeStatsBtn"), ()=>{ document.getElementById("statsDiv").style.display = "none"; });
+}
+
+window.onload = initPage;
+</script>
+</body>
+</html>
