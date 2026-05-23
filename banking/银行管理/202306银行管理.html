@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>202306银行管理</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0; padding: 0;
+    }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fff;
+      color: #333;
+      font-size: 18px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .container {
+      width: 100%;
+      min-height: 100vh;
+      padding: 12px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 22px;
+      margin: 12px 0;
+    }
+    .mode-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: #ecf0f1;
+      font-size: 16px;
+      touch-action: manipulation;
+      cursor: pointer;
+    }
+    button.active {
+      background: #3498db;
+      color: #fff;
+    }
+    .progress {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .question-title {
+      font-weight: bold;
+      font-size: 20px;
+      text-align: center;
+      margin: 16px 0;
+      line-height: 1.6;
+    }
+    .option {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 18px 14px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: #fff;
+      touch-action: manipulation;
+      cursor: pointer;
+      min-height: 60px;
+    }
+    .option.locked {
+      pointer-events: none;
+      opacity: 0.85;
+    }
+    .option input {
+      transform: scale(1.4);
+      margin-right: 12px;
+    }
+    .option.selected {
+      background: #e3f2fd;
+      border: 2px solid #2196f3;
+    }
+    .option.option-correct {
+      background: #d4edda !important;
+      border-color: #c3e6cb !important;
+    }
+    .option.option-wrong {
+      background: #f8d7da !important;
+      border-color: #f5c6cb !important;
+    }
+    .result {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 6px;
+      display: none;
+      text-align: center;
+    }
+    .result.correct { background: #d4edda; color: #060; }
+    .result.incorrect { background: #f8d7da; color: #900; }
+    .explanation {
+      padding: 12px;
+      background: #f5f9ff;
+      border-radius: 8px;
+      margin: 10px 0;
+      display: none;
+      line-height: 1.6;
+    }
+    .navigation {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .navigation button {
+      flex: 1;
+    }
+    .submit-btn {
+      background: #27ae60;
+      color: #fff;
+    }
+    .stats {
+      padding: 12px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      margin: 10px 0;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>202306银行管理</h1>
+  <div class="mode-buttons">
+    <button id="randomModeBtn" class="active">随机</button>
+    <button id="seqModeBtn">顺序</button>
+    <button id="errorModeBtn">错题</button>
+    <button id="showStatsBtn">统计</button>
+  </div>
+  <div class="progress"><span id="progressText">进度: 0/0</span></div>
+  <div class="stats" id="statsDiv">
+    <div style="display:flex;justify-content:space-between;">
+      <span>统计</span>
+      <button id="closeStatsBtn">×</button>
+    </div>
+  </div>
+  <div id="quizContainer"></div>
+  <div class="navigation">
+    <button id="prevBtn">上一题</button>
+    <button id="nextBtn">下一题</button>
+    <button id="submitBtn" class="submit-btn">提交答案</button>
+  </div>
+</div>
+
+
+  <script>
+    // 获取页面标题作为localStorage前缀
+    const pageTitle = document.title || 'quiz';
+    // 题目数据
+    let questions =[
+    {
+        "id": 1,
+        "type": "single",
+        "question": "根据《商业银行大额风险暴露管理办法》，大额风险暴露是指商业银行对单一客户或一组关联客户超过其一级资本净额（　）的风险暴露。",
+        "options": [
+            { "value": "A", "text": "2.5%" },
+            { "value": "B", "text": "1%" },
+            { "value": "C", "text": "2%" },
+            { "value": "D", "text": "0.5%" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "大额风险暴露是指商业银行对单一客户或一组关联客户超过其一级资本净额2.5%的风险暴露。（故本题选A）"
+    },
+    {
+        "id": 2,
+        "type": "single",
+        "question": "A银行的贷款风险分类情况为：正常类贷款60亿元，关注类贷款20亿元，次级类贷款14亿元，可疑类贷款5亿元，损失类贷款1亿元，那么该行不良贷款率为（　）。",
+        "options": [
+            { "value": "A", "text": "1%" },
+            { "value": "B", "text": "6%" },
+            { "value": "C", "text": "40%" },
+            { "value": "D", "text": "20%" }
+        ],
+        "correctAnswer": "D",
+        "explanation": "不良贷款率=不良贷款余额/各项贷款余额=（14+5+1）/（60+20+14+5+1）=20/100=20%。（故本题选D）"
+    },
+    {
+        "id": 3,
+        "type": "single",
+        "question": "根据《银行业保险业突发事件信息报告办法》，下列突发事件不需要向银保监报告的是（　）。",
+        "options": [
+            { "value": "A", "text": "银行保险机构从业人员涉嫌利用职务工作挪用、侵占资金1000万元以上，或者进行非法集资、传销、洗钱等非法活动造成重大社会影响" },
+            { "value": "B", "text": "银行保险机构客户或他人涉嫌利用虚假票证、交易、信用等骗取银行保险机构资金100万元以上" },
+            { "value": "C", "text": "因自然灾害、事故灾难、公共卫生事件致使银行保险机构5个以上营业网点停业3天以上，或者造成重大社会影响" },
+            { "value": "D", "text": "银行保险机构营业网点受到100人以上围堵、冲击，或者连续一周受到20人以上围堵、冲击" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "根据《银行业保险业突发事件信息报告办法》第六条，银行保险机构客户或他人涉嫌利用虚假票证、交易、信用等骗取银行保险机构资金1000万元以上的才需要报告，100万元未达到该标准，无需报告；A、C、D均属于需报告的情形。（故本题选B）"
+    },
+    {
+        "id": 4,
+        "type": "single",
+        "question": "关于信用卡诈骗罪，下列说法正确的是（　）。",
+        "options": [
+            { "value": "A", "text": "透支时具有归还意思，透支后经发卡银行两次催收，超过3个月仍不归还的，属于恶意透支，成立信用卡诈骗罪" },
+            { "value": "B", "text": "以非法占有目的，用虚假身份证明骗领信用卡后又使用该卡的，应以妨害信用卡管理罪与信用卡诈骗罪并罚" },
+            { "value": "C", "text": "根据司法解释，在自动柜员机(ATM机)上擅自使用他人信用卡的，属于冒用他人信用卡的行为，构成信用卡诈骗罪" },
+            { "value": "D", "text": "《刑法》规定，盗窃信用卡并使用的，以盗窃罪论处，与此相应，拾得信用卡并使用的，就应以侵占罪论处" }
+        ],
+        "correctAnswer": "C",
+        "explanation": "A错误：恶意透支需以非法占有为目的，透支时具有归还意思仅后续无力偿还的，不认定为恶意透支；B错误：用虚假身份证明骗领信用卡后使用的，仅认定为信用卡诈骗罪一罪，而非数罪并罚；C正确：最高检批复明确拾得他人信用卡并在ATM机上使用的，属于冒用他人信用卡，构成信用卡诈骗罪；D错误：拾得信用卡并使用的，应认定为信用卡诈骗罪而非侵占罪。（故本题选C）"
+    },
+    {
+        "id": 5,
+        "type": "single",
+        "question": "同一借款人的贷款余额与商业银行资本余额的比例不得超过（　）。",
+        "options": [
+            { "value": "A", "text": "10%" },
+            { "value": "B", "text": "5%" },
+            { "value": "C", "text": "20%" },
+            { "value": "D", "text": "50%" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "我国《商业银行法》规定，对同一借款人的贷款余额与商业银行资本余额的比例不得超过10%。（故本题选A）"
+    },
+    {
+        "id": 6,
+        "type": "single",
+        "question": "治理通货膨胀的措施中，属于紧缩性财政政策的是（　）。",
+        "options": [
+            { "value": "A", "text": "减少赋税" },
+            { "value": "B", "text": "减少基础货币投放" },
+            { "value": "C", "text": "提高利率" },
+            { "value": "D", "text": "减少政府支出" }
+        ],
+        "correctAnswer": "D",
+        "explanation": "A错误：减少赋税属于扩张性财政政策；B、C错误：减少基础货币投放、提高利率属于紧缩性货币政策；D正确：实施紧缩性财政政策的手段主要是减少财政支出和增加税收。（故本题选D）"
+    },
+    {
+        "id": 7,
+        "type": "single",
+        "question": "在划分货币供应量层次中，M2一般是指（　）。",
+        "options": [
+            { "value": "A", "text": "流通中现金" },
+            { "value": "B", "text": "准货币" },
+            { "value": "C", "text": "狭义货币" },
+            { "value": "D", "text": "广义货币" }
+        ],
+        "correctAnswer": "D",
+        "explanation": "M₁被称为狭义货币，是现实购买力；M₂被称为广义货币；M₁与M₂之差被称为准货币，是潜在购买力。（故本题选D）"
+    },
+    {
+        "id": 8,
+        "type": "single",
+        "question": "现阶段我国货币政策的中介目标是（　）。",
+        "options": [
+            { "value": "A", "text": "货币供应量" },
+            { "value": "B", "text": "物价稳定" },
+            { "value": "C", "text": "基础货币" },
+            { "value": "D", "text": "经济增长" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "物价稳定、经济增长是货币政策的最终目标；基础货币是货币政策的操作目标；现阶段我国货币政策的中介目标是货币供应量。（故本题选A）"
+    },
+    {
+        "id": 9,
+        "type": "single",
+        "question": "在货币政策工具中被称为“三大法宝”的是（　）。",
+        "options": [
+            { "value": "A", "text": "存款准备金、利率政策、汇率政策" },
+            { "value": "B", "text": "公开市场业务、存款准备金、利率政策" },
+            { "value": "C", "text": "存款准备金，公开市场业务、再贷款与再贴现" },
+            { "value": "D", "text": "存款准备金、再贷款与再贴现、利率政策" }
+        ],
+        "correctAnswer": "C",
+        "explanation": "一般性政策工具是中央银行较为常用的传统工具，主要包括存款准备金、再贷款与再贴现和公开市场业务，被称为货币政策的“三大法宝”。（故本题选C）"
+    },
+    {
+        "id": 10,
+        "type": "single",
+        "question": "同业拆借市场在金融市场体系中属于（　）。",
+        "options": [
+            { "value": "A", "text": "贷款市场" },
+            { "value": "B", "text": "长期资金融通市场" },
+            { "value": "C", "text": "货币市场" },
+            { "value": "D", "text": "资本市场" }
+        ],
+        "correctAnswer": "C",
+        "explanation": "货币市场是指融资期限在1年以内(包括1年)的资金交易市场，又称为短期资金市场，包括同业拆借市场、回购市场和票据市场；资本市场是期限在1年以上的长期资金融通市场。（故本题选C）"
+    },
+    {
+        "id": 11,
+        "type": "single",
+        "question": "资本市场是指金融工具期限在（　）年以上的长期金融市场。",
+        "options": [
+            { "value": "A", "text": "10" },
+            { "value": "B", "text": "3" },
+            { "value": "C", "text": "5" },
+            { "value": "D", "text": "1" }
+        ],
+        "correctAnswer": "D",
+        "explanation": "资本市场是指以长期金融工具为媒介进行的、期限在1年以上的长期资金融通市场。（故本题选D）"
+    },
+    {
+        "id": 12,
+        "type": "single",
+        "question": "第二版巴塞尔协议的第一支柱是（　）。",
+        "options": [
+            { "value": "A", "text": "最低资本要求" },
+            { "value": "B", "text": "内部审计" },
+            { "value": "C", "text": "市场约束" },
+            { "value": "D", "text": "外部监管" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "《巴塞尔协议Ⅱ》构建了资本监管的“三大支柱”——最低资本要求、监管当局的监督检查和市场约束，其中最低资本要求是第一支柱。（故本题选A）"
+    },
+    {
+        "id": 13,
+        "type": "single",
+        "question": "根据《商业银行杠杆率管理办法》的规定，商业银行并表和未并表的杠杆率均不得低于（　）。",
+        "options": [
+            { "value": "A", "text": "2%" },
+            { "value": "B", "text": "5%" },
+            { "value": "C", "text": "6%" },
+            { "value": "D", "text": "4%" }
+        ],
+        "correctAnswer": "D",
+        "explanation": "商业银行并表和未并表的杠杆率均不得低于4％。（故本题选D）"
+    },
+    {
+        "id": 14,
+        "type": "single",
+        "question": "国务院银行业监督管理机构对商业银行接管的最长期限为（　）年。",
+        "options": [
+            { "value": "A", "text": "3" },
+            { "value": "B", "text": "4" },
+            { "value": "C", "text": "1" },
+            { "value": "D", "text": "2" }
+        ],
+        "correctAnswer": "D",
+        "explanation": "对商业银行进行接管由国务院银行业监督管理机构作出决定，并组织实施。接管自接管决定实施之日起开始。接管期限届满，国务院银行业监督管理机构可以决定延期，但接管期限最长不得超过二年。（故本题选D）"
+    },
+    {
+        "id": 15,
+        "type": "single",
+        "question": "下列关于客户身份资料和交易记录保存制度的说法中，错误的是（　）。",
+        "options": [
+            { "value": "A", "text": "客户交易信息自交易记账当年计起至少保存五年" },
+            { "value": "B", "text": "金融机构破产和解散时，应当将客户身份资料和客户交易信息集中销毁" },
+            { "value": "C", "text": "客户身份资料在业务关系结束后应当至少保存五年" },
+            { "value": "D", "text": "在业务关系存续期间，客户身份资料发生变更的，应当及时更新客户身份资料" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "A、C、D表述均正确；B错误，银行业金融机构破产或者解散时，应当将客户身份资料和交易记录移交国务院银行业监督管理机构指定的机构，而非集中销毁。（故本题选B）"
+    },
+    {
+        "id": 16,
+        "type": "single",
+        "question": "《中华人民共和国商业银行法》明确的我国商业银行的经营原则是（　）。",
+        "options": [
+            { "value": "A", "text": "自主性、效益性、流动性" },
+            { "value": "B", "text": "流动性、效益性、风险性" },
+            { "value": "C", "text": "安全性、流动性、效益性" },
+            { "value": "D", "text": "效益性、安全性、统一性" }
+        ],
+        "correctAnswer": "C",
+        "explanation": "《商业银行法》规定了商业银行“三性四自”经营原则，商业银行以安全性、流动性、效益性为经营原则，实行自主经营、自担风险、自负盈亏、自我约束。（故本题选C）"
+    },
+    {
+        "id": 17,
+        "type": "single",
+        "question": "通常用“不要将所有的鸡蛋放在一个篮子里”来形象说明（　）。",
+        "options": [
+            { "value": "A", "text": "风险分散" },
+            { "value": "B", "text": "风险转移" },
+            { "value": "C", "text": "风险规避" },
+            { "value": "D", "text": "风险对冲" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "风险分散是指通过多样化的投资来分散和降低风险的策略性选择。“不要将所有的鸡蛋放在一个篮子里”的古老投资格言形象地说明了这一方法。（故本题选A）"
+    },
+    {
+        "id": 18,
+        "type": "single",
+        "question": "普惠金融的重点服务对象不包括（　）。",
+        "options": [
+            { "value": "A", "text": "小微企业" },
+            { "value": "B", "text": "农民" },
+            { "value": "C", "text": "白领" },
+            { "value": "D", "text": "老年人" }
+        ],
+        "correctAnswer": "C",
+        "explanation": "小微企业、农民、城镇低收入人群和残疾人、老年人等特殊群体是当前我国普惠金融重点服务对象，白领不属于普惠金融重点服务对象。（故本题选C）"
+    },
+    {
+        "id": 19,
+        "type": "single",
+        "question": "反洗钱的义务主体不包括（　）。",
+        "options": [
+            { "value": "A", "text": "银行业协会" },
+            { "value": "B", "text": "房地产公司" },
+            { "value": "C", "text": "律师事务所" },
+            { "value": "D", "text": "贵重金属交易所" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "反洗钱的义务主体不只包括金融机构，还包括特定非金融机构。金融机构包含各类银行、证券、保险等机构；特定非金融机构是指房地产行业、贵金属行业、会计师行业、律师行业等。银行业协会属于行业自律组织，并非反洗钱义务主体。（故本题选A）"
+    },
+    {
+        "id": 20,
+        "type": "single",
+        "question": "下列关于银行保护客户隐私的说法错误的是（　）。",
+        "options": [
+            { "value": "A", "text": "银行应当保护在为客户提供开户服务时所了解到的客户财务状况信息" },
+            { "value": "B", "text": "银行业从业人员不得违反法律法规和所在机构关于客户隐私保护的规定，透露任何客户资料和交易信息" },
+            { "value": "C", "text": "出于好奇或其他目的向其他同事打听客户的个人信息和交易信息属于不当行为，可能侵犯客户隐私" },
+            { "value": "D", "text": "在离职后，为了继续为客户提供服务，银行业从业人员可以将客户资料及其交易信息档案带至新机构" }
+        ],
+        "correctAnswer": "D",
+        "explanation": "A、B、C表述均正确；D错误，银行业从业人员离职时，应当按照规定妥善交接工作，不得擅自带走所在机构的财物、工作资料和客户资源。在离职后，仍应恪守诚信，保守原所在机构的商业秘密和客户隐私。（故本题选D）"
+    },
+    {
+        "id": 21,
+        "type": "single",
+        "question": "银保监会对商业银行实施资本充足率监督检查，确保资本能够充分覆盖所面临的各类风险。下列选项中，不属于资本充足率监督检查内容的是（　）。",
+        "options": [
+            { "value": "A", "text": "评估商业银行全面风险管理框架是否完备" },
+            { "value": "B", "text": "评估资本充足率计量结果的合理性和准确性" },
+            { "value": "C", "text": "评估商业银行的资产及利润增速是否达到监管要求" },
+            { "value": "D", "text": "评估商业银行公司治理、资本规划、内部控制和审计是否满足监管要求" }
+        ],
+        "correctAnswer": "C",
+        "explanation": "《商业银行资本管理办法（试行）》规定，资本充足率监督检查包括：评估商业银行全面风险管理框架；审查资本充足率计量结果合理性和准确性；检查内部资本充足评估程序，评估公司治理、资本规划等；评估各类风险及压力测试情况。资产及利润增速是否达标不属于资本充足率监督检查内容。（故本题选C）"
+    },
+    {
+        "id": 22,
+        "type": "single",
+        "question": "根据《反洗钱法》规定，客户身份资料自业务关系结束当年或者一次性交易记账当年计起至少保存（）年。",
+        "options": [
+            { "value": "A", "text": "5" },
+            { "value": "B", "text": "3" },
+            { "value": "C", "text": "1" },
+            { "value": "D", "text": "10" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "对于客户身份资料，自业务关系结束当年或者一次性交易记账当年计起至少保存5年。（故本题选A）"
+    },
+    {
+        "id": 23,
+        "type": "single",
+        "question": "以下选项属于财政政策工具的是（　）。",
+        "options": [
+            { "value": "A", "text": "正回购" },
+            { "value": "B", "text": "存款准备金率" },
+            { "value": "C", "text": "利率" },
+            { "value": "D", "text": "国债" }
+        ],
+        "correctAnswer": "D",
+        "explanation": "A、B、C均属于货币政策工具；财政政策工具主要包括税收、公共支出、政府投资和政府债券(国债)等。（故本题选D）"
+    },
+    {
+        "id": 24,
+        "type": "single",
+        "question": "监管部门对商业银行与关联方的授信余额占资本净额的比例规定了上限，要求商业银行对一个关联法人或其他组织所在集团客户的授信余额总数不得超过商业银行资本净额的（　）。",
+        "options": [
+            { "value": "A", "text": "20%" },
+            { "value": "B", "text": "30%" },
+            { "value": "C", "text": "50%" },
+            { "value": "D", "text": "15%" }
+        ],
+        "correctAnswer": "D",
+        "explanation": "监管部门要求商业银行对一个关联方的授信余额不得超过银行资本净额的10%；对一个关联法人或其他组织所在集团客户的授信余额总数不得超过商业银行资本净额的15%；全部关联方的授信余额不得超过商业银行资本净额的50%。（故本题选D）"
+    },
+    {
+        "id": 25,
+        "type": "single",
+        "question": "根据《关于加强银行业金融机构内控管理有效防范柜面业务操作风险的通知》，不符合银行业金融机构加强印章凭证管理原则的是（　）。",
+        "options": [
+            { "value": "A", "text": "事先审批登记" },
+            { "value": "B", "text": "定期更换印章" },
+            { "value": "C", "text": "双人监督领用" },
+            { "value": "D", "text": "双人入库保管" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "根据《关于加强银行业金融机构内控管理有效防范柜面业务操作风险的通知》，银行业金融机构应加强印章凭证管理，坚持“双人入库保管、事先审批登记、双人监督领用”原则，并未要求定期更换印章。（故本题选B）"
+    },
+    {
+        "id": 26,
+        "type": "single",
+        "question": "根据《商业银行与内部人和股东关联交易管理办法》，商业银行对全部关联方的授信余额不得超过商业银行资本净额的（　）。",
+        "options": [
+            { "value": "A", "text": "50%" },
+            { "value": "B", "text": "10%" },
+            { "value": "C", "text": "100%" },
+            { "value": "D", "text": "15%" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "监管部门要求商业银行对一个关联方的授信余额不得超过银行资本净额的10%；对一个关联法人或其他组织所在集团客户的授信余额总数不得超过商业银行资本净额的15%；全部关联方的授信余额不得超过商业银行资本净额的50%。（故本题选A）"
+    },
+    {
+        "id": 27,
+        "type": "single",
+        "question": "按照《商业银行合规风险管理指引》要求，在商业银行内负责审议批准商业银行的合规政策，并监督合规政策的实施的是（　）。",
+        "options": [
+            { "value": "A", "text": "高级管理层" },
+            { "value": "B", "text": "董事会" },
+            { "value": "C", "text": "合规管理部门" },
+            { "value": "D", "text": "合规总监" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "按照《商业银行合规风险管理指引》要求，董事会应履行以下合规管理职责：审议批准商业银行的合规政策，并监督合规政策的实施；审议批准高级管理层提交的合规风险管理报告等。（故本题选B）"
+    },
+    {
+        "id": 28,
+        "type": "single",
+        "question": "银行业金融机构应当尊重银行业消费者的（　），包括公平、公正制定格式合同和协议文本，不得出现误导、默许等侵害银行业消费者合法权益的条款。",
+        "options": [
+            { "value": "A", "text": "知情权" },
+            { "value": "B", "text": "安全权" },
+            { "value": "C", "text": "公平交易权" },
+            { "value": "D", "text": "风险承受能力" }
+        ],
+        "correctAnswer": "C",
+        "explanation": "《国务院办公厅关于加强金融消费者权益保护工作的指导意见》规定，保障金融消费者公平交易权。金融机构不得设置违反公平原则的交易条件，在格式合同中不得加重金融消费者责任、限制或者排除金融消费者合法权利等。（故本题选C）"
+    },
+    {
+        "id": 29,
+        "type": "single",
+        "question": "对贷款进行分类时，要以评估借款人的（　）为核心，把借款人的正常营业收入作为贷款的主要还款来源。",
+        "options": [
+            { "value": "A", "text": "贷款担保" },
+            { "value": "B", "text": "还款能力" },
+            { "value": "C", "text": "还款意愿" },
+            { "value": "D", "text": "利率水平" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "对贷款进行分类时，要以评估借款人的还款能力为核心，把借款人的正常营业收入作为贷款的主要还款来源，贷款的担保作为次要还款来源。（故本题选B）"
+    },
+    {
+        "id": 30,
+        "type": "single",
+        "question": "货币市场是指交易期限在（　）年以内的短期金融工具市场。",
+        "options": [
+            { "value": "A", "text": "一" },
+            { "value": "B", "text": "十" },
+            { "value": "C", "text": "三" },
+            { "value": "D", "text": "五" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "货币市场是指融资期限在1年以内(包括1年)的资金交易市场，又称为短期资金市场。（故本题选A）"
+    },
+    {
+        "id": 31,
+        "type": "single",
+        "question": "根据《中国人民银行关于银行业金融机构做好个人金融信息保护工作的通知》，银行业金融机构应当采取有效措施加强对个人金融信息的保护，以下行为合法合规的是（　）。",
+        "options": [
+            { "value": "A", "text": "出售个人金融信息" },
+            { "value": "B", "text": "执行个人存款实名制" },
+            { "value": "C", "text": "向本金融机构以外的其他机构和个人提供个人客户金融信息" },
+            { "value": "D", "text": "在个人反对的情况下，将个人金融信息用于产生该信息以外的本金融机构其他营销活动" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "A、C、D均属于违规行为：银行业金融机构不得出售个人金融信息；不得向本机构外的其他机构和个人提供个人金融信息（法定或经客户书面授权除外）；不得在个人反对的情况下将个人金融信息用于其他营销活动。执行个人存款实名制是合法合规的要求。（故本题选B）"
+    },
+    {
+        "id": 32,
+        "type": "single",
+        "question": "《金融机构客户身份识别和客户身份资料及交易记录保存管理方法》规定，银行在与客户的业务存续期间，应该采取（　）客户身份识别措施。",
+        "options": [
+            { "value": "A", "text": "定期的" },
+            { "value": "B", "text": "间隔的" },
+            { "value": "C", "text": "持续的" },
+            { "value": "D", "text": "一次性的" }
+        ],
+        "correctAnswer": "C",
+        "explanation": "根据《金融机构客户身份识别和客户身份资料及交易记录保存管理办法》第十九条规定，在与客户的业务关系存续期间，金融机构应当采取持续的客户身份识别措施，关注客户及其日常经营活动、金融交易情况，及时提示客户更新资料信息。（故本题选C）"
+    },
+    {
+        "id": 33,
+        "type": "single",
+        "question": "在我国货币供应量层次划分中，一般所说的货币供应量是指（　），通常反映社会总需求变化和未来通货膨胀的压力状况。",
+        "options": [
+            { "value": "A", "text": "M₂" },
+            { "value": "B", "text": "M₁" },
+            { "value": "C", "text": "M₀" },
+            { "value": "D", "text": "M₃" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "由于M₂通常反映社会总需求变化和未来通货膨胀的压力状况，因此，一般所说的货币供应量是指M₂。（故本题选A）"
+    },
+    {
+        "id": 34,
+        "type": "single",
+        "question": "根据《银行业金融机构信息科技外包风险监管指引》，银行业金融机构由于信息科技外包可能产生科技能力丧失、业务中断、信息泄露、服务水平下降的问题，会导致银行业金融机构的（　）风险。",
+        "options": [
+            { "value": "A", "text": "战略、声誉、合规" },
+            { "value": "B", "text": "法律、信用、市场" },
+            { "value": "C", "text": "信用、战略、流动性" },
+            { "value": "D", "text": "市场、操作、国别" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "信息科技外包可能产生科技能力丧失、业务中断、信息泄露、服务水平下降的问题，并导致银行业金融机构的战略、声誉、合规风险。（故本题选A）"
+    },
+    {
+        "id": 35,
+        "type": "single",
+        "question": "下列不属于人民银行对于金融机构反洗钱监管职责的是（　）。",
+        "options": [
+            { "value": "A", "text": "审查新设金融机构反洗钱内部控制制度的方案" },
+            { "value": "B", "text": "制定金融机构大额交易和可疑交易报告的具体办法" },
+            { "value": "C", "text": "监督、检查金融机构履行反洗钱义务的情况" },
+            { "value": "D", "text": "牵头制定金融机构反洗钱规章" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "人民银行反洗钱监管职责包括：制定或会同制定反洗钱规章；制定大额交易和可疑交易报告具体办法；监督检查金融机构反洗钱义务履行情况等。审查新设金融机构反洗钱内部控制制度方案是国务院金融监督管理部门的职责，而非人民银行职责。（故本题选A）"
+    },
+    {
+        "id": 36,
+        "type": "single",
+        "question": "包买商从出口商那里无追索地购买已经承兑的，并通常由进口商所在地银行担保的远期汇票或本票的业务是指（　）。",
+        "options": [
+            { "value": "A", "text": "福费廷" },
+            { "value": "B", "text": "保理" },
+            { "value": "C", "text": "信用证" },
+            { "value": "D", "text": "出口押汇" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "福费廷是指包买商从出口商那里无追索地购买已经承兑的，并通常由进口商所在地银行担保的远期汇票或本票的业务；保理是指卖方将其现在或将来的基于其与买方订立的货物销售/服务合同所产生的应收账款转让给保理商；信用证是银行根据进口人请求，开给出口人的一种保证承担支付货款责任的书面凭证；出口押汇是指出口商将出口货物后的应收款项抵押给银行，从而提前获得资金的融资方式。（故本题选A）"
+    },
+    {
+        "id": 37,
+        "type": "single",
+        "question": "下列选项中，不属于流动性风险监管指标的是（　）。",
+        "options": [
+            { "value": "A", "text": "流动性匹配率" },
+            { "value": "B", "text": "资本充足率" },
+            { "value": "C", "text": "流动性覆盖率" },
+            { "value": "D", "text": "流动性比例" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "根据修订后的《商业银行流动性风险管理办法》，流动性风险监管指标包括流动性覆盖率、净稳定资金比例、流动性比例、流动性匹配率和优质流动性资产充足率；资本充足率是资本充足性监管指标，不属于流动性风险监管指标。（故本题选B）"
+    },
+    {
+        "id": 38,
+        "type": "single",
+        "question": "（　）是指因利率、汇率、股票价格和商品价格的不利变动而使银行表内和表外业务发生损失的风险。",
+        "options": [
+            { "value": "A", "text": "信用风险" },
+            { "value": "B", "text": "操作风险" },
+            { "value": "C", "text": "市场风险" },
+            { "value": "D", "text": "流动性风险" }
+        ],
+        "correctAnswer": "C",
+        "explanation": "A错误：信用风险是指债务人或交易对手未能履行合同所规定的义务或信用质量发生变化，影响金融产品价值，从而给债权人或金融产品持有人造成经济损失的风险；B错误：操作风险是指由不完善或有问题的内部程序、人员和信息科技系统，以及外部事件所造成损失的风险；C正确：市场风险是指由于利率、汇率、股票价格和商品价格的不利变动所带来的风险；D错误：流动性风险是指商业银行无法以合理成本及时获得充足资金，以满足资产增长或到期债务支付需求的风险。（故本题选C）"
+    },
+    {
+        "id": 39,
+        "type": "single",
+        "question": "根据《商业银行合规风险管理指引》，商业银行应建立对管理人员合规绩效的考核制度。商业银行的绩效考核应体现（　）的价值观念。",
+        "options": [
+            { "value": "A", "text": "倡导合规和惩处违规" },
+            { "value": "B", "text": "做大规模和做强效益" },
+            { "value": "C", "text": "效益优先和合规为辅" },
+            { "value": "D", "text": "一切从经营效益出发" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "《商业银行合规风险管理指引》第十五条规定，商业银行应建立对管理人员合规绩效的考核制度。商业银行的绩效考核应体现倡导合规和惩处违规的价值观念。（故本题选A）"
+    },
+    {
+        "id": 40,
+        "type": "single",
+        "question": "信托公司不得以（　）方式管理运用信托财产。",
+        "options": [
+            { "value": "A", "text": "租赁" },
+            { "value": "B", "text": "存放同业" },
+            { "value": "C", "text": "卖出回购" },
+            { "value": "D", "text": "买入返售" }
+        ],
+        "correctAnswer": "C",
+        "explanation": "信托公司管理运用或处分信托财产时，可以依照信托文件的约定，采取投资、出售、存放同业、买入返售、租赁、贷款等方式进行，信托公司不得以卖出回购方式管理运用信托财产。（故本题选C）"
+    },
+    {
+        "id": 41,
+        "type": "single",
+        "question": "以下不属于商业银行核心一级资本的有（　）。",
+        "options": [
+            { "value": "A", "text": "未分配利润" },
+            { "value": "B", "text": "少数股东资本可计入部分" },
+            { "value": "C", "text": "超额贷款损失准备" },
+            { "value": "D", "text": "资本公积" }
+        ],
+        "correctAnswer": "C",
+        "explanation": "核心一级资本包括：实收资本或普通股、资本公积、盈余公积、一般风险准备、未分配利润、少数股东资本可计入部分。超额贷款损失准备属于二级资本，不属于核心一级资本。（故本题选C）"
+    },
+    {
+        "id": 42,
+        "type": "single",
+        "question": "商业银行开展代理保险业务除互联网保险业务和电话销售保险业务外，在同一个会计年度内只能与不超过（　）家保险公司开展保险代理业务合作。",
+        "options": [
+            { "value": "A", "text": "3" },
+            { "value": "B", "text": "5" },
+            { "value": "C", "text": "2" },
+            { "value": "D", "text": "4" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "商业银行开展代理保险业务，不得通过第三方网络平台开展保险代理业务；不得允许保险公司人员等非商业银行从业人员在商业银行营业场所从事保险销售相关活动，每个网点在同一会计年度内只能与不超过3家保险公司开展保险代理业务合作。（故本题选A）"
+    },
+    {
+        "id": 43,
+        "type": "single",
+        "question": "信托公司不得开展除同业拆入业务以外的其他负债业务，且同业拆入余额不得超过其净资产的（　）。",
+        "options": [
+            { "value": "A", "text": "35%" },
+            { "value": "B", "text": "20%" },
+            { "value": "C", "text": "25%" },
+            { "value": "D", "text": "30%" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "信托公司不得开展除同业拆入业务以外的其他负债业务，且同业拆入余额不得超过其净资产的20%。（故本题选B）"
+    },
+    {
+        "id": 44,
+        "type": "single",
+        "question": "根据《中国银保监会行政处罚办法》，银保监会及其派出机构依法对银行保险机构给予的行政处罚不包括（　）。",
+        "options": [
+            { "value": "A", "text": "警告" },
+            { "value": "B", "text": "责令改正" },
+            { "value": "C", "text": "没收违法所得" },
+            { "value": "D", "text": "罚款" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "《中国银保监会行政处罚办法》对银行业监管处罚领域的行政处罚包括：警告；罚款；没收违法所得；责令停业整顿；吊销金融许可证；取消董(理)事、高级管理人员一定期限直至终身的任职资格；禁止一定期限直至终身从事银行业工作等。责令改正不属于行政处罚种类。（故本题选B）"
+    },
+    {
+        "id": 45,
+        "type": "single",
+        "question": "某金融机构发行的资产管理产品说明书载明，该产品投资于债券的比例为50%，投资于未上市企业股权资产的比例为30%，投资于商品的比例为20%，根据《关于规范金融机构资产管理业务的指导意见》，该产品属于（　）。",
+        "options": [
+            { "value": "A", "text": "固定收益类产品" },
+            { "value": "B", "text": "商品及金融衍生品类产品" },
+            { "value": "C", "text": "权益类产品" },
+            { "value": "D", "text": "混合类产品" }
+        ],
+        "correctAnswer": "D",
+        "explanation": "固定收益类理财产品投资于债权类资产的比例不低于80%；权益类理财产品投资于权益类资产的比例不低于80%；商品及金融衍生品类理财产品投资于商品及金融衍生品的比例不低于80%；混合类理财产品投资于债权类资产、权益类资产、商品及金融衍生品类资产且任一资产的投资比例未达到前三类理财产品标准。该产品各类资产投资比例均未达对应类别标准，属于混合类产品。（故本题选D）"
+    },
+    {
+        "id": 46,
+        "type": "single",
+        "question": "以下不属于金融机构履行客户身份识别义务要求的有（　）。",
+        "options": [
+            { "value": "A", "text": "不得为身份不明的客户提供服务或者与其进行交易" },
+            { "value": "B", "text": "报告大额交易和可疑交易" },
+            { "value": "C", "text": "在为不在本机构开立账户的客户提供现金汇款等一次性金融服务时，应当要求客户出示真实有效的身份证件或者其他身份证明文件，进行核对并登记" },
+            { "value": "D", "text": "对先前获得的客户身份资料的真实性、有效性或者完整性有疑问的，应当重新识别客户身份" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "A、C、D均属于客户身份识别义务要求；B项报告大额交易和可疑交易是反洗钱的另一项独立义务，并非客户身份识别义务范畴。（故本题选B）"
+    },
+    {
+        "id": 47,
+        "type": "single",
+        "question": "银行业金融机构应当向金融消费者提供文明规范的服务，下列说法正确的是（　）。",
+        "options": [
+            { "value": "A", "text": "不得以概括授权的方式，索取与金融产品和服务无关的个人金融信息使用授权" },
+            { "value": "B", "text": "除本机构和合作机构销售人员外，应禁止其他任何人员在营业场所开展任何形式的营销活动" },
+            { "value": "C", "text": "在向金融消费者提供服务后，及时告知收费情况及各个服务环节的计费标准" },
+            { "value": "D", "text": "加强对录音录像保存的管控，发生纠纷的相关录音录像资料应至少保留到产品到期兑付后6个月" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "A正确：银行业金融机构不得以概括授权的方式，索取与金融产品和服务无关的个人金融信息使用授权；B错误：除本机构本行销售人员外，禁止其他任何人员在营业场所开展营销活动，而非包含合作机构销售人员；C错误：应在提供服务前告知收费情况及计费标准，而非服务后；D错误：录音录像资料至少应保留到产品到期兑付后6个月，发生纠纷的要保留到纠纷最终解决后。（故本题选A）"
+    },
+    {
+        "id": 48,
+        "type": "single",
+        "question": "以下不属于商业银行信用风险监管指标的有（　）。",
+        "options": [
+            { "value": "A", "text": "拨备覆盖率" },
+            { "value": "B", "text": "净稳定资金比例" },
+            { "value": "C", "text": "全部关联度" },
+            { "value": "D", "text": "不良贷款率" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "信用风险的监管指标包括：不良贷款率和不良资产率；拨备覆盖率和贷款拨备率；大额风险暴露；全部关联度。净稳定资金比例属于流动性风险监管指标，不属于信用风险监管指标。（故本题选B）"
+    },
+    {
+        "id": 49,
+        "type": "single",
+        "question": "个人投资人认购大额存单起点金额不低于（　）万元。",
+        "options": [
+            { "value": "A", "text": "50" },
+            { "value": "B", "text": "20" },
+            { "value": "C", "text": "100" },
+            { "value": "D", "text": "30" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "个人投资人认购的大额存单起点金额不低于20万元，机构投资人则不低于1000万元。（故本题选B）"
+    },
+    {
+        "id": 50,
+        "type": "single",
+        "question": "银保监会于2018年9月发布《商业银行理财业务监督管理办法》，该办法所指的理财产品是（　）。",
+        "options": [
+            { "value": "A", "text": "非保本理财产品" },
+            { "value": "B", "text": "保本保收益理财产品" },
+            { "value": "C", "text": "保本理财产品" },
+            { "value": "D", "text": "保本理财产品和非保本理财产品" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "《商业银行理财业务监督管理办法》所称理财产品是指商业银行按照约定条件和实际投资收益情况向投资者支付收益、不保证本金支付和收益水平的非保本理财产品。（故本题选A）"
+    },
+    {
+        "id": 51,
+        "type": "multiple",
+        "question": "商业银行常用的存款定价方法主要有（　）。",
+        "options": [
+            { "value": "A", "text": "市场竞争定价" },
+            { "value": "B", "text": "随行就市定价" },
+            { "value": "C", "text": "成本覆盖定价" },
+            { "value": "D", "text": "利息定价" },
+            { "value": "E", "text": "费用定价" }
+        ],
+        "correctAnswer": ["A", "B", "C"],
+        "explanation": "商业银行常用的存款定价方法主要有市场竞争定价、随行就市定价和成本覆盖定价；利息定价、费用定价并非商业银行存款定价的常用方法。（故本题选ABC）"
+    },
+    {
+        "id": 52,
+        "type": "multiple",
+        "question": "资本监管的“三大支柱”包括（　）。",
+        "options": [
+            { "value": "A", "text": "最低资本要求" },
+            { "value": "B", "text": "监管当局的监督检查" },
+            { "value": "C", "text": "逆周期资本要求" },
+            { "value": "D", "text": "市场约束" },
+            { "value": "E", "text": "压力测试" }
+        ],
+        "correctAnswer": ["A", "B", "D"],
+        "explanation": "《巴塞尔协议Ⅱ》构建了资本监管的“三大支柱”——最低资本要求、监管当局的监督检查和市场约束；逆周期资本要求、压力测试不属于资本监管“三大支柱”范畴。（故本题选ABD）"
+    },
+    {
+        "id": 53,
+        "type": "multiple",
+        "question": "商业银行通常运用的风险管理策略可以大致概括为（　）。",
+        "options": [
+            { "value": "A", "text": "风险分散" },
+            { "value": "B", "text": "风险对冲" },
+            { "value": "C", "text": "风险转移" },
+            { "value": "D", "text": "风险规避" },
+            { "value": "E", "text": "风险补偿" }
+        ],
+        "correctAnswer": ["A", "B", "C", "D", "E"],
+        "explanation": "商业银行通常运用的风险管理策略可以大致概括为风险分散、风险对冲、风险转移、风险规避和风险补偿五种策略。（故本题选ABCDE）"
+    },
+    {
+        "id": 54,
+        "type": "multiple",
+        "question": "不相容职务是指那些不能由一个部门或人员兼任，否则可能发生弄虚作假或舞弊行为的职务，一般应当加以分离的不相容职务有（　）。",
+        "options": [
+            { "value": "A", "text": "财物保管与相应记录" },
+            { "value": "B", "text": "业务执行与相应记录" },
+            { "value": "C", "text": "授权审批与业务执行" },
+            { "value": "D", "text": "业务执行与监督审核" }
+        ],
+        "correctAnswer": ["A", "B", "C", "D"],
+        "explanation": "不相容职务分离控制是内部控制的重要手段，财物保管与相应记录、业务执行与相应记录、授权审批与业务执行、业务执行与监督审核均属于应当加以分离的不相容职务，若由同一人兼任，易发生舞弊或错误。（故本题选ABCD）"
+    },
+    {
+        "id": 55,
+        "type": "multiple",
+        "question": "银行业金融机构应对项目开工建设的“六项必要条件”进行严格的合规审查，以项目获得有关主管部门审批通过作为项目授信合规审查的最低要求。下列选项中，包括在“六项必要条件”中的有（）。",
+        "options": [
+            { "value": "A", "text": "环境影响评价审批" },
+            { "value": "B", "text": "安全和城市规划等规定和要求" },
+            { "value": "C", "text": "节能评估审查" },
+            { "value": "D", "text": "符合产业政策和市场准入标准" },
+            { "value": "E", "text": "项目审批核准或备案程序" }
+        ],
+        "correctAnswer": ["A", "B", "C", "D", "E"],
+        "explanation": "根据《节能减排授信工作指导意见》第十二条，银行业金融机构应对项目开工建设的“六项必要条件”（必须符合产业政策和市场准入标准、项目审批核准或备案程序、用地预审、环境影响评价审批、节能评估审查以及信贷、安全和城市规划等规定和要求）进行严格的合规审查，以项目获得有关主管部门审批通过作为项目授信合规审查的最低要求。"
+    },
+    {
+        "id": 56,
+        "type": "multiple",
+        "question": "以下选项中，属于商业银行贷款发放环节的操作风险的有（）。",
+        "options": [
+            { "value": "A", "text": "未按规定办妥抵押品抵押登记手续或手续不完善，造成抵押无效" },
+            { "value": "B", "text": "逆程序发放贷款" },
+            { "value": "C", "text": "未按规定对贷款资金用途进行跟踪检查" },
+            { "value": "D", "text": "贷款合同要素填写不规范" },
+            { "value": "E", "text": "未按审批时所附的限制性条款发放贷款" }
+        ],
+        "correctAnswer": ["A", "B", "D", "E"],
+        "explanation": "贷款发放环节操作风险包括：逆程序发放贷款；未按审批时所附的限制性条款发放贷款；贷款合同要素填写不规范；未按规定办妥抵押品抵押登记手续或手续不完善，造成抵押无效；未按规定办理质押物止付手续和质押权利转移手续，形成无效质押；贷款录入上账错误等。C属于贷后管理环节风险。"
+    },
+    {
+        "id": 57,
+        "type": "multiple",
+        "question": "在托收业务中，主要的当事人包括（）。",
+        "options": [
+            { "value": "A", "text": "委托人" },
+            { "value": "B", "text": "提示行" },
+            { "value": "C", "text": "代收行" },
+            { "value": "D", "text": "托收行" },
+            { "value": "E", "text": "付款人" }
+        ],
+        "correctAnswer": ["A", "C", "D", "E"],
+        "explanation": "托收方式的基本当事人有四个，即委托人、托收行、代收行和付款人。"
+    },
+    {
+        "id": 58,
+        "type": "multiple",
+        "question": "《商业银行理财业务监督管理办法》要求商业银行应当加强投资者适当性管理，不得（）。",
+        "options": [
+            { "value": "A", "text": "向投资者承诺承担损失" },
+            { "value": "B", "text": "向投资者充分披露信息和揭示风险" },
+            { "value": "C", "text": "宣传理财产品预期收益率" },
+            { "value": "D", "text": "引导投资者购买与其风险承受能力不相匹配的理财产品" },
+            { "value": "E", "text": "承诺保本保收益" }
+        ],
+        "correctAnswer": ["A", "C", "D", "E"],
+        "explanation": "商业银行销售理财产品，应当加强投资者适当性管理，向投资者充分披露信息和揭示风险，不得宣传或承诺保本保收益，不得误导投资者购买与其风险承受能力不相匹配的理财产品，商业银行发行理财产品，不得宣传理财产品预期收益率。B是应当履行的义务。"
+    },
+    {
+        "id": 59,
+        "type": "multiple",
+        "question": "商业银行核心一级资本包括（）。",
+        "options": [
+            { "value": "A", "text": "超额贷款损失准备" },
+            { "value": "B", "text": "资本公积" },
+            { "value": "C", "text": "实收资本" },
+            { "value": "D", "text": "商誉" },
+            { "value": "E", "text": "普通股" }
+        ],
+        "correctAnswer": ["B", "C", "E"],
+        "explanation": "核心一级资本包括实收资本或普通股、资本公积、盈余公积、一般风险准备、未分配利润、少数股东资本可计入部分。A属于二级资本，D不得计入各级资本。"
+    },
+    {
+        "id": 60,
+        "type": "multiple",
+        "question": "根据《关于加强金融消费者权益保护工作的指导意见》，明确要完善监督管理机制，从完善金融管理部门工作机制和落实监督管理职责的角度出发，提出（）。",
+        "options": [
+            { "value": "A", "text": "完善金融消费者权益保护法律法规和规章制度" },
+            { "value": "B", "text": "加强金融消费者权益保护监督管理" },
+            { "value": "C", "text": "保护金融机构合法权益" },
+            { "value": "D", "text": "健全金融消费者权益保护工作机制" },
+            { "value": "E", "text": "促进金融市场公平竞争" }
+        ],
+        "correctAnswer": ["A", "B", "D", "E"],
+        "explanation": "《关于加强金融消费者权益保护工作的指导意见》明确要完善监督管理机制，从完善金融管理部门工作机制和落实监督管理职责的角度出发，提出完善金融消费者权益保护法律法规和规章制度；加强金融消费者权益保护监督管理；健全金融消费者权益保护工作机制；促进金融市场公平竞争。"
+    },
+    {
+        "id": 61,
+        "type": "multiple",
+        "question": "以下属于商业银行二级资本的有（）。",
+        "options": [
+            { "value": "A", "text": "未分配利润" },
+            { "value": "B", "text": "实收资本" },
+            { "value": "C", "text": "优先股" },
+            { "value": "D", "text": "超额贷款损失准备" },
+            { "value": "E", "text": "二级资本工具及其溢价" }
+        ],
+        "correctAnswer": ["D", "E"],
+        "explanation": "二级资本包括：二级资本工具及其溢价、超额贷款损失准备、少数股东资本可计入部分。A、B属于核心一级资本，C属于其他一级资本。"
+    },
+    {
+        "id": 62,
+        "type": "multiple",
+        "question": "根据《银行业金融机构从业人员职业操守指引》从业人员不得有的行为包括（）。",
+        "options": [
+            { "value": "A", "text": "挪用客户资金或利用本人消费贷款买卖资本市场产品" },
+            { "value": "B", "text": "利用内幕信息为自己或他人谋取利益" },
+            { "value": "C", "text": "挪用本单位资金" },
+            { "value": "D", "text": "将内幕信息以明示或暗示的形式告知他人" },
+            { "value": "E", "text": "拒绝洗钱，及时报告大额交易和可疑交易，履行反洗钱义务" }
+        ],
+        "correctAnswer": ["A", "B", "C", "D"],
+        "explanation": "《银行业金融机构从业人员职业操守指引》规定，从业人员不得挪用本单位资金和客户资金或利用本人消费贷款买卖资本市场产品；不得利用内幕信息为自己或他人谋取利益，不得将内幕信息以明示或暗示的形式告知他人。E是应当履行的义务。"
+    },
+    {
+        "id": 63,
+        "type": "multiple",
+        "question": "下列属于银行业监督管理机构监管的非银行金融机构的有（）。",
+        "options": [
+            { "value": "A", "text": "企业集团财务公司" },
+            { "value": "B", "text": "信托公司" },
+            { "value": "C", "text": "金融租赁公司" },
+            { "value": "D", "text": "期货公司" },
+            { "value": "E", "text": "金融资产管理公司" }
+        ],
+        "correctAnswer": ["A", "B", "C", "E"],
+        "explanation": "银行业监督管理机构监管的非银行金融机构包括金融资产管理公司、信托公司、企业集团财务公司、金融租赁公司、消费金融公司、汽车金融公司和货币经纪公司等。期货公司由证监会监管。"
+    },
+    {
+        "id": 64,
+        "type": "multiple",
+        "question": "下列属于商业银行开展内部控制风险评估中风险应对环节的有（）。",
+        "options": [
+            { "value": "A", "text": "风险识别" },
+            { "value": "B", "text": "风险分析" },
+            { "value": "C", "text": "风险分担" },
+            { "value": "D", "text": "风险承受" },
+            { "value": "E", "text": "风险降低" }
+        ],
+        "correctAnswer": ["C", "D", "E"],
+        "explanation": "风险应对策略包括四种基本类型：风险规避、风险降低、风险分担和风险承受。A、B属于风险评估的前期环节。"
+    },
+    {
+        "id": 65,
+        "type": "judge",
+        "question": "债务人对银行的实质性信贷债务逾期90天以上，债务人即被视为违约。",
+        "options": [
+            { "value": "A", "text": "错" },
+            { "value": "B", "text": "对" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "根据《巴塞尔协议Ⅱ》的规定，债务人对银行的实质性信贷债务逾期90天以上，债务人即被视为违约。"
+    },
+    {
+        "id": 66,
+        "type": "judge",
+        "question": "商业银行已经或者可能发生信用危机，严重影响存款人的利益时，国务院银行业监督管理机构可以对该银行实行接管。",
+        "options": [
+            { "value": "A", "text": "错" },
+            { "value": "B", "text": "对" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "接管是商业银行已经或者可能发生信用危机，严重影响存款人的利益时，中国银保监会对该银行采取的监管措施。"
+    },
+    {
+        "id": 67,
+        "type": "judge",
+        "question": "根据《中华人民共和国商业银行法》，借款人到期不归还信用贷款的，应当按照合同约定承担责任。",
+        "options": [
+            { "value": "A", "text": "错" },
+            { "value": "B", "text": "对" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "《中华人民共和国商业银行法》规定，借款人到期不归还信用贷款的，应当按照合同约定承担责任。"
+    },
+    {
+        "id": 68,
+        "type": "judge",
+        "question": "福费廷是指包买商从进口商那里无追索地购买已经承兑的，并通常由出口商所在地银行担保的远期汇票或本票的业务。",
+        "options": [
+            { "value": "A", "text": "错" },
+            { "value": "B", "text": "对" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "福费廷是指包买商从出口商那里无追索地购买已经承兑的，并通常由进口商所在地银行担保的远期汇票或本票的业务。"
+    },
+    {
+        "id": 69,
+        "type": "judge",
+        "question": "商业银行销售理财产品，应当遵循风险匹配原则，只能向客户销售风险评级低于其风险承受能力评级的理财产品。",
+        "options": [
+            { "value": "A", "text": "错" },
+            { "value": "B", "text": "对" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "商业银行销售理财产品，应当遵循风险匹配原则，即只能向客户销售风险评级等于或低于其风险承受能力评级的理财产品。"
+    },
+    {
+        "id": 70,
+        "type": "judge",
+        "question": "根据《商业银行内部控制指引》，商业银行内部审计部门履行内部控制的监督职能，负责对商业银行内部控制的充分性和有效性进行审计，及时报告审计发现的问题，并监督整改。",
+        "options": [
+            { "value": "A", "text": "错" },
+            { "value": "B", "text": "对" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "商业银行内部审计部门履行内部控制的监督职能，负责对商业银行内部控制的充分性和有效性进行审计，及时报告审计发现的问题，并监督整改。"
+    },
+    {
+        "id": 71,
+        "type": "judge",
+        "question": "客户身份资料和交易记录涉及正在被反洗钱调查的可疑交易活动的，且反洗钱调查工作在规定的最低保存期届满时仍未结束的，金融机构应将其保存至反洗钱调查工作结束。",
+        "options": [
+            { "value": "A", "text": "错" },
+            { "value": "B", "text": "对" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "客户身份资料和交易记录涉及正在被反洗钱调查的可疑交易活动的，且反洗钱调查工作在规定的最低保存期届满时仍未结束的，金融机构应将其保存至反洗钱调查工作结束。"
+    },
+    {
+        "id": 72,
+        "type": "judge",
+        "question": "客户先前提交的身份证件或者身份证明文件已过有效期的，客户没有在合理期限内更新且没有提出合理理由的，金融机构应先为客户办理业务，再重新核实客户身份。",
+        "options": [
+            { "value": "A", "text": "错" },
+            { "value": "B", "text": "对" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "客户先前提交的身份证件或者身份证明文件已过有效期的，客户没有在合理期限内更新且没有提出合理理由的，金融机构应中止为客户办理业务。"
+    },
+    {
+        "id": 73,
+        "type": "judge",
+        "question": "合规管理部门是指商业银行内部设立的专门负责合规管理职能的部门、团队或岗位。",
+        "options": [
+            { "value": "A", "text": "错" },
+            { "value": "B", "text": "对" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "合规管理部门是指商业银行内部设立的专门负责合规管理职能的部门、团队或岗位。"
+    },
+    {
+        "id": 74,
+        "type": "judge",
+        "question": "商业银行从事风险计量、监测和控制的工作人员与从事衍生产品交易或营销的人员可以相互兼任，风险计量、监测或控制人员不得直接向高级管理层报告风险状况。",
+        "options": [
+            { "value": "A", "text": "错" },
+            { "value": "B", "text": "对" }
+        ],
+        "correctAnswer": "A",
+        "explanation": "商业银行从事风险计量、监测和控制的工作人员必须与从事衍生产品交易或营销的人员分开，不得相互兼任；风险计量、监测或控制人员可以直接向高级管理层报告风险状况。"
+    },
+    {
+        "id": 75,
+        "type": "judge",
+        "question": "商业银行发行结构性存款应当具备普通类衍生产品交易业务资格。",
+        "options": [
+            { "value": "A", "text": "错" },
+            { "value": "B", "text": "对" }
+        ],
+        "correctAnswer": "B",
+        "explanation": "商业银行发行结构性存款应当具备普通类衍生产品交易业务资格。"
+    }
+];
+
+ // 兼容性处理：如果题目数据是字符串形式，尝试解析为 JSON，如果解析失败则保持原样（可能是直接定义的对象数组）
+try {
+  questions = JSON.parse(questions);
+} catch (e) {
+  console.error("JSON 格式错误", e);
+  questions = questions;
+}
+
+ // 顺序进度
+function saveSequentialIndex(idx) { localStorage.setItem(pageTitle + "_lastSequentialIndex", idx); }
+function loadSequentialIndex() { const v = localStorage.getItem(pageTitle + "_lastSequentialIndex"); return v ? parseInt(v) : 0; }
+
+let currentMode = "random";
+let currentQuestionIndex = 0;
+let shuffledIndices = [];
+let errorList = []; // 🔥 错题独立列表，不再复用索引
+let answeredCorrectly = JSON.parse(localStorage.getItem(pageTitle + "_answeredCorrectly") || JSON.stringify(new Array(questions.length).fill(undefined)));
+let isSubmitted = false;
+
+function bindTap(el, callback) {
+  function handler(e) { e.preventDefault(); callback(); }
+  el.addEventListener("touchstart", handler);
+  el.addEventListener("click", handler);
+}
+
+// 锁定/解锁选项
+function lockOptions() { document.querySelectorAll(".option").forEach(o => o.classList.add("locked")); isSubmitted = true; }
+function unlockOptions() { document.querySelectorAll(".option").forEach(o => o.classList.remove("locked","option-correct","option-wrong")); isSubmitted = false; }
+
+// 🔥 重新获取最新错题列表（每次切换都刷新，杜绝错乱）
+function refreshErrorList() {
+  errorList = answeredCorrectly.map((ok, i) => ok === false ? i : -1).filter(i => i !== -1);
+}
+
+function initPage() {
+  bindAll();
+  startQuiz();
+}
+
+function bindAll() {
+  bindTap(document.getElementById("randomModeBtn"), ()=>switchMode("random"));
+  bindTap(document.getElementById("seqModeBtn"), ()=>switchMode("sequential"));
+  bindTap(document.getElementById("errorModeBtn"), ()=>switchMode("error"));
+  bindTap(document.getElementById("prevBtn"), showPrevQuestion);
+  bindTap(document.getElementById("nextBtn"), showNextQuestion);
+  bindTap(document.getElementById("submitBtn"), submitAnswer);
+  bindTap(document.getElementById("showStatsBtn"), toggleStats);
+  bindTap(document.getElementById("closeStatsBtn"), ()=>{ document.getElementById("statsDiv").style.display = "none"; });
+}
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll(".mode-buttons button").forEach(b=>b.classList.remove("active"));
+  event.target.classList.add("active");
+  startQuiz();
+}
+
+// 🔥 核心：错题模式每次切换都重建列表，彻底解决索引错乱
+function startQuiz() {
+  if (currentMode === "random") {
+    shuffledIndices = [...Array(questions.length).keys()].sort(()=>Math.random()-0.5);
+    currentQuestionIndex = 0;
+  } else if (currentMode === "sequential") {
+    currentQuestionIndex = loadSequentialIndex();
+  } else if (currentMode === "error") {
+    refreshErrorList(); // 🔥 每次进错题都重新算一遍，保证最新
+    if (errorList.length === 0) { alert("暂无错题！"); return; }
+    currentQuestionIndex = 0;
+  }
+  showCurrentQuestion();
+  updateProgress();
+}
+
+function showCurrentQuestion() {
+  unlockOptions();
+  const ctn = document.getElementById("quizContainer");
+  let realIdx;
+
+  if (currentMode === "sequential") {
+    realIdx = currentQuestionIndex;
+  } else if (currentMode === "error") {
+    if (errorList.length === 0) return;
+    realIdx = errorList[currentQuestionIndex]; // 🔥 只从独立错题列表取
+  } else {
+    realIdx = shuffledIndices[currentQuestionIndex];
+  }
+
+  const q = questions[realIdx];
+  let html = `
+    <div class="question-title">${q.id}. ${q.question}</div>
+    <div class="options">
+  `;
+  q.options.forEach(opt => {
+    const oid = `opt_${q.id}_${opt.value}`;
+    const t = (q.type==="single"||q.type==="judge") ? "radio" : "checkbox";
+    html += `
+      <div class="option" data-qid="${q.id}" data-val="${opt.value}" data-type="${q.type}">
+        <input type="${t}" name="ans_${q.id}" id="${oid}" value="${opt.value}">
+        <label for="${oid}">${opt.value}. ${opt.text}</label>
+      </div>
+    `;
+  });
+  html += `
+    </div>
+    <div class="result" id="res_${q.id}"></div>
+    <div class="explanation" id="exp_${q.id}">${q.explanation}</div>
+  `;
+  ctn.innerHTML = html;
+
+  document.querySelectorAll(".option").forEach(item => {
+    bindTap(item, () => { if (!isSubmitted) selectOption(item); });
+  });
+}
+
+function selectOption(el) {
+  const type = el.dataset.type;
+  const group = el.parentElement.querySelectorAll(".option");
+  if (type === "single" || type === "judge") {
+    group.forEach(g => { g.classList.remove("selected"); g.querySelector("input").checked = false; });
+    el.classList.add("selected"); el.querySelector("input").checked = true;
+  } else {
+    el.classList.toggle("selected");
+    el.querySelector("input").checked = el.classList.contains("selected");
+  }
+}
+
+// 🔥 提交逻辑：错题模式不再修改记录，只判分
+function submitAnswer() {
+  if (isSubmitted) return;
+  let realIdx;
+  if (currentMode === "sequential") {
+    realIdx = currentQuestionIndex;
+  } else if (currentMode === "error") {
+    if (errorList.length === 0) return;
+    realIdx = errorList[currentQuestionIndex];
+  } else {
+    realIdx = shuffledIndices[currentQuestionIndex];
+  }
+
+  const q = questions[realIdx];
+  const selected = Array.from(document.querySelectorAll(`input[name="ans_${q.id}"]:checked`)).map(i=>i.value);
+  if (selected.length === 0) { alert("请选择答案！"); return; }
+
+  const isCorrect = Array.isArray(q.correctAnswer)
+    ? selected.length === q.correctAnswer.length && selected.every(v=>q.correctAnswer.includes(v))
+    : selected[0] === q.correctAnswer;
+
+  // 显示结果
+  const resEl = document.getElementById(`res_${q.id}`);
+  resEl.style.display = "block";
+  resEl.className = "result " + (isCorrect ? "correct" : "incorrect");
+  resEl.textContent = isCorrect ? "回答正确！" : "回答错误！";
+  document.getElementById(`exp_${q.id}`).style.display = "block";
+
+  // 正确标绿，选错变红
+  const correctAns = Array.isArray(q.correctAnswer) ? q.correctAnswer : [q.correctAnswer];
+  document.querySelectorAll(`.option[data-qid="${q.id}"]`).forEach(opt => {
+    const v = opt.dataset.val;
+    if (correctAns.includes(v)) opt.classList.add("option-correct");
+    else if (selected.includes(v)) opt.classList.add("option-wrong");
+  });
+
+  // 非错题模式才更新记录
+  if (currentMode !== "error") {
+    answeredCorrectly[realIdx] = isCorrect;
+    localStorage.setItem(pageTitle + "_answeredCorrectly", JSON.stringify(answeredCorrectly));
+  }
+
+  lockOptions();
+  updateProgress();
+}
+
+// 🔥 下一题：严格基于当前模式总数计算
+function showNextQuestion() {
+  let total = currentMode === "error" ? errorList.length : questions.length;
+  if (total === 0) return;
+  currentQuestionIndex = (currentQuestionIndex + 1) % total;
+  if (currentMode === "sequential") saveSequentialIndex(currentQuestionIndex);
+  showCurrentQuestion();
+  updateProgress();
+}
+function showPrevQuestion() {
+  let total = currentMode === "error" ? errorList.length : questions.length;
+  if (total === 0) return;
+  currentQuestionIndex = (currentQuestionIndex - 1 + total) % total;
+  if (currentMode === "sequential") saveSequentialIndex(currentQuestionIndex);
+  showCurrentQuestion();
+  updateProgress();
+}
+
+// 🔥 进度：错题数量永远正确显示
+function updateProgress() {
+  const total = currentMode === "error" ? errorList.length : questions.length;
+  document.getElementById("progressText").textContent = `进度: ${currentQuestionIndex + 1}/${total}`;
+}
+
+function toggleStats() {
+  const s = document.getElementById("statsDiv");
+  s.style.display = s.style.display === "block" ? "none" : "block";
+  if (s.style.display === "block") showStats();
+}
+function showStats() {
+  const totalAnswered = answeredCorrectly.filter(v=>v!==undefined).length;
+  const correct = answeredCorrectly.filter(v=>v===true).length;
+  const wrong = answeredCorrectly.filter(v=>v===false).length;
+  const rate = totalAnswered ? ((correct/totalAnswered)*100).toFixed(1) : 0;
+  document.getElementById("statsDiv").innerHTML = `
+    <div style="display:flex;justify-content:space-between;">
+      <span>答题统计</span><button id="closeStatsBtn">×</button>
+    </div>
+    总答题：${totalAnswered}<br>
+    正确：${correct}｜错误：${wrong}<br>
+    正确率：${rate}%<br>
+    当前错题数：${errorList.length}
+  `;
+  bindTap(document.getElementById("closeStatsBtn"), ()=>{ document.getElementById("statsDiv").style.display = "none"; });
+}
+
+window.onload = initPage;
+</script>
+</body>
+</html>
