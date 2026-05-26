@@ -3251,7 +3251,7 @@
     }
 ];
 
-   // 兼容性处理：如果题目数据是字符串形式，尝试解析为 JSON，如果解析失败则保持原样（可能是直接定义的对象数组）
+ // 兼容性处理：如果题目数据是字符串形式，尝试解析为 JSON，如果解析失败则保持原样（可能是直接定义的对象数组）
 try {
   questions = JSON.parse(questions);
 } catch (e) {
@@ -3416,7 +3416,7 @@ function submitAnswer() {
   // 非错题模式才更新记录
   if (currentMode !== "error") {
     answeredCorrectly[realIdx] = isCorrect;
-    localStorage.setItem(pageTitle + "answeredCorrectly", JSON.stringify(answeredCorrectly));
+    localStorage.setItem(pageTitle + "_answeredCorrectly", JSON.stringify(answeredCorrectly));
   }
 
   lockOptions();
